@@ -1,0 +1,41 @@
+.salon-list {
+  padding: 24px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.salon-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.salon-list-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.salon-search {
+  width: 100%;
+  max-width: 320px;
+}
+
+.salon-org-filter {
+  width: 100%;
+  max-width: 280px;
+}
+
+.salon-table {
+  width: 100%;
+}
+
+.salon-list-error {
+  color: var(--mat-sys-error);
+}
+
+.salon-list-empty {
+  color: var(--mat-sys-on-surface-variant);
+  padding: 16px 0;
+}

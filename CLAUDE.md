@@ -58,10 +58,37 @@ reste de Kaimana). Le formulaire ne propose que les categories actuellement ouve
 (`panel.info.rates`) : programmer un taux pour une categorie fermee echouerait cote backend
 (409 CONFLICT), inutile de laisser l'utilisateur y arriver.
 
+## Organisations et salons (`organizations/`, `salons/`) : acces cross-tenant, pas un referentiel global
+
+Contrairement a `tax/`, ces deux features touchent des donnees **possedees** par une organisation
+cliente — le backoffice y a acces sans filtre de tenant, ce qu'aucun ecran du frontend tenant ne
+permet. Choix a connaitre :
+
+- **Pas d'ecran de creation d'organisation.** `organization.service.ts` n'expose que
+  `list`/`get`/`update` : une organisation sans utilisateur rattache serait inutilisable, et la
+  gestion des comptes n'est pas (encore) dans ce backoffice. Les salons, eux, se creent
+  entierement ici (`salon-form/` en mode creation choisit l'organisation dans un `mat-select`,
+  liste chargee via `MAX_PAGE_SIZE` — a transformer en autocomplete si le nombre de clients
+  grossit).
+- **Un salon ne change pas d'organisation apres sa creation** : `salon-form/` l'affiche en lecture
+  seule des qu'on est en edition (voir `SalonAdminUpdateRequest` cote backend, qui n'a pas
+  d'`organizationId`).
+- **La case "Actif" d'une organisation a un effet reel**, pas seulement cosmetique : desactiver
+  bloque immediatement la connexion de tous ses utilisateurs, jetons deja emis compris (voir
+  `../backend/CLAUDE.md`, section backoffice plateforme). Le formulaire le rappelle explicitement
+  plutot que de laisser une case a cocher sans consequence apparente.
+- **Le filtre par organisation de `salon-list/`** et le selecteur d'organisation de `salon-form/`
+  partagent le meme `OrganizationService.list()` — pas de duplication d'un appel `/api/platform/organizations`
+  specifique a chaque ecran.
+
 ## Tests
 
 Memes conventions que `frontend/` : tests unitaires co-localises (`*.spec.ts`), nommage
-descriptif en anglais, Vitest via `@angular/build:unit-test`.
+descriptif en anglais, Vitest via `@angular/build:unit-test`. Les listes paginees avec recherche
+debouncee (`organization-list/`, `salon-list/`) suivent le meme motif que `product-list` cote
+tenant pour tester le debounce : `vi.useFakeTimers()` installe **avant** la frappe, puis
+`vi.advanceTimersByTime(300)` — le projet tourne sans Zone.js, `fakeAsync`/`tick` ne sont pas
+disponibles.
 
 ## Lancer en local
 

@@ -1,5 +1,10 @@
 <mat-toolbar color="primary">
-  <span>Kaimana — Backoffice</span>
+  <span class="shell-brand">Kaimana — Backoffice</span>
+  <nav class="shell-nav">
+    <a routerLink="/organizations" routerLinkActive="shell-nav-active">Organisations</a>
+    <a routerLink="/salons" routerLinkActive="shell-nav-active">Salons</a>
+    <a routerLink="/taxes" routerLinkActive="shell-nav-active">Taxes</a>
+  </nav>
   <span class="shell-spacer"></span>
   @if (currentAdmin(); as admin) {
     <span class="shell-admin">{{ admin.firstName }} {{ admin.lastName }}</span>

@@ -1,0 +1,25 @@
+.organization-form-page {
+  padding: 24px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.organization-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.organization-form-note {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.875rem;
+  margin: 4px 0;
+}
+
+.organization-form-error {
+  color: var(--mat-sys-error);
+}
+
+.organization-form-actions {
+  margin-top: 12px;
+}

@@ -1,0 +1,24 @@
+.salon-form-page {
+  padding: 24px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.salon-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.salon-form-org {
+  color: var(--mat-sys-on-surface-variant);
+  margin: 0 0 8px;
+}
+
+.salon-form-error {
+  color: var(--mat-sys-error);
+}
+
+.salon-form-actions {
+  margin-top: 12px;
+}

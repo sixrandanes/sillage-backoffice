@@ -1,0 +1,50 @@
+<div class="organization-list">
+  <h1>Organisations</h1>
+
+  <mat-form-field appearance="outline" class="organization-search">
+    <mat-label>Rechercher</mat-label>
+    <input matInput [formControl]="searchControl" placeholder="Nom de l'organisation" />
+    <mat-icon matPrefix>search</mat-icon>
+  </mat-form-field>
+
+  @if (loading()) {
+    <mat-spinner diameter="32" />
+  } @else if (errorMessage()) {
+    <p class="organization-list-error">{{ errorMessage() }}</p>
+  } @else {
+    <table mat-table [dataSource]="organizations()" class="organization-table">
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Nom</th>
+        <td mat-cell *matCellDef="let org">
+          <a [routerLink]="['/organizations', org.id]">{{ org.name }}</a>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="taxCountry">
+        <th mat-header-cell *matHeaderCellDef>Territoire</th>
+        <td mat-cell *matCellDef="let org">{{ org.taxCountry }}</td>
+      </ng-container>
+      <ng-container matColumnDef="salonCount">
+        <th mat-header-cell *matHeaderCellDef>Salons</th>
+        <td mat-cell *matCellDef="let org">{{ org.salonCount }}</td>
+      </ng-container>
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Statut</th>
+        <td mat-cell *matCellDef="let org">{{ org.active ? 'Actif' : 'Désactivé' }}</td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+
+    @if (organizations().length === 0) {
+      <p class="organization-list-empty">Aucune organisation ne correspond à cette recherche.</p>
+    }
+
+    <mat-paginator
+      [length]="totalItems()"
+      [pageSize]="pageSize()"
+      [pageIndex]="page()"
+      [pageSizeOptions]="[25, 50, 100]"
+      (page)="changePage($event)"
+    />
+  }
+</div>

@@ -1,0 +1,69 @@
+<div class="salon-form-page">
+  <h1>{{ salonId === null ? 'Nouveau salon' : 'Modifier le salon' }}</h1>
+
+  @if (loading()) {
+    <mat-spinner diameter="32" />
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="submit()" class="salon-form">
+      @if (salonId === null) {
+        <mat-form-field appearance="outline">
+          <mat-label>Organisation</mat-label>
+          <mat-select formControlName="organizationId">
+            @for (org of organizations(); track org.id) {
+              <mat-option [value]="org.id">{{ org.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      } @else {
+        <p class="salon-form-org">Organisation : <strong>{{ organizationName() }}</strong></p>
+      }
+
+      <mat-form-field appearance="outline">
+        <mat-label>Nom du salon</mat-label>
+        <input matInput formControlName="name" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Adresse</mat-label>
+        <input matInput formControlName="address" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Téléphone</mat-label>
+        <input matInput formControlName="phone" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput type="email" formControlName="email" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Territoire et fiscalité</mat-label>
+        <mat-select formControlName="taxRegime">
+          @for (regime of regimes(); track regime.regime) {
+            <mat-option [value]="regime.regime">{{ regime.territoryLabel }} — {{ regime.taxName }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      @if (salonId !== null) {
+        <mat-checkbox formControlName="active">Actif</mat-checkbox>
+      }
+
+      @if (errorMessage()) {
+        <p class="salon-form-error">{{ errorMessage() }}</p>
+      }
+
+      <div class="salon-form-actions">
+        <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
+          @if (saving()) {
+            <mat-spinner diameter="20" />
+          } @else {
+            Enregistrer
+          }
+        </button>
+      </div>
+    </form>
+  }
+</div>

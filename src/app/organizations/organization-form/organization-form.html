@@ -1,0 +1,41 @@
+<div class="organization-form-page">
+  <h1>Modifier l'organisation</h1>
+
+  @if (loading()) {
+    <mat-spinner diameter="32" />
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="submit()" class="organization-form">
+      <mat-form-field appearance="outline">
+        <mat-label>Nom</mat-label>
+        <input matInput formControlName="name" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Territoire fiscal (code ISO 2 lettres)</mat-label>
+        <input matInput formControlName="taxCountry" maxlength="2" />
+      </mat-form-field>
+
+      <mat-checkbox formControlName="active">Actif</mat-checkbox>
+      <p class="organization-form-note">
+        Désactiver une organisation bloque immédiatement la connexion de tous ses utilisateurs,
+        y compris ceux déjà connectés (le jeton en cours est rejeté à la requête suivante).
+      </p>
+
+      <p class="organization-form-note">{{ salonCount() }} salon(s) rattaché(s).</p>
+
+      @if (errorMessage()) {
+        <p class="organization-form-error">{{ errorMessage() }}</p>
+      }
+
+      <div class="organization-form-actions">
+        <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
+          @if (saving()) {
+            <mat-spinner diameter="20" />
+          } @else {
+            Enregistrer
+          }
+        </button>
+      </div>
+    </form>
+  }
+</div>

@@ -1,0 +1,24 @@
+.organization-list {
+  padding: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.organization-search {
+  width: 100%;
+  max-width: 360px;
+  margin-bottom: 12px;
+}
+
+.organization-table {
+  width: 100%;
+}
+
+.organization-list-error {
+  color: var(--mat-sys-error);
+}
+
+.organization-list-empty {
+  color: var(--mat-sys-on-surface-variant);
+  padding: 16px 0;
+}

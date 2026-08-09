@@ -1,0 +1,25 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--mat-sys-surface-container-low);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 360px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 12px;
+}
+
+.login-error {
+  color: var(--mat-sys-error);
+  font-size: 0.875rem;
+  margin: 0 0 8px;
+}

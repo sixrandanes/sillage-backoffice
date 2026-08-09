@@ -1,0 +1,114 @@
+<div class="tax-page">
+  <h1>Taux de taxe</h1>
+  <p class="tax-page-intro">
+    Programmer un nouveau taux ferme automatiquement celui en vigueur a la date d'effet choisie.
+    Aucun taux historique ne peut etre modifie ni supprime.
+  </p>
+
+  @if (loading()) {
+    <mat-spinner diameter="32" />
+  } @else if (loadError()) {
+    <p class="tax-page-error">Impossible de charger le referentiel fiscal.</p>
+  } @else {
+    @for (panel of panels(); track panel.info.regime) {
+      <mat-card class="regime-card">
+        <mat-card-header>
+          <mat-card-title>{{ panel.info.territoryLabel }} — {{ panel.info.taxName }}</mat-card-title>
+          <mat-card-subtitle>{{ panel.info.taxLabel }}</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <table mat-table [dataSource]="panel.info.rates" class="rate-table">
+            <ng-container matColumnDef="category">
+              <th mat-header-cell *matHeaderCellDef>Tranche</th>
+              <td mat-cell *matCellDef="let rate">{{ rate.label }}</td>
+            </ng-container>
+            <ng-container matColumnDef="rate">
+              <th mat-header-cell *matHeaderCellDef>Taux</th>
+              <td mat-cell *matCellDef="let rate">{{ rate.rate * 100 | number: '1.0-2' }} %</td>
+            </ng-container>
+            <ng-container matColumnDef="validFrom">
+              <th mat-header-cell *matHeaderCellDef>En vigueur depuis</th>
+              <td mat-cell *matCellDef="let rate">{{ rate.validFrom }}</td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          </table>
+
+          <button mat-button type="button" (click)="toggleHistory(panel)">
+            {{ panel.history !== null ? "Masquer l'historique" : "Voir l'historique" }}
+          </button>
+
+          @if (panel.historyLoading) {
+            <mat-spinner diameter="20" />
+          } @else if (panel.history !== null) {
+            <table mat-table [dataSource]="panel.history" class="rate-table">
+              <ng-container matColumnDef="category">
+                <th mat-header-cell *matHeaderCellDef>Tranche</th>
+                <td mat-cell *matCellDef="let rate">{{ rate.label }}</td>
+              </ng-container>
+              <ng-container matColumnDef="rate">
+                <th mat-header-cell *matHeaderCellDef>Taux</th>
+                <td mat-cell *matCellDef="let rate">{{ rate.rate * 100 | number: '1.0-2' }} %</td>
+              </ng-container>
+              <ng-container matColumnDef="validFrom">
+                <th mat-header-cell *matHeaderCellDef>Depuis</th>
+                <td mat-cell *matCellDef="let rate">{{ rate.validFrom }}</td>
+              </ng-container>
+              <ng-container matColumnDef="validTo">
+                <th mat-header-cell *matHeaderCellDef>Jusqu'au</th>
+                <td mat-cell *matCellDef="let rate">{{ rate.validTo ?? 'en vigueur' }}</td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="historyColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: historyColumns"></tr>
+            </table>
+          }
+
+          <h3>Programmer un nouveau taux</h3>
+          <form [formGroup]="panel.form" (ngSubmit)="scheduleFor(panel)" class="schedule-form">
+            <mat-form-field appearance="outline">
+              <mat-label>Tranche</mat-label>
+              <mat-select formControlName="category">
+                @for (rate of panel.info.rates; track rate.category) {
+                  <mat-option [value]="rate.category">{{ rate.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Nouveau taux (%)</mat-label>
+              <input matInput type="number" step="0.01" formControlName="ratePercent" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Libelle</mat-label>
+              <input matInput formControlName="label" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Date d'effet</mat-label>
+              <input matInput [matDatepicker]="picker" formControlName="validFrom" />
+              <mat-datepicker-toggle matIconSuffix [for]="picker" />
+              <mat-datepicker #picker />
+            </mat-form-field>
+
+            @if (panel.scheduleError) {
+              <p class="tax-page-error">{{ panel.scheduleError }}</p>
+            }
+            @if (panel.scheduleSuccess) {
+              <p class="tax-page-success">Taux programme.</p>
+            }
+
+            <button mat-flat-button color="primary" type="submit" [disabled]="panel.scheduling">
+              @if (panel.scheduling) {
+                <mat-spinner diameter="18" />
+              } @else {
+                Programmer
+              }
+            </button>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    }
+  }
+</div>

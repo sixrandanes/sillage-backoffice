@@ -1,0 +1,10 @@
+<mat-toolbar color="primary">
+  <span>Kaimana — Backoffice</span>
+  <span class="shell-spacer"></span>
+  @if (currentAdmin(); as admin) {
+    <span class="shell-admin">{{ admin.firstName }} {{ admin.lastName }}</span>
+  }
+  <button mat-button (click)="logout()">Deconnexion</button>
+</mat-toolbar>
+
+<router-outlet />

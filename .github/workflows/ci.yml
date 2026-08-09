@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Une nouvelle poussee rend la precedente obsolete : inutile de la laisser finir.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Tests et build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      # `npm ci` et pas `npm install` : installe exactement le lockfile et echoue s'il a
+      # derive du package.json, au lieu de le mettre a jour en silence.
+      - name: Installation
+        run: npm ci
+
+      # Les tests tournent sous jsdom (voir la devDependency) : aucun navigateur a installer.
+      - name: Tests unitaires
+        run: npm test -- --watch=false
+
+      # Le build de production verifie ce que les tests ne voient pas : compilation AOT des
+      # templates, budgets de taille, resolution des imports en mode optimise.
+      - name: Build de production
+        run: npm run build

@@ -39,3 +39,29 @@ jobs:
       # templates, budgets de taille, resolution des imports en mode optimise.
       - name: Build de production
         run: npm run build
+
+      # Copier le build vers le VPS
+      - name: Copy files to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "dist/sillage-backoffice"
+          target: "/var/www/sillage-backoffice"
+
+      # Lancer / redémarrer PM2
+      - name: Deploy frontend with PM2
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /var/www/simulateur-frontend
+
+            # On redémarre le service systemd pour prendre en compte la nouvelle version
+            sudo systemctl restart sillage-backoffice
+
+            # Vérifier que le service est bien en ligne
+            sudo systemctl status sillage-backoffice --no-pager -l

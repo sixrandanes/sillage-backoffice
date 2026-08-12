@@ -58,7 +58,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd /var/www/simulateur-frontend
+            cd /var/www/sillage-backoffice
 
             # On redémarre le service systemd pour prendre en compte la nouvelle version
             sudo systemctl restart sillage-backoffice

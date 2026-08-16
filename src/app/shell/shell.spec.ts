@@ -27,7 +27,7 @@ describe('Shell', () => {
 
   it('showsTheNameOfTheConnectedAdmin', () => {
     auth.login({ email: 'admin@kaimana.nc', password: 'x' }).subscribe();
-    httpMock.expectOne('/api/platform/auth/login').flush({
+    httpMock.expectOne('/api/v1/platform/auth/login').flush({
       token: 't', adminId: 1, email: 'admin@kaimana.nc', firstName: 'Sylvain', lastName: 'Le Borgne',
     });
 
@@ -39,7 +39,7 @@ describe('Shell', () => {
 
   it('logoutClearsTheSessionAndNavigatesToLogin', () => {
     auth.login({ email: 'admin@kaimana.nc', password: 'x' }).subscribe();
-    httpMock.expectOne('/api/platform/auth/login').flush({
+    httpMock.expectOne('/api/v1/platform/auth/login').flush({
       token: 't', adminId: 1, email: 'admin@kaimana.nc', firstName: 'A', lastName: 'B',
     });
     const navigateSpy = vi.spyOn(router, 'navigateByUrl');

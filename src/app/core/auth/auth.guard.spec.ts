@@ -23,7 +23,7 @@ describe('auth guards', () => {
 
   function loginAsAdmin(): void {
     auth.login({ email: 'admin@kaimana.nc', password: 'x' }).subscribe();
-    httpMock.expectOne('/api/platform/auth/login').flush({
+    httpMock.expectOne('/api/v1/platform/auth/login').flush({
       token: 't', adminId: 1, email: 'admin@kaimana.nc', firstName: 'A', lastName: 'B',
     });
   }

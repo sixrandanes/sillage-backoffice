@@ -42,3 +42,6 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Genere a chaque build (scripts/write-version.mjs)
+/public/version.json

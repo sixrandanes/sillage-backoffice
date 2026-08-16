@@ -28,7 +28,7 @@ describe('Login', () => {
     const fixture = TestBed.createComponent(Login);
     fixture.componentInstance.submit();
 
-    httpMock.expectNone('/api/platform/auth/login');
+    httpMock.expectNone('/api/v1/platform/auth/login');
     expect(fixture.componentInstance.form.touched).toBe(true);
   });
 
@@ -39,7 +39,7 @@ describe('Login', () => {
 
     fixture.componentInstance.submit();
 
-    httpMock.expectOne('/api/platform/auth/login').flush({
+    httpMock.expectOne('/api/v1/platform/auth/login').flush({
       token: 'jwt-token',
       adminId: 1,
       email: 'admin@kaimana.nc',
@@ -56,7 +56,7 @@ describe('Login', () => {
 
     fixture.componentInstance.submit();
 
-    httpMock.expectOne('/api/platform/auth/login').flush('unauthorized', { status: 401, statusText: 'Unauthorized' });
+    httpMock.expectOne('/api/v1/platform/auth/login').flush('unauthorized', { status: 401, statusText: 'Unauthorized' });
 
     expect(fixture.componentInstance.errorMessage()).toBeTruthy();
     expect(fixture.componentInstance.loading()).toBe(false);

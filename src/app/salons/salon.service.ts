@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 
 import { PageQuery, PageResponse } from '../core/http/page';
 import { SalonAdmin, SalonAdminCreateRequest, SalonAdminUpdateRequest } from './models';
+import { API } from '../core/api';
 
 export interface SalonQuery extends PageQuery {
   organizationId?: number;
@@ -23,18 +24,18 @@ export class SalonService {
     if (query.organizationId) {
       params = params.set('organizationId', query.organizationId);
     }
-    return this.http.get<PageResponse<SalonAdmin>>('/api/platform/salons', { params });
+    return this.http.get<PageResponse<SalonAdmin>>(`${API}/platform/salons`, { params });
   }
 
   get(id: number): Observable<SalonAdmin> {
-    return this.http.get<SalonAdmin>(`/api/platform/salons/${id}`);
+    return this.http.get<SalonAdmin>(`${API}/platform/salons/${id}`);
   }
 
   create(request: SalonAdminCreateRequest): Observable<SalonAdmin> {
-    return this.http.post<SalonAdmin>('/api/platform/salons', request);
+    return this.http.post<SalonAdmin>(`${API}/platform/salons`, request);
   }
 
   update(id: number, request: SalonAdminUpdateRequest): Observable<SalonAdmin> {
-    return this.http.put<SalonAdmin>(`/api/platform/salons/${id}`, request);
+    return this.http.put<SalonAdmin>(`${API}/platform/salons/${id}`, request);
   }
 }

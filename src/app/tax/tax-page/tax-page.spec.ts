@@ -48,7 +48,7 @@ describe('TaxPage', () => {
     const fixture = TestBed.createComponent(TaxPage);
     fixture.detectChanges();
 
-    httpMock.expectOne('/api/platform/tax/regimes').flush([TGC, TVA_PF]);
+    httpMock.expectOne('/api/v1/platform/tax/regimes').flush([TGC, TVA_PF]);
 
     expect(fixture.componentInstance.panels()).toHaveLength(2);
     expect(fixture.componentInstance.loading()).toBe(false);
@@ -58,7 +58,7 @@ describe('TaxPage', () => {
     const fixture = TestBed.createComponent(TaxPage);
     fixture.detectChanges();
 
-    httpMock.expectOne('/api/platform/tax/regimes').flush('boom', { status: 500, statusText: 'Server Error' });
+    httpMock.expectOne('/api/v1/platform/tax/regimes').flush('boom', { status: 500, statusText: 'Server Error' });
 
     expect(fixture.componentInstance.loadError()).toBe(true);
   });
@@ -66,18 +66,18 @@ describe('TaxPage', () => {
   it('doesNotSubmitAnIncompleteSchedulingForm', () => {
     const fixture = TestBed.createComponent(TaxPage);
     fixture.detectChanges();
-    httpMock.expectOne('/api/platform/tax/regimes').flush([TGC, TVA_PF]);
+    httpMock.expectOne('/api/v1/platform/tax/regimes').flush([TGC, TVA_PF]);
 
     fixture.componentInstance.scheduleFor(fixture.componentInstance.panels()[0]);
 
-    httpMock.expectNone('/api/platform/tax/regimes/TGC/rates');
+    httpMock.expectNone('/api/v1/platform/tax/regimes/TGC/rates');
     expect(fixture.componentInstance.panels()[0].form.touched).toBe(true);
   });
 
   it('schedulesANewRateAndReloadsTheGrid', () => {
     const fixture = TestBed.createComponent(TaxPage);
     fixture.detectChanges();
-    httpMock.expectOne('/api/platform/tax/regimes').flush([TGC, TVA_PF]);
+    httpMock.expectOne('/api/v1/platform/tax/regimes').flush([TGC, TVA_PF]);
 
     const panel = fixture.componentInstance.panels()[0];
     panel.form.setValue({
@@ -86,25 +86,25 @@ describe('TaxPage', () => {
 
     fixture.componentInstance.scheduleFor(panel);
 
-    const req = httpMock.expectOne('/api/platform/tax/regimes/TGC/rates');
+    const req = httpMock.expectOne('/api/v1/platform/tax/regimes/TGC/rates');
     expect(req.request.body).toEqual({
       category: TaxCategory.NORMAL, rate: 0.12, label: 'Taux normal', validFrom: '2027-01-01',
     });
     req.flush({ category: TaxCategory.NORMAL, label: 'Taux normal', rate: 0.12, validFrom: '2027-01-01', validTo: null });
 
     // scheduleFor() declenche un rechargement complet de la grille.
-    httpMock.expectOne('/api/platform/tax/regimes').flush([TGC, TVA_PF]);
+    httpMock.expectOne('/api/v1/platform/tax/regimes').flush([TGC, TVA_PF]);
   });
 
   it('togglesTheHistoryOfARegime', () => {
     const fixture = TestBed.createComponent(TaxPage);
     fixture.detectChanges();
-    httpMock.expectOne('/api/platform/tax/regimes').flush([TGC, TVA_PF]);
+    httpMock.expectOne('/api/v1/platform/tax/regimes').flush([TGC, TVA_PF]);
 
     const panel = fixture.componentInstance.panels()[0];
     fixture.componentInstance.toggleHistory(panel);
 
-    httpMock.expectOne('/api/platform/tax/regimes/TGC/history').flush([TGC.rates[0]]);
+    httpMock.expectOne('/api/v1/platform/tax/regimes/TGC/history').flush([TGC.rates[0]]);
     expect(fixture.componentInstance.panels()[0].history).toHaveLength(1);
 
     fixture.componentInstance.toggleHistory(fixture.componentInstance.panels()[0]);

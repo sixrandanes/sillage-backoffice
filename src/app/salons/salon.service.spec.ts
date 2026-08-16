@@ -23,7 +23,7 @@ describe('SalonService', () => {
     service.list({ search: 'papeete', organizationId: 9, page: 0, size: 25 }).subscribe();
 
     const req = httpMock.expectOne(
-      (r) => r.url === '/api/platform/salons'
+      (r) => r.url === '/api/v1/platform/salons'
         && r.params.get('search') === 'papeete'
         && r.params.get('organizationId') === '9',
     );
@@ -34,14 +34,14 @@ describe('SalonService', () => {
   it('listsSalonsWithoutAnOrganizationFilterByDefault', () => {
     service.list({ page: 0, size: 25 }).subscribe();
 
-    const req = httpMock.expectOne((r) => r.url === '/api/platform/salons');
+    const req = httpMock.expectOne((r) => r.url === '/api/v1/platform/salons');
     expect(req.request.params.has('organizationId')).toBe(false);
     req.flush({ items: [], page: 0, size: 25, totalItems: 0, totalPages: 0 });
   });
 
   it('getsASalonById', () => {
     service.get(1).subscribe();
-    const req = httpMock.expectOne('/api/platform/salons/1');
+    const req = httpMock.expectOne('/api/v1/platform/salons/1');
     expect(req.request.method).toBe('GET');
     req.flush(aSalon());
   });
@@ -51,7 +51,7 @@ describe('SalonService', () => {
       organizationId: 9, name: 'Kaimana Papeete', address: null, phone: null, email: null, taxRegime: TaxRegime.TVA_PF,
     }).subscribe();
 
-    const req = httpMock.expectOne('/api/platform/salons');
+    const req = httpMock.expectOne('/api/v1/platform/salons');
     expect(req.request.method).toBe('POST');
     req.flush(aSalon());
   });
@@ -61,7 +61,7 @@ describe('SalonService', () => {
       name: 'Kaimana Papeete', address: null, phone: null, email: null, taxRegime: TaxRegime.TVA_PF, active: false,
     }).subscribe();
 
-    const req = httpMock.expectOne('/api/platform/salons/1');
+    const req = httpMock.expectOne('/api/v1/platform/salons/1');
     expect(req.request.method).toBe('PUT');
     req.flush(aSalon());
   });

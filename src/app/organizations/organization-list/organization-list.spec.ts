@@ -28,7 +28,7 @@ describe('OrganizationList', () => {
     fixture.detectChanges();
 
     const req = httpMock.expectOne(
-      (r) => r.url === '/api/platform/organizations' && r.params.get('page') === '0',
+      (r) => r.url === '/api/v1/platform/organizations' && r.params.get('page') === '0',
     );
     req.flush({
       items: [{ id: 1, name: 'Kaimana Noumea', taxCountry: 'NC', currency: 'XPF', active: true, salonCount: 2, createdAt: '2026-01-01T00:00:00Z' }],
@@ -43,7 +43,7 @@ describe('OrganizationList', () => {
     const fixture = TestBed.createComponent(OrganizationList);
     fixture.detectChanges();
 
-    httpMock.expectOne((r) => r.url === '/api/platform/organizations')
+    httpMock.expectOne((r) => r.url === '/api/v1/platform/organizations')
       .flush('boom', { status: 500, statusText: 'Server Error' });
 
     expect(fixture.componentInstance.errorMessage()).toBeTruthy();
@@ -52,7 +52,7 @@ describe('OrganizationList', () => {
   it('searchesOnTheServerAndRestartsFromTheFirstPage', () => {
     const fixture = TestBed.createComponent(OrganizationList);
     fixture.detectChanges();
-    httpMock.expectOne((r) => r.url === '/api/platform/organizations')
+    httpMock.expectOne((r) => r.url === '/api/v1/platform/organizations')
       .flush({ items: [], page: 0, size: 25, totalItems: 0, totalPages: 0 });
 
     fixture.componentInstance.page.set(2);
@@ -62,7 +62,7 @@ describe('OrganizationList', () => {
     vi.advanceTimersByTime(300);
     fixture.detectChanges();
 
-    const request = httpMock.expectOne((r) => r.url === '/api/platform/organizations');
+    const request = httpMock.expectOne((r) => r.url === '/api/v1/platform/organizations');
     expect(request.request.params.get('search')).toBe('noumea');
     expect(request.request.params.get('page')).toBe('0');
     request.flush({ items: [], page: 0, size: 25, totalItems: 0, totalPages: 0 });

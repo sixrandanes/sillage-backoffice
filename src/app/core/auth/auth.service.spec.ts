@@ -33,7 +33,7 @@ describe('AuthService', () => {
   it('storesTheTokenAndPopulatesCurrentAdminOnLogin', () => {
     service.login({ email: 'admin@kaimana.nc', password: 'secret' }).subscribe();
 
-    httpMock.expectOne('/api/platform/auth/login').flush(authResponse);
+    httpMock.expectOne('/api/v1/platform/auth/login').flush(authResponse);
 
     expect(service.token).toBe('jwt-token');
     expect(service.isAuthenticated()).toBe(true);
@@ -42,7 +42,7 @@ describe('AuthService', () => {
 
   it('logoutClearsTheTokenAndCurrentAdmin', () => {
     service.login({ email: 'admin@kaimana.nc', password: 'secret' }).subscribe();
-    httpMock.expectOne('/api/platform/auth/login').flush(authResponse);
+    httpMock.expectOne('/api/v1/platform/auth/login').flush(authResponse);
 
     service.logout();
 
@@ -52,7 +52,7 @@ describe('AuthService', () => {
 
   it('restoreSessionReadsBackWhatWasStoredAtLogin', () => {
     service.login({ email: 'admin@kaimana.nc', password: 'secret' }).subscribe();
-    httpMock.expectOne('/api/platform/auth/login').flush(authResponse);
+    httpMock.expectOne('/api/v1/platform/auth/login').flush(authResponse);
 
     // Nouvelle instance de service : simule un rechargement de page.
     const restored = TestBed.inject(AuthService);

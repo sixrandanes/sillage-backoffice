@@ -39,7 +39,7 @@ describe('OrganizationForm', () => {
   it('loadsTheExistingOrganizationIntoTheForm', () => {
     const fixture = TestBed.createComponent(OrganizationForm);
 
-    httpMock.expectOne('/api/platform/organizations/9').flush(existingOrganization);
+    httpMock.expectOne('/api/v1/platform/organizations/9').flush(existingOrganization);
 
     expect(fixture.componentInstance.form.controls.name.value).toBe('Kaimana Noumea');
     expect(fixture.componentInstance.salonCount()).toBe(2);
@@ -49,12 +49,12 @@ describe('OrganizationForm', () => {
     const router = TestBed.inject(Router);
     const navigateSpy = vi.spyOn(router, 'navigateByUrl');
     const fixture = TestBed.createComponent(OrganizationForm);
-    httpMock.expectOne('/api/platform/organizations/9').flush(existingOrganization);
+    httpMock.expectOne('/api/v1/platform/organizations/9').flush(existingOrganization);
 
     fixture.componentInstance.form.patchValue({ name: 'Kaimana Nouveau', active: false });
     fixture.componentInstance.submit();
 
-    const req = httpMock.expectOne('/api/platform/organizations/9');
+    const req = httpMock.expectOne('/api/v1/platform/organizations/9');
     expect(req.request.method).toBe('PUT');
     expect(req.request.body).toEqual({ name: 'Kaimana Nouveau', taxCountry: 'NC', active: false });
     req.flush({ ...existingOrganization, name: 'Kaimana Nouveau', active: false });
@@ -64,7 +64,7 @@ describe('OrganizationForm', () => {
 
   it('doesNotSubmitAnInvalidForm', () => {
     const fixture = TestBed.createComponent(OrganizationForm);
-    httpMock.expectOne('/api/platform/organizations/9').flush(existingOrganization);
+    httpMock.expectOne('/api/v1/platform/organizations/9').flush(existingOrganization);
 
     fixture.componentInstance.form.controls.name.setValue('');
     fixture.componentInstance.submit();

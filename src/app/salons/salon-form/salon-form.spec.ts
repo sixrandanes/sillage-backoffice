@@ -39,8 +39,8 @@ describe('SalonForm — creation', () => {
   afterEach(() => httpMock.verify());
 
   function flushInit() {
-    httpMock.expectOne((r) => r.url === '/api/platform/tax/regimes').flush(REGIMES);
-    httpMock.expectOne((r) => r.url === '/api/platform/organizations').flush({
+    httpMock.expectOne((r) => r.url === '/api/v1/platform/tax/regimes').flush(REGIMES);
+    httpMock.expectOne((r) => r.url === '/api/v1/platform/organizations').flush({
       items: [{ id: 9, name: 'Kaimana SARL', taxCountry: 'NC', currency: 'XPF', active: true, salonCount: 0, createdAt: '2026-01-01T00:00:00Z' }],
       page: 0, size: 100, totalItems: 1, totalPages: 1,
     });
@@ -61,7 +61,7 @@ describe('SalonForm — creation', () => {
 
     fixture.componentInstance.submit();
 
-    httpMock.expectNone('/api/platform/salons');
+    httpMock.expectNone('/api/v1/platform/salons');
     expect(fixture.componentInstance.form.touched).toBe(true);
   });
 
@@ -76,7 +76,7 @@ describe('SalonForm — creation', () => {
     });
     fixture.componentInstance.submit();
 
-    const req = httpMock.expectOne('/api/platform/salons');
+    const req = httpMock.expectOne('/api/v1/platform/salons');
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({
       organizationId: 9, name: 'Kaimana Papeete', address: null, phone: null, email: null, taxRegime: TaxRegime.TVA_PF,
@@ -119,25 +119,25 @@ describe('SalonForm — edition', () => {
   it('loadsTheExistingSalonWithoutAnOrganizationPicker', () => {
     const fixture = TestBed.createComponent(SalonForm);
 
-    httpMock.expectOne((r) => r.url === '/api/platform/tax/regimes').flush(REGIMES);
-    httpMock.expectOne('/api/platform/salons/7').flush(existingSalon);
+    httpMock.expectOne((r) => r.url === '/api/v1/platform/tax/regimes').flush(REGIMES);
+    httpMock.expectOne('/api/v1/platform/salons/7').flush(existingSalon);
 
     expect(fixture.componentInstance.form.controls.name.value).toBe('Kaimana Noumea');
     expect(fixture.componentInstance.organizationName()).toBe('Kaimana SARL');
-    httpMock.expectNone((r) => r.url === '/api/platform/organizations');
+    httpMock.expectNone((r) => r.url === '/api/v1/platform/organizations');
   });
 
   it('submitsAnUpdateWithoutTheOrganizationId', () => {
     const router = TestBed.inject(Router);
     const navigateSpy = vi.spyOn(router, 'navigateByUrl');
     const fixture = TestBed.createComponent(SalonForm);
-    httpMock.expectOne((r) => r.url === '/api/platform/tax/regimes').flush(REGIMES);
-    httpMock.expectOne('/api/platform/salons/7').flush(existingSalon);
+    httpMock.expectOne((r) => r.url === '/api/v1/platform/tax/regimes').flush(REGIMES);
+    httpMock.expectOne('/api/v1/platform/salons/7').flush(existingSalon);
 
     fixture.componentInstance.form.patchValue({ active: false });
     fixture.componentInstance.submit();
 
-    const req = httpMock.expectOne('/api/platform/salons/7');
+    const req = httpMock.expectOne('/api/v1/platform/salons/7');
     expect(req.request.method).toBe('PUT');
     expect(req.request.body).toEqual({
       name: 'Kaimana Noumea', address: 'Noumea', phone: '123', email: null, taxRegime: TaxRegime.TGC, active: false,

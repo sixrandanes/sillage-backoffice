@@ -21,14 +21,14 @@ describe('TaxService', () => {
 
   it('listsRegimesFromThePlatformApi', () => {
     service.regimes().subscribe();
-    const req = httpMock.expectOne('/api/platform/tax/regimes');
+    const req = httpMock.expectOne('/api/v1/platform/tax/regimes');
     expect(req.request.method).toBe('GET');
     req.flush([]);
   });
 
   it('fetchesTheHistoryOfARegime', () => {
     service.history(TaxRegime.TGC).subscribe();
-    const req = httpMock.expectOne('/api/platform/tax/regimes/TGC/history');
+    const req = httpMock.expectOne('/api/v1/platform/tax/regimes/TGC/history');
     expect(req.request.method).toBe('GET');
     req.flush([]);
   });
@@ -38,7 +38,7 @@ describe('TaxService', () => {
       category: TaxCategory.NORMAL, rate: 0.12, label: 'Taux normal', validFrom: '2027-01-01',
     }).subscribe();
 
-    const req = httpMock.expectOne('/api/platform/tax/regimes/TGC/rates');
+    const req = httpMock.expectOne('/api/v1/platform/tax/regimes/TGC/rates');
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({
       category: TaxCategory.NORMAL, rate: 0.12, label: 'Taux normal', validFrom: '2027-01-01',

@@ -31,12 +31,12 @@ describe('authInterceptor', () => {
 
   it('attachesTheTokenToApiRequestsOnly', () => {
     auth.login({ email: 'admin@kaimana.nc', password: 'x' }).subscribe();
-    httpMock.expectOne('/api/platform/auth/login').flush({
+    httpMock.expectOne('/api/v1/platform/auth/login').flush({
       token: 'jwt-token', adminId: 1, email: 'admin@kaimana.nc', firstName: 'A', lastName: 'B',
     });
 
-    http.get('/api/platform/tax/regimes/TGC/history').subscribe();
-    const req = httpMock.expectOne('/api/platform/tax/regimes/TGC/history');
+    http.get('/api/v1/platform/tax/regimes/TGC/history').subscribe();
+    const req = httpMock.expectOne('/api/v1/platform/tax/regimes/TGC/history');
     expect(req.request.headers.get('Authorization')).toBe('Bearer jwt-token');
     req.flush([]);
   });
@@ -50,13 +50,13 @@ describe('authInterceptor', () => {
 
   it('logsOutAndRedirectsToLoginOnA401', () => {
     auth.login({ email: 'admin@kaimana.nc', password: 'x' }).subscribe();
-    httpMock.expectOne('/api/platform/auth/login').flush({
+    httpMock.expectOne('/api/v1/platform/auth/login').flush({
       token: 'jwt-token', adminId: 1, email: 'admin@kaimana.nc', firstName: 'A', lastName: 'B',
     });
     const navigateSpy = vi.spyOn(router, 'navigateByUrl');
 
-    http.get('/api/platform/tax/regimes/TGC/history').subscribe({ error: () => {} });
-    httpMock.expectOne('/api/platform/tax/regimes/TGC/history')
+    http.get('/api/v1/platform/tax/regimes/TGC/history').subscribe({ error: () => {} });
+    httpMock.expectOne('/api/v1/platform/tax/regimes/TGC/history')
         .flush('expire', { status: 401, statusText: 'Unauthorized' });
 
     expect(auth.isAuthenticated()).toBe(false);

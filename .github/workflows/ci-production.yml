@@ -1,0 +1,135 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Une nouvelle poussee rend la precedente obsolete : inutile de la laisser finir.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Tests et build
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      # `npm ci` et pas `npm install` : installe exactement le lockfile et echoue s'il a
+      # derive du package.json, au lieu de le mettre a jour en silence.
+      - name: Installation
+        run: npm ci
+
+      # Les tests tournent sous jsdom (voir la devDependency) : aucun navigateur a installer.
+      - name: Tests unitaires
+        run: npm test -- --watch=false
+
+      # Le build de production verifie ce que les tests ne voient pas : compilation AOT des
+      # templates, budgets de taille, resolution des imports en mode optimise. C'est son resultat
+      # que l'image empaquette — jamais un second build.
+      - name: Build de production
+        run: npm run build
+
+      # ── Image ────────────────────────────────────────────────────────────────────────────
+      # nginx sert le bundle et relaie `/api` vers le backend, ce qui donne au navigateur une
+      # origine unique : aucun CORS, et les URL du client restent relatives comme en
+      # developpement.
+      #
+      # Rien n'est pousse depuis une pull request : ce serait publier du code non fusionne dans
+      # un registre partage.
+
+      - name: Vérifier la configuration du registre
+        if: github.event_name == 'push'
+        env:
+          ENDPOINT: ${{ vars.SCW_REGISTRY_ENDPOINT }}
+          NAMESPACE: ${{ vars.SCW_NAMESPACE }}
+        run: |
+          test -n "$ENDPOINT"  || { echo "::error::La variable SCW_REGISTRY_ENDPOINT n'est pas définie"; exit 1; }
+          test -n "$NAMESPACE" || { echo "::error::La variable SCW_NAMESPACE n'est pas définie"; exit 1; }
+          echo "IMAGE=$ENDPOINT/$NAMESPACE/sillage-backoffice" >> "$GITHUB_ENV"
+
+      - name: Connexion au registre Scaleway
+        if: github.event_name == 'push'
+        env:
+          ENDPOINT: ${{ vars.SCW_REGISTRY_ENDPOINT }}
+          SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
+        run: |
+          # `nologin` est l'utilisateur impose par Scaleway ; la cle passe par l'entree standard
+          # et jamais en argument, un argument etant visible dans la table des processus.
+          printf '%s' "$SCW_SECRET_KEY" | docker login "$ENDPOINT" --username nologin --password-stdin
+
+      - name: Construire et pousser l'image
+        if: github.event_name == 'push'
+        run: |
+          set -euo pipefail
+          # Le SHA, seule etiquette : immuable, c'est elle qu'un deploiement epingle et elle seule
+          # qui permette de savoir quelle version tourne et d'en redeployer une anterieure.
+          docker build -t "$IMAGE:${GITHUB_SHA}" .
+          docker push "$IMAGE:${GITHUB_SHA}"
+          echo "### Image poussée" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          echo "$IMAGE:${GITHUB_SHA}" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      # ── Deploiement ──────────────────────────────────────────────────────────────────────
+      # Scaleway ne surveille pas le registre : c'est a la CI de designer la nouvelle image.
+
+      - name: Déployer sur Scaleway
+        if: github.event_name == 'push'
+        env:
+          SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
+          SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
+          SCW_DEFAULT_REGION: ${{ vars.SCW_REGION }}
+          SCW_DEFAULT_ORGANIZATION_ID: ${{ vars.SCW_ORGANIZATION_ID }}
+          CONTAINER_ID: ${{ vars.SCW_CONTAINER_ID }}
+          SCW_CLI_VERSION: 2.60.0
+        run: |
+          set -euo pipefail
+          # Chaque manque nomme le reglage GitHub a creer : sinon l'echec vient du SDK, apres le
+          # telechargement de la CLI, et ne dit pas ou aller le corriger.
+          test -n "$CONTAINER_ID" || { echo "::error::La variable SCW_CONTAINER_ID n'est pas définie"; exit 1; }
+          test -n "${SCW_DEFAULT_REGION:-}" || { echo "::error::La variable SCW_REGION n'est pas définie"; exit 1; }
+          test -n "${SCW_ACCESS_KEY:-}" || { echo "::error::Le secret SCW_ACCESS_KEY n'est pas défini"; exit 1; }
+          test -n "${SCW_SECRET_KEY:-}" || { echo "::error::Le secret SCW_SECRET_KEY n'est pas défini"; exit 1; }
+          test -n "${SCW_DEFAULT_ORGANIZATION_ID:-}" || { echo "::error::La variable SCW_ORGANIZATION_ID n'est pas définie"; exit 1; }
+
+          curl -fsSL -o "$RUNNER_TEMP/scw" \
+            "https://github.com/scaleway/scaleway-cli/releases/download/v${SCW_CLI_VERSION}/scaleway-cli_${SCW_CLI_VERSION}_linux_amd64"
+          chmod +x "$RUNNER_TEMP/scw"
+          scw() { "$RUNNER_TEMP/scw" "$@"; }
+
+          # Attend que le conteneur quitte tout etat transitoire : Scaleway refuse une mise a jour
+          # pendant un deploiement en cours, et c'est aussi la seule facon de savoir si le
+          # deploiement **aboutit** plutot que d'etre vert des que la demande est acceptee.
+          wait_settled() {
+            local phase="$1" status="" i
+            for i in $(seq 1 60); do
+              status=$(scw container container get "$CONTAINER_ID" -o json | jq -r '.status')
+              case "$status" in
+                ready) echo "  $phase : $status"; return 0 ;;
+                error) echo "::error::Le conteneur est en erreur ($phase)"; return 1 ;;
+                *)     echo "  $phase : $status…"; sleep 10 ;;
+              esac
+            done
+            echo "::error::Le conteneur n'est toujours pas prêt après 10 minutes ($phase)"
+            return 1
+          }
+
+          wait_settled "avant mise à jour"
+          scw container container update "$CONTAINER_ID" image="$IMAGE:${GITHUB_SHA}"
+          wait_settled "après mise à jour"
+
+          echo "### Déployé" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`$IMAGE:${GITHUB_SHA}\`" >> "$GITHUB_STEP_SUMMARY"

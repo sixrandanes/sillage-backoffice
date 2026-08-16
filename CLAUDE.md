@@ -93,3 +93,39 @@ disponibles.
 ## Lancer en local
 
 Voir `README.md`.
+
+## Deploiement : conteneur nginx, comme les deux autres depots
+
+Le backoffice etait deploye **par SSH sur un VPS**, avec `scp` et un service systemd, quand le
+frontend et le backend etaient passes en conteneurs sur Scaleway. Trois chaines differentes pour un
+meme produit, dont une seule connue de la moitie de l'equipe.
+
+Il suit desormais exactement le meme chemin : image nginx *unprivileged*, poussee au registre
+Scaleway avec le SHA pour seule etiquette, conteneur mis a jour par la CI. `develop` livre staging,
+`main` livre la production — cette branche `develop` n'existait pas ici, ce qui rendait toute
+livraison de qualification impossible.
+
+**Ce qui est copie du frontend, et pourquoi** : le gabarit nginx. Les pieges qui y sont documentes
+valent ici a l'identique, et les redecouvrir un par un couterait le temps qu'ils ont deja coute une
+fois — l'accolade de `{8}` qui empeche nginx de demarrer, le `nginx -t` qui valide la mauvaise
+configuration et repond « syntax is ok », l'`immutable` pose par erreur sur des fichiers a nom
+stable, `Origin` qu'il ne faut pas supprimer.
+
+**Ce qui lui est propre** : sa **propre** cle API IAM (`sillage-backoffice-proxy`), et non celle du
+frontend. Partager une cle rendrait impossible de la revoquer d'un cote sans couper l'autre.
+
+**Variables a poser sur le conteneur** : `BACKEND_URL` (ordinaire) et `BACKEND_TOKEN` (**secrete**).
+Sans la seconde, `envsubst` laisse l'en-tete vide et tous les appels API tombent en **403 au corps
+vide** — c'est la passerelle qui repond, pas Spring : le corps vide est le signe distinctif.
+
+## La version d'API : ce depot etait entierement hors service
+
+Tous les appels visaient `/api/platform/...` quand le backend sert `/api/v1/platform/...` depuis le
+versionnement. **Aucun ecran ne fonctionnait**, et rien ne le disait autrement que par des 404 —
+pas une erreur parlante, une avalanche silencieuse sur toutes les pages a la fois.
+
+`core/api.ts` porte desormais le prefixe, seul endroit ou la version s'ecrit, miroir de
+`nc.sillage.shared.ApiVersion` et de la constante du meme nom cote frontend. **Les trois doivent
+bouger ensemble.** Les specs, elles, ecrivent le chemin complet en dur : elles verifient le contrat
+reellement envoye sur le fil, et une montee de version doit les faire echouer toutes d'un coup
+plutot que de passer inapercue.

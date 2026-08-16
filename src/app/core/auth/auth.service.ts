@@ -3,6 +3,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 
 import { CurrentAdmin, LoginRequest, PlatformAuthResponse } from './models';
+import { API } from '../api';
 
 const TOKEN_STORAGE_KEY = 'kaimana-backoffice.token';
 const ADMIN_STORAGE_KEY = 'kaimana-backoffice.admin';
@@ -10,7 +11,7 @@ const ADMIN_STORAGE_KEY = 'kaimana-backoffice.admin';
 /**
  * Le backoffice n'a pas d'equivalent de GET /api/auth/me (pas encore besoin de rafraichir
  * l'identite depuis le serveur pour un compte plateforme) : la session se restaure depuis ce
- * que /api/platform/auth/login a deja renvoye, mis de cote en localStorage. Si le jeton a
+ * que /api/v1/platform/auth/login a deja renvoye, mis de cote en localStorage. Si le jeton a
  * expire entre-temps, la premiere requete protegee echoue en 401 et l'application se
  * deconnecte (voir auth.interceptor.ts) — pas besoin d'un aller-retour reseau au demarrage
  * pour verifier ce qu'un 401 verifiera de toute facon a la premiere vraie requete.
@@ -28,7 +29,7 @@ export class AuthService {
   }
 
   login(request: LoginRequest): Observable<PlatformAuthResponse> {
-    return this.http.post<PlatformAuthResponse>('/api/platform/auth/login', request).pipe(
+    return this.http.post<PlatformAuthResponse>(`${API}/platform/auth/login`, request).pipe(
       tap((response) => this.applySession(response)),
     );
   }

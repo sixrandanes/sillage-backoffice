@@ -9,6 +9,20 @@ export const routes: Routes = [
     loadComponent: () => import('./login/login').then((m) => m.Login),
   },
   {
+    // La deconnexion a son **adresse propre** plutot qu'un parametre : c'est elle qu'on declare
+    // chez le fournisseur comme URL de retour, et l'ecran doit alors proposer une reconnexion
+    // explicite au lieu d'y renvoyer aussitot.
+    path: 'logout',
+    loadComponent: () => import('./login/login').then((m) => m.Login),
+    data: { signedOut: true },
+  },
+  {
+    // **Aucune garde** : `guestGuard` renverrait a l'accueil quiconque se reconnecte, et
+    // `authGuard` refuserait tout le monde puisqu'on n'a precisement pas encore de session.
+    path: 'callback',
+    loadComponent: () => import('./callback/callback').then((m) => m.Callback),
+  },
+  {
     path: '',
     canActivate: [authGuard],
     loadComponent: () => import('./shell/shell').then((m) => m.Shell),

@@ -1,15 +1,5 @@
+/** Ce que `/platform/auth/me` renvoie : qui, et rien de plus. */
 export interface CurrentAdmin {
-  adminId: number;
+  id: number;
   email: string;
-  firstName: string;
-  lastName: string;
-}
-
-export interface PlatformAuthResponse extends CurrentAdmin {
-  token: string;
-}
-
-export interface LoginRequest {
-  email: string;
-  password: string;
 }

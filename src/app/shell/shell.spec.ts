@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { Router, provideRouter } from '@angular/router';
+import { provideRouter } from '@angular/router';
 
 import { AuthService } from '../core/auth/auth.service';
 import { Shell } from './shell';
@@ -9,46 +9,45 @@ import { Shell } from './shell';
 describe('Shell', () => {
   let httpMock: HttpTestingController;
   let auth: AuthService;
-  let router: Router;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     localStorage.clear();
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [Shell],
       providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
-    }).compileComponents();
-
+    });
     httpMock = TestBed.inject(HttpTestingController);
     auth = TestBed.inject(AuthService);
-    router = TestBed.inject(Router);
   });
 
   afterEach(() => httpMock.verify());
 
-  it('showsTheNameOfTheConnectedAdmin', () => {
-    auth.login({ email: 'admin@kaimana.nc', password: 'x' }).subscribe();
-    httpMock.expectOne('/api/v1/platform/auth/login').flush({
-      token: 't', adminId: 1, email: 'admin@kaimana.nc', firstName: 'Sylvain', lastName: 'Le Borgne',
-    });
+  function connect(): void {
+    const payload = btoa(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + 3600 }));
+    auth.storeToken(`entete.${payload}.signature`);
+    auth.restoreSession().subscribe();
+    httpMock.expectOne('/api/v1/platform/auth/me').flush({ id: 1, email: 'sylvain@sillage.nc' });
+  }
 
+  it('showsWhoIsConnected', () => {
+    connect();
     const fixture = TestBed.createComponent(Shell);
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.currentAdmin()?.firstName).toBe('Sylvain');
+    expect(fixture.nativeElement.textContent).toContain('sylvain@sillage.nc');
   });
 
-  it('logoutClearsTheSessionAndNavigatesToLogin', () => {
-    auth.login({ email: 'admin@kaimana.nc', password: 'x' }).subscribe();
-    httpMock.expectOne('/api/v1/platform/auth/login').flush({
-      token: 't', adminId: 1, email: 'admin@kaimana.nc', firstName: 'A', lastName: 'B',
-    });
-    const navigateSpy = vi.spyOn(router, 'navigateByUrl');
+  /**
+   * La deconnexion **quitte l'application** : elle va fermer la session chez le fournisseur, qui
+   * nous ramene ensuite. Naviguer en plus ferait partir deux fois, et la seconde annulerait la
+   * premiere — la personne se retrouverait reconnectee sans l'avoir demande.
+   */
+  it('revokesTheTokenBeforeLeavingForTheProvider', () => {
+    connect();
     const fixture = TestBed.createComponent(Shell);
     fixture.detectChanges();
 
     fixture.componentInstance.logout();
-
-    expect(auth.isAuthenticated()).toBe(false);
-    expect(navigateSpy).toHaveBeenCalledWith('/login');
+    httpMock.expectOne('/api/v1/platform/auth/revoke').flush(null);
   });
 });

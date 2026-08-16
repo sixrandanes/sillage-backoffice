@@ -7,7 +7,7 @@
   </nav>
   <span class="shell-spacer"></span>
   @if (currentAdmin(); as admin) {
-    <span class="shell-admin">{{ admin.firstName }} {{ admin.lastName }}</span>
+    <span class="shell-admin">{{ admin.email }}</span>
   }
   <button mat-button (click)="logout()">Deconnexion</button>
 </mat-toolbar>

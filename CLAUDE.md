@@ -129,3 +129,38 @@ pas une erreur parlante, une avalanche silencieuse sur toutes les pages a la foi
 bouger ensemble.** Les specs, elles, ecrivent le chemin complet en dur : elles verifient le contrat
 reellement envoye sur le fil, et une montee de version doit les faire echouer toutes d'un coup
 plutot que de passer inapercue.
+
+## Authentification : externalisee, comme l'application des salons
+
+Le backoffice n'authentifie plus personne. Il se connectait par mot de passe contre
+`platform_admins.password_hash` — colonne supprimee par la migration V46 : l'ecran appelait un
+endpoint qui n'existait plus, et **rien ne le disait**.
+
+`/login` ne porte plus de formulaire : il **redirige** vers le backend, qui echange le code contre
+un jeton **avec son secret** et nous renvoie sur `/callback`.
+
+- **Une seconde application chez le fournisseur**, distincte de celle des salons. C'est l'audience
+  qui empeche un jeton de gerante d'ouvrir ce backoffice, et elle n'est distincte que si les
+  applications le sont.
+- **Le jeton arrive dans le fragment** (`#access_token=…`), jamais en parametre de requete : un
+  fragment n'est pas transmis au serveur, donc absent des journaux d'acces et de l'en-tete
+  `Referer`. Il est retire de la barre d'adresse par `replaceState` — jamais `pushState`, sinon un
+  retour arriere y ramenerait.
+- **Cle `sillage-backoffice.token`**, et surtout plus `kaimana-backoffice.token` : les anciens
+  jetons etaient signes par Sillage et sont desormais refuses. Changer de cle evite qu'un navigateur
+  deja ouvert reparte avec l'un d'eux, rejete a chaque requete sans que rien ne l'explique.
+- **Un `403` sur `/me` n'est pas une panne mais un signal** : authentifie chez le fournisseur,
+  absent de `platform_admins`. Le rattachement y est **manuel** — on ne devient pas administrateur
+  plateforme en se connectant — donc le jeton est **conserve** et l'ecran le dit, au lieu de boucler
+  sur une reconnexion qui redonnerait toujours le meme resultat. Un `401`, lui, efface.
+- **`/callback` n'a aucune garde**, deliberement : `guestGuard` renverrait a l'accueil quiconque se
+  reconnecte, `authGuard` refuserait tout le monde puisqu'on n'a precisement pas encore de session.
+- **`/login` ne redirige pas tout seul** : la redirection automatique rend l'arrivee indistinguable
+  d'une panne — le fournisseur reconnait sa session et renvoie aussitot, si bien qu'on traverse deux
+  redirections sans jamais rien voir, et sans pouvoir choisir un autre compte.
+- **La deconnexion ne navigue pas** : elle revoque le jeton puis **quitte l'application** pour aller
+  fermer la session chez le fournisseur, qui nous ramene sur `/logout`. Naviguer en plus ferait
+  partir deux fois, et la seconde annulerait la premiere.
+- **L'intercepteur ne reagit qu'au `401`**, jamais au `403`, et jamais sur les routes
+  d'authentification elles-memes : c'est `/me` qui **etablit** la session, reagir a son 401
+  relancerait une connexion au moment ou l'on est en train d'en juger.

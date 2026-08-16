@@ -1,25 +1,24 @@
-.login-page {
-  min-height: 100vh;
+.login {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--mat-sys-surface-container-low);
+  min-height: 100vh;
+  padding: 24px;
 }
 
 .login-card {
   width: 100%;
-  max-width: 360px;
+  max-width: 420px;
 }
 
-.login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-top: 12px;
-}
-
-.login-error {
-  color: var(--mat-sys-error);
-  font-size: 0.875rem;
+h1 {
+  font-size: 22px;
   margin: 0 0 8px;
+}
+
+/* Le chapo se detache du titre (12 px) quand le bouton s'en detache franchement (32 px) : un
+   espacement uniforme donnerait un pave compact au lieu d'un titre, son explication et une action. */
+.lede {
+  margin: 12px 0 32px;
+  color: rgba(0, 0, 0, 0.6);
 }

@@ -1,55 +1,39 @@
-import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AuthService } from '../core/auth/auth.service';
 
+/**
+ * Il n'y a plus de formulaire ici : ni email, ni mot de passe, ni « mot de passe oublie ». Tout
+ * cela appartient au fournisseur d'identite, avec ce que Sillage n'avait jamais su offrir —
+ * reinitialisation, verification d'adresse, second facteur.
+ *
+ * <p><b>L'ecran ne redirige pas tout seul</b>, et c'est un choix pris cote salons puis repris ici.
+ * La redirection automatique rend l'arrivee indistinguable d'une panne : le fournisseur reconnait
+ * sa session et renvoie aussitot, si bien qu'on traverse deux redirections sans jamais rien voir —
+ * impossible de se connecter avec un autre compte, et une page blanche clignotante des que quelque
+ * chose accroche en chemin.
+ */
 @Component({
   selector: 'app-login',
-  imports: [
-    ReactiveFormsModule,
-    MatButtonModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatProgressSpinnerModule,
-  ],
+  standalone: true,
+  imports: [MatButtonModule, MatCardModule],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
 export class Login {
-  private readonly fb = inject(FormBuilder);
-  private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
+  private readonly route = inject(ActivatedRoute);
 
-  readonly loading = signal(false);
-  readonly errorMessage = signal<string | null>(null);
+  /** Nomme le refus plutot que de le taire : le backend nous renvoie ici avec sa raison. */
+  protected readonly reason = this.route.snapshot.queryParamMap.get('erreur');
 
-  readonly form = this.fb.nonNullable.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', Validators.required],
-  });
+  /** On arrive d'une deconnexion volontaire, portee par la route `/logout`. */
+  protected readonly signedOut = this.route.snapshot.data['signedOut'] === true;
 
-  submit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-
-    this.loading.set(true);
-    this.errorMessage.set(null);
-
-    this.authService.login(this.form.getRawValue()).subscribe({
-      next: () => this.router.navigateByUrl('/'),
-      error: () => {
-        this.loading.set(false);
-        this.errorMessage.set('Email ou mot de passe incorrect.');
-      },
-    });
+  protected connect(): void {
+    this.auth.login(this.route.snapshot.queryParamMap.get('returnTo') ?? '/');
   }
 }

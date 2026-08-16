@@ -1,42 +1,27 @@
-<div class="login-page">
+<div class="login">
   <mat-card class="login-card">
-    <mat-card-header>
-      <mat-card-title>Kaimana — Backoffice</mat-card-title>
-      <mat-card-subtitle>Reserve a l'equipe Kaimana</mat-card-subtitle>
-    </mat-card-header>
-
     <mat-card-content>
-      <form [formGroup]="form" (ngSubmit)="submit()" class="login-form">
-        <mat-form-field appearance="outline">
-          <mat-label>Email</mat-label>
-          <input matInput type="email" formControlName="email" autocomplete="email" />
-          @if (form.controls.email.hasError('required') && form.controls.email.touched) {
-            <mat-error>L'email est requis</mat-error>
-          } @else if (form.controls.email.hasError('email') && form.controls.email.touched) {
-            <mat-error>Format d'email invalide</mat-error>
-          }
-        </mat-form-field>
+      <h1>Sillage — backoffice</h1>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Mot de passe</mat-label>
-          <input matInput type="password" formControlName="password" autocomplete="current-password" />
-          @if (form.controls.password.hasError('required') && form.controls.password.touched) {
-            <mat-error>Le mot de passe est requis</mat-error>
-          }
-        </mat-form-field>
-
-        @if (errorMessage()) {
-          <p class="login-error">{{ errorMessage() }}</p>
-        }
-
-        <button mat-flat-button color="primary" type="submit" [disabled]="loading()">
-          @if (loading()) {
-            <mat-spinner diameter="20" />
+      @if (reason) {
+        <!-- Le refus vient du fournisseur : on le nomme, plutôt que de relancer une redirection
+             en boucle qui donnerait l'impression d'une page qui clignote. -->
+        <p class="lede">
+          @if (reason === 'refus') {
+            L’accès a été refusé. Si ce n’était pas volontaire, réessayez.
           } @else {
-            Se connecter
+            Une erreur est survenue pendant l’échange avec le fournisseur d’identité.
           }
-        </button>
-      </form>
+        </p>
+      } @else if (signedOut) {
+        <p class="lede">Vous êtes déconnecté·e.</p>
+      } @else {
+        <p class="lede">Vous allez être redirigé·e vers notre page d’identification sécurisée.</p>
+      }
+
+      <button mat-flat-button color="primary" type="button" (click)="connect()">
+        Se connecter
+      </button>
     </mat-card-content>
   </mat-card>
 </div>

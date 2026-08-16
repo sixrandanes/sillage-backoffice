@@ -1,64 +1,70 @@
 import { provideHttpClient } from '@angular/common/http';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { Router, provideRouter } from '@angular/router';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { ActivatedRoute, convertToParamMap } from '@angular/router';
 
+import { AuthService } from '../core/auth/auth.service';
 import { Login } from './login';
 
+/**
+ * L'ecran n'authentifie plus : il envoie vers le fournisseur. Ce qui se teste ici, c'est que le
+ * depart reste **volontaire**, et que la page demandee survive au voyage.
+ */
 describe('Login', () => {
-  let httpMock: HttpTestingController;
-  let router: Router;
-
-  beforeEach(async () => {
-    localStorage.clear();
-    await TestBed.configureTestingModule({
+  function setup(queryParams: Record<string, string> = {}, data: Record<string, unknown> = {}) {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
       imports: [Login],
-      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
-    }).compileComponents();
-
-    httpMock = TestBed.inject(HttpTestingController);
-    router = TestBed.inject(Router);
-  });
-
-  afterEach(() => {
-    httpMock.verify();
-  });
-
-  it('doesNotSubmitAnInvalidForm', () => {
-    const fixture = TestBed.createComponent(Login);
-    fixture.componentInstance.submit();
-
-    httpMock.expectNone('/api/v1/platform/auth/login');
-    expect(fixture.componentInstance.form.touched).toBe(true);
-  });
-
-  it('navigatesHomeAfterASuccessfulLogin', () => {
-    const navigateSpy = vi.spyOn(router, 'navigateByUrl');
-    const fixture = TestBed.createComponent(Login);
-    fixture.componentInstance.form.setValue({ email: 'admin@kaimana.nc', password: 'SuperSecret123' });
-
-    fixture.componentInstance.submit();
-
-    httpMock.expectOne('/api/v1/platform/auth/login').flush({
-      token: 'jwt-token',
-      adminId: 1,
-      email: 'admin@kaimana.nc',
-      firstName: 'A',
-      lastName: 'B',
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideAnimationsAsync(),
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { queryParamMap: convertToParamMap(queryParams), data } },
+        },
+      ],
     });
+    const login = vi.spyOn(TestBed.inject(AuthService), 'login').mockImplementation(() => {});
+    const fixture = TestBed.createComponent(Login);
+    fixture.detectChanges();
+    return { fixture, login };
+  }
 
-    expect(navigateSpy).toHaveBeenCalledWith('/');
+  /**
+   * <b>Arriver ne connecte personne.</b> Une redirection automatique rend l'arrivee
+   * indistinguable d'une panne : le fournisseur reconnait sa session et renvoie aussitot, si bien
+   * qu'on traverse deux redirections sans jamais rien voir — et sans pouvoir choisir un autre
+   * compte.
+   */
+  it('doesNotConnectAnyoneOnArrival', () => {
+    const { fixture, login } = setup();
+
+    expect(login).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.textContent).toContain('Se connecter');
   });
 
-  it('showsAnErrorMessageOnInvalidCredentials', () => {
-    const fixture = TestBed.createComponent(Login);
-    fixture.componentInstance.form.setValue({ email: 'admin@kaimana.nc', password: 'wrong' });
+  it('carriesTheRequestedPageThroughTheRedirect', () => {
+    const { fixture, login } = setup({ returnTo: '/salons' });
 
-    fixture.componentInstance.submit();
+    fixture.nativeElement.querySelector('button').click();
 
-    httpMock.expectOne('/api/v1/platform/auth/login').flush('unauthorized', { status: 401, statusText: 'Unauthorized' });
+    expect(login).toHaveBeenCalledWith('/salons');
+  });
 
-    expect(fixture.componentInstance.errorMessage()).toBeTruthy();
-    expect(fixture.componentInstance.loading()).toBe(false);
+  /** Le refus du fournisseur se nomme, plutot que de relancer une redirection en boucle. */
+  it('namesTheRefusalInsteadOfLoopingOnIt', () => {
+    const { fixture, login } = setup({ erreur: 'refus' });
+
+    expect(login).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.textContent).toContain('refusé');
+  });
+
+  it('staysSignedOutAfterADeliberateSignOut', () => {
+    const { fixture, login } = setup({}, { signedOut: true });
+
+    expect(login).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.textContent).toContain('déconnecté');
   });
 });

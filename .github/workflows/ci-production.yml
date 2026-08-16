@@ -113,13 +113,30 @@ jobs:
           # Attend que le conteneur quitte tout etat transitoire : Scaleway refuse une mise a jour
           # pendant un deploiement en cours, et c'est aussi la seule facon de savoir si le
           # deploiement **aboutit** plutot que d'etre vert des que la demande est acceptee.
+          # `fatal_on_error` distingue les deux appels, et cette distinction a coute une panne.
+          #
+          # **Avant la mise a jour, un conteneur en erreur ne doit pas faire abandonner** : c'est
+          # precisement l'etat ou une nouvelle image est le remede. Traiter `error` comme fatal
+          # fabriquait un verrou — le conteneur ne demarrait pas faute d'une variable, et la chaine
+          # refusait de livrer le correctif parce qu'il ne demarrait pas. Il fallait alors reparer
+          # a la main dans la console, ce qui est exactement ce que cette chaine existe pour eviter.
+          #
+          # **Apres**, `error` reste fatal : c'est le verdict sur ce qu'on vient de livrer, et le
+          # taire rendrait le deploiement vert alors que rien ne tourne.
           wait_settled() {
-            local phase="$1" status="" i
+            local phase="$1" fatal_on_error="$2" status="" i
             for i in $(seq 1 60); do
               status=$(scw container container get "$CONTAINER_ID" -o json | jq -r '.status')
               case "$status" in
                 ready) echo "  $phase : $status"; return 0 ;;
-                error) echo "::error::Le conteneur est en erreur ($phase)"; return 1 ;;
+                error)
+                  if [ "$fatal_on_error" = "oui" ]; then
+                    echo "::error::Le conteneur est en erreur ($phase)"
+                    return 1
+                  fi
+                  echo "::warning::Conteneur en erreur avant la mise à jour — on déploie quand même, c'est le remède."
+                  return 0
+                  ;;
                 *)     echo "  $phase : $status…"; sleep 10 ;;
               esac
             done
@@ -127,9 +144,9 @@ jobs:
             return 1
           }
 
-          wait_settled "avant mise à jour"
+          wait_settled "avant mise à jour" non
           scw container container update "$CONTAINER_ID" image="$IMAGE:${GITHUB_SHA}"
-          wait_settled "après mise à jour"
+          wait_settled "après mise à jour" oui
 
           echo "### Déployé" >> "$GITHUB_STEP_SUMMARY"
           echo "\`$IMAGE:${GITHUB_SHA}\`" >> "$GITHUB_STEP_SUMMARY"

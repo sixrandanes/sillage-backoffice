@@ -2,7 +2,8 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
-import { AuthService, TOKEN_KEY } from './auth.service';
+import { AuthService } from './auth.service';
+import { TOKEN_KEY } from '../storage-keys';
 
 /**
  * Le backoffice n'authentifie plus : il redirige. Ce qui se teste ici, c'est donc la lecture de la

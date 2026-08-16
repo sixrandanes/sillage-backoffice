@@ -4,15 +4,8 @@ import { Observable, catchError, of, tap } from 'rxjs';
 
 import { CurrentAdmin } from './models';
 import { API } from '../api';
+import { TOKEN_KEY, clearUserScopedStorage } from '../storage-keys';
 
-/**
- * Cle **distincte** de l'ancienne (`kaimana-backoffice.token`), et ce n'est pas cosmetique : les
- * jetons d'avant etaient signes par Sillage et sont desormais refuses. Changer de cle evite qu'un
- * navigateur deja ouvert reparte avec un jeton perime, rejete a chaque requete sans que rien ne
- * l'explique.
- */
-export const TOKEN_KEY = 'sillage-backoffice.token';
-const LEGACY_KEYS = ['kaimana-backoffice.token', 'kaimana-backoffice.admin'];
 
 /**
  * Le backoffice n'authentifie plus personne.
@@ -75,7 +68,7 @@ export class AuthService {
       return;
     }
     // Une revocation refusee ne doit pas retenir quelqu'un qui veut partir.
-    this.http.post(`${API}/platform/auth/revoke`, null).subscribe({
+    this.http.post(`${API}/platform/auth/revoke`, {}).subscribe({
       next: partir,
       error: partir,
     });
@@ -83,8 +76,7 @@ export class AuthService {
 
   /** Efface la session locale, sans toucher a celle du fournisseur. */
   forgetSession(): void {
-    localStorage.removeItem(TOKEN_KEY);
-    LEGACY_KEYS.forEach((cle) => localStorage.removeItem(cle));
+    clearUserScopedStorage();
     this.currentAdminSignal.set(null);
   }
 

@@ -22,7 +22,7 @@ import { AuthService } from '../core/auth/auth.service';
     <div class="callback">
       @if (message()) {
         <p>{{ message() }}</p>
-        <a href="/login">Retourner à la connexion</a>
+        <button type="button" (click)="retry()">Réessayer</button>
       } @else {
         <p>Connexion en cours…</p>
       }
@@ -56,7 +56,7 @@ export class Callback {
     }
 
     this.auth.storeToken(token);
-    history.replaceState(null, '', window.location.pathname);
+    history.replaceState(null, '', '/callback');
 
     this.auth.restoreSession().subscribe((admin) => {
       if (admin) {
@@ -71,5 +71,9 @@ export class Callback {
           : "La session n'a pas pu être établie.",
       );
     });
+  }
+
+  protected retry(): void {
+    this.auth.login();
   }
 }

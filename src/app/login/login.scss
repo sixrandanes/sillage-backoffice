@@ -17,3 +17,10 @@
   margin: 12px 0 32px;
   color: rgba(0, 0, 0, 0.6);
 }
+
+/* La marque se detache du titre sans s'en eloigner : elle l'introduit, elle ne le surplombe pas. */
+.login-mark {
+  display: block;
+  border-radius: 9px;
+  margin-bottom: 14px;
+}

@@ -38,6 +38,23 @@ describe('Shell', () => {
   });
 
   /**
+   * La marque du bandeau est en **creme**, pas en encre comme le favicon : l'encre disparaitrait
+   * sur l'ardoise. Meme marque, adaptee a son fond — c'est a ca que servent les trois variantes,
+   * et se tromper de variante donne un carre invisible que personne ne remarque en relisant le
+   * gabarit.
+   */
+  it('carriesTheBrandMarkInTheVariantThatShowsOnTheSlateBar', () => {
+    connect();
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+
+    const marque: HTMLImageElement = fixture.nativeElement.querySelector('.shell-mark');
+    expect(marque.getAttribute('src')).toBe('logo/icone-creme.svg');
+    // `alt` vide : le mot « Sillage » juste a cote dit deja la meme chose.
+    expect(marque.getAttribute('alt')).toBe('');
+  });
+
+  /**
    * La deconnexion **quitte l'application** : elle va fermer la session chez le fournisseur, qui
    * nous ramene ensuite. Naviguer en plus ferait partir deux fois, et la seconde annulerait la
    * premiere — la personne se retrouverait reconnectee sans l'avoir demande.

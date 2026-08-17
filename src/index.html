@@ -1,11 +1,23 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="utf-8" />
     <title>Sillage — Backoffice</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Variante **encre**, la ou le frontoffice porte la prune — et ce n'est pas une preference
+         de couleur. Le favicon est ce qui identifie un onglet : deux marques identiques rendraient
+         les deux applications indistinguables des que les titres sont tronques, ce qui est le cas
+         courant. C'est le meme argument que la pastille « Backoffice » du bandeau — se tromper
+         d'application quand on a acces aux donnees de **tous** les clients coute plus cher qu'une
+         icone moins jolie. Verifie sur une barre d'onglets claire et sombre, a 16 px.
+         Le SVG passe en premier (prefere par les navigateurs actuels, net a toute taille) ;
+         `favicon.ico` reste en repli, rasterise depuis la meme geometrie en sept tailles, chacune
+         rendue a sa taille reelle plutot que reduite depuis la plus grande — a 16 px une reduction
+         fond les trois traits entre eux. -->
+    <link rel="icon" type="image/svg+xml" href="logo/icone-encre.svg" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="apple-touch-icon" href="logo/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

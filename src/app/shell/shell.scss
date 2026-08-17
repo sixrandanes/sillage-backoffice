@@ -12,6 +12,14 @@
   z-index: 10;
 }
 
+/* La marque et le mot « Sillage » forment un bloc : l'espacement du bandeau (20 px) les
+   separerait comme deux elements sans rapport. */
+.shell-mark {
+  display: block;
+  margin-right: -12px;
+  border-radius: 5px;
+}
+
 .shell-brand {
   font-weight: 600;
   letter-spacing: -0.01em;

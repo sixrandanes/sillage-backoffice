@@ -42,6 +42,34 @@ dernier en vaille la maintenance. `styles.scss` et le gabarit du shell portent t
 - **Les chiffres sont tabulaires** (`.bo-numeric`) : une colonne de taux se compare a la
   verticale, ce qu'une chasse variable rend impossible.
 
+### La marque : presente, mais dans une autre variante que le frontoffice
+
+Les fichiers de `public/logo/` sont **les memes** que ceux du frontoffice — meme geometrie, trois
+variantes qui ne different que par le fond du carre arrondi (prune `#8A3D63`, encre `#17130F`,
+creme `#FBF9F6`).
+
+- **Le favicon est en encre, la ou le frontoffice porte la prune**, et ce n'est pas une preference
+  de couleur. Le favicon est **ce qui identifie un onglet** : deux marques identiques rendraient
+  les deux applications indistinguables des que les titres sont tronques, ce qui est le cas
+  courant. C'est exactement l'argument de la pastille « Backoffice » du bandeau, applique a
+  l'endroit ou il compte le plus. Verifie a 16 px sur une barre d'onglets claire **et** sombre :
+  l'encre garde ses trois traits creme lisibles sur les deux.
+- **Le bandeau porte la variante creme**, parce qu'il est ardoise et que l'encre y disparaitrait.
+  Meme marque, adaptee a son fond — c'est a ca que servent les trois variantes. Verrouille par un
+  test : se tromper de variante donne un carre invisible que personne ne remarque en relisant le
+  gabarit.
+- **L'ecran de connexion porte l'encre**, comme le favicon : la carte est sur fond clair, et c'est
+  le seul ecran ou l'on arrive sans savoir encore ou l'on est tombe.
+- **`alt` vide partout, et aucun lien** : le mot « Sillage » est ecrit juste a cote. Un `alt`
+  renseigne ferait annoncer la marque deux fois par un lecteur d'ecran.
+- **`favicon.ico` est rasterise depuis la geometrie du SVG**, en sept tailles (16 a 256), **chacune
+  rendue a sa taille reelle** plutot que reduite depuis la plus grande : a 16 px, une reduction
+  depuis 256 fond les trois traits entre eux. Le script de generation vit hors du depot — il ne
+  sert qu'a produire ces fichiers, et les fichiers sont ce qui est versionne.
+- **Rien d'autre n'entre** : pas de lockup, pas d'animation, pas d'illustration. Trois `<img>` au
+  total, sans composant dedie — la ou le frontoffice a un `BrandMark`. La regle « aucun cout
+  d'entretien » ci-dessus n'est pas suspendue parce qu'on a ajoute une image.
+
 ## Pourquoi un projet separe, pas un ecran de plus dans `frontend/`
 
 Un compte du backoffice (`PLATFORM_ADMIN`) traverse toutes les organisations clientes — ce n'est

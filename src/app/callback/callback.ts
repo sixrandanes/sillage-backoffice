@@ -67,7 +67,7 @@ export class Callback {
       // manuel, et le dire vaut mieux que de renvoyer se connecter en boucle.
       this.message.set(
         this.auth.unknownAdmin()
-          ? "Votre compte n'est pas encore autorisé sur le backoffice. Demandez son rattachement à l'équipe Sillage."
+          ? "Votre compte n'est pas autorisé sur le backoffice. Demandez son rattachement à l'équipe Sillage."
           : "La session n'a pas pu être établie.",
       );
     });

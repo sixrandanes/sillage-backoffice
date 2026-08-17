@@ -118,3 +118,12 @@
   color: #8a5a00;
   font-weight: 600;
 }
+
+/* Une bascule programmee est une decision deja prise mais sans effet : elle se distingue de
+   l'offre en cours, sinon on la reprogramme ou on s'etonne au renouvellement. */
+.subscription-pending {
+  display: block;
+  font-size: 12px;
+  color: #1a5fb4;
+  font-weight: 600;
+}

@@ -302,6 +302,19 @@ qui n'etait pas celui en ligne, la CI n'ayant pas livre.
   doit les servir, sinon `httpMock.verify()` echoue en pointant vers la version plutot que vers ce
   que le test verifiait.
 
+## Bascule d'offre au terme
+
+- **La bascule se voit dans la liste**, en bleu et distincte de l'offre en cours : c'est une
+  decision **deja prise mais sans effet**. Invisible, on la reprogrammerait ou on s'etonnerait au
+  renouvellement.
+- **Aucune date n'est envoyee au serveur** : c'est lui qui sait quand la couverture s'arrete, et
+  elle bouge si le client paie une prolongation. La figer cote client la ferait diverger au premier
+  reglement.
+- **L'ecran explique pourquoi c'est au terme** — un prorata, sinon — et dit que la bascule suit le
+  nouveau terme en cas de prolongation. Sans ca, on croirait a un oubli en voyant la date changer.
+- **Programmer et annuler s'excluent a l'ecran** : quand une bascule existe, on ne propose que de
+  l'annuler. Deux formulaires cote a cote laisseraient croire qu'on peut en empiler plusieurs.
+
 ## L'offre sur la fiche d'abonnement
 
 - **« Aucune offre rattachée » se voit, en ambre.** Ce n'est pas une anomalie — c'est un client

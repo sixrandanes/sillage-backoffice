@@ -65,6 +65,25 @@ export class SubscriptionService {
     });
   }
 
+  /**
+   * Programme une bascule d'offre, effective au terme.
+   *
+   * Aucune date n'est envoyée : c'est le serveur qui sait quand la couverture s'arrête, et elle
+   * bouge si le client paie une prolongation.
+   */
+  scheduleOffer(organizationId: number, offerCode: string): Observable<SubscriptionAdminView> {
+    return this.http.post<SubscriptionAdminView>(
+      `${this.base}/${organizationId}/scheduled-offer`,
+      { offerCode },
+    );
+  }
+
+  cancelScheduledOffer(organizationId: number): Observable<SubscriptionAdminView> {
+    return this.http.delete<SubscriptionAdminView>(
+      `${this.base}/${organizationId}/scheduled-offer`,
+    );
+  }
+
   renew(organizationId: number): Observable<SubscriptionAdminView> {
     return this.http.post<SubscriptionAdminView>(`${this.base}/${organizationId}/renew`, {});
   }

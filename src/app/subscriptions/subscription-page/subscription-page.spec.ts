@@ -27,6 +27,8 @@ function view(overrides: Partial<SubscriptionAdminView> = {}): SubscriptionAdmin
     planLabel: 'Salon unique',
     offerCode: null,
     offerLabel: null,
+    pendingOfferCode: null,
+    pendingOfferLabel: null,
     billingPeriod: null,
     status: 'TRIAL',
     statusLabel: 'Essai en cours',
@@ -245,6 +247,55 @@ describe('SubscriptionPage', () => {
 
     expect(fixture.componentInstance.offers()).toEqual([]);
     expect(fixture.componentInstance.rows()).toHaveLength(1);
+  });
+
+
+  // ── Bascule d'offre au terme ──────────────────────────────────────────────────────────────
+
+  /**
+   * <b>Aucune date n'est envoyee.</b> C'est le serveur qui sait quand la couverture s'arrete, et
+   * elle bouge si le client paie une prolongation : figer la date ici la ferait diverger.
+   */
+  it('schedulesASwitchWithoutSendingADate', () => {
+    const { component } = create();
+    component.select(view({ offerCode: 'SOLO_ANNUEL', offerLabel: 'Annuel' }));
+
+    component.scheduledOfferForm.setValue({ offerCode: 'SOLO_MENSUEL' });
+    component.scheduleOffer();
+
+    const request = http.expectOne('/api/v1/platform/subscriptions/1/scheduled-offer');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({ offerCode: 'SOLO_MENSUEL' });
+    request.flush(view({ pendingOfferCode: 'SOLO_MENSUEL', pendingOfferLabel: 'Mensuel' }));
+    http.expectOne('/api/v1/platform/subscriptions/expiring?days=60').flush([]);
+    expect(component.actionDone()).toContain('au terme en cours');
+  });
+
+  /** Un geste qui ne se defait pas enferme : l'annulation est la contrepartie obligatoire. */
+  it('cancelsAScheduledSwitch', () => {
+    const { component } = create();
+    component.select(view({ pendingOfferCode: 'SOLO_MENSUEL', pendingOfferLabel: 'Mensuel' }));
+
+    component.cancelScheduledOffer();
+
+    const request = http.expectOne('/api/v1/platform/subscriptions/1/scheduled-offer');
+    expect(request.request.method).toBe('DELETE');
+    request.flush(view());
+    http.expectOne('/api/v1/platform/subscriptions/expiring?days=60').flush([]);
+    expect(component.selected()?.pendingOfferCode).toBeNull();
+  });
+
+  /**
+   * Une bascule programmee est une decision **deja prise mais sans effet** : elle doit se voir dans
+   * la liste, sinon on la reprogramme ou on s'etonne au renouvellement.
+   */
+  it('showsAScheduledSwitchInTheList', () => {
+    const { fixture } = create([
+      view({ offerLabel: 'Annuel', pendingOfferCode: 'SOLO_MENSUEL', pendingOfferLabel: 'Mensuel' }),
+    ]);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Mensuel');
   });
 
 });

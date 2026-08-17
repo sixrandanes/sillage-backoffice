@@ -23,6 +23,14 @@ export interface SubscriptionAdminView {
    */
   offerCode: string | null;
   offerLabel: string | null;
+  /**
+   * L'offre qui remplacera l'actuelle à la prochaine reconduction.
+   *
+   * La date d'effet n'est pas transmise : c'est `accessUntil`, qui bouge si le client paie une
+   * prolongation. La figer côté client la ferait diverger du serveur au premier règlement.
+   */
+  pendingOfferCode: string | null;
+  pendingOfferLabel: string | null;
   billingPeriod: BillingPeriod | null;
   status: SubscriptionStatus;
   statusLabel: string;

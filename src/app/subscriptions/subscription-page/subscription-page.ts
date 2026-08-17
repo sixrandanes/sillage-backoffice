@@ -98,6 +98,10 @@ export class SubscriptionPage {
     offerCode: new FormControl<string | null>(null, { validators: [Validators.required] }),
   });
 
+  readonly scheduledOfferForm = new FormGroup({
+    offerCode: new FormControl<string | null>(null, { validators: [Validators.required] }),
+  });
+
   readonly planForm = new FormGroup({
     plan: new FormControl<SubscriptionPlan | null>(null, { validators: [Validators.required] }),
   });
@@ -146,6 +150,7 @@ export class SubscriptionPage {
     this.actionDone.set(null);
     this.planForm.reset({ plan: row.plan });
     this.offerForm.reset({ offerCode: row.offerCode });
+    this.scheduledOfferForm.reset({ offerCode: row.pendingOfferCode });
     this.coverForm.reset({
       through: row.paidThrough ? new Date(row.paidThrough) : null,
       billingPeriod: row.billingPeriod ?? 'MONTHLY',
@@ -223,6 +228,29 @@ export class SubscriptionPage {
     this.run(
       this.subscriptionService.changeOffer(row.organizationId, offerCode),
       'Offre rattachée.',
+    );
+  }
+
+  scheduleOffer(): void {
+    const row = this.selected();
+    const offerCode = this.scheduledOfferForm.getRawValue().offerCode;
+    if (!row || !offerCode) {
+      return;
+    }
+    this.run(
+      this.subscriptionService.scheduleOffer(row.organizationId, offerCode),
+      'Bascule programmée : elle prendra effet au terme en cours.',
+    );
+  }
+
+  cancelScheduledOffer(): void {
+    const row = this.selected();
+    if (!row) {
+      return;
+    }
+    this.run(
+      this.subscriptionService.cancelScheduledOffer(row.organizationId),
+      "Bascule annulée. L'offre actuelle sera reconduite.",
     );
   }
 

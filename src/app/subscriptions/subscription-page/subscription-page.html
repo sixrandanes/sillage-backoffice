@@ -73,6 +73,13 @@
           @if (row.billingPeriod) {
             <span class="bo-muted">· {{ row.billingPeriod === 'YEARLY' ? 'annuel' : 'mensuel' }}</span>
           }
+          @if (row.pendingOfferLabel) {
+            <!-- Une bascule programmee est une decision deja prise mais sans effet : elle doit se
+                 voir, sinon on la reprogramme ou on s'etonne au renouvellement. -->
+            <span class="subscription-pending">
+              → {{ row.pendingOfferLabel }} au {{ row.accessUntil | date: 'dd/MM/yyyy' }}
+            </span>
+          }
         </td>
       </ng-container>
 
@@ -231,6 +238,50 @@
           <p class="bo-muted">
             Le palier et la périodicité sont recopiés depuis l'offre au moment du rattachement : la
             revaloriser plus tard ne réécrira pas cet abonnement.
+          </p>
+        </section>
+
+        <section class="subscription-gesture">
+          <h2>Basculer d'offre au terme</h2>
+          @if (current.pendingOfferLabel) {
+            <p>
+              <strong>{{ current.pendingOfferLabel }}</strong> prendra effet le
+              {{ current.accessUntil | date: 'dd/MM/yyyy' }}, à la prochaine reconduction.
+            </p>
+            <div class="bo-actions">
+              <button
+                mat-stroked-button
+                type="button"
+                [disabled]="busy()"
+                (click)="cancelScheduledOffer()"
+              >
+                Annuler la bascule
+              </button>
+            </div>
+          } @else {
+            <div class="bo-form">
+              <mat-form-field appearance="outline">
+                <mat-label>Nouvelle offre</mat-label>
+                <mat-select [formControl]="scheduledOfferForm.controls.offerCode">
+                  @for (offer of offers(); track offer.code) {
+                    <mat-option [value]="offer.code">{{ offer.label }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <button
+                mat-stroked-button
+                type="button"
+                [disabled]="busy() || scheduledOfferForm.invalid"
+                (click)="scheduleOffer()"
+              >
+                Programmer
+              </button>
+            </div>
+          }
+          <p class="bo-muted">
+            La bascule prend effet <strong>au terme</strong>, jamais au milieu d'une période déjà
+            payée — ce qui obligerait à calculer un prorata. Si le client règle une prolongation,
+            elle suit son nouveau terme.
           </p>
         </section>
 

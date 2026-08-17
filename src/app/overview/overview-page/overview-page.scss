@@ -1,0 +1,111 @@
+/* Les blocs se detachent franchement les uns des autres : trois natures de chiffres cote a cote
+   sans separation se liraient comme un seul tableau, et un total passerait pour une progression. */
+.overview-block,
+.overview-actions {
+  margin-bottom: 36px;
+}
+
+.overview-block h2,
+.overview-actions h2 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+.overview-block-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+/* **Le piege de la grille de cartes** : `styles.scss` pose
+   `.mat-mdc-card + .mat-mdc-card { margin-top: 20px }` pour des cartes empilees. Dans une grille,
+   la seconde carte est une sœur adjacente et descend de vingt pixels. */
+.overview-grid .mat-mdc-card + .mat-mdc-card {
+  margin-top: 0;
+}
+
+.overview-grid-tight {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+/* Le chiffre est le heros de la carte : c'est lui qu'on vient lire, le libelle ne fait que le
+   nommer. Meme arbitrage que le bandeau de cloture cote frontoffice, ou le montant avait ete
+   remonte au-dessus de la date. */
+.overview-figure {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.overview-label {
+  margin: 2px 0 0;
+  font-size: 13.5px;
+}
+
+.overview-help {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.overview-facts {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 16px;
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--bo-border);
+  font-size: 13px;
+}
+
+.overview-facts dt {
+  color: var(--bo-muted);
+}
+
+.overview-facts dd {
+  margin: 0;
+}
+
+/* La seule couleur de l'ecran, et elle porte une information : une baisse deja decidee. */
+.overview-warning {
+  color: #b23c17;
+}
+
+/* Le compte d'un rapport est un lien : on le lit, puis on va traiter. */
+.overview-report-count {
+  display: inline-block;
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.1;
+  text-decoration: none;
+}
+
+.overview-report-title {
+  margin: 2px 0 0;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.overview-report-help {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.overview-report-names {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+}

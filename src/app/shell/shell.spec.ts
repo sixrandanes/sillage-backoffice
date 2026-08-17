@@ -146,6 +146,7 @@ describe('Shell', () => {
    */
   it('groupsTheScreensUnderRubricsThatPredictTheirContent', () => {
     expect(NAVIGATION.map((s) => s.label)).toEqual([
+      'Pilotage',
       'Commercial',
       'Clients',
       'Référentiel',

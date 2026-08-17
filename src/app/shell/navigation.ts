@@ -28,6 +28,13 @@ export interface NavSection {
 
 export const NAVIGATION: readonly NavSection[] = [
   {
+    // En tete parce que c'est l'accueil : on y arrive pour savoir quoi faire, et il renvoie vers
+    // les ecrans qui portent les listes. Meme vocabulaire que le frontoffice, ou « Pilotage »
+    // designe deja ce qui se regarde plutot que ce qui se fait.
+    label: 'Pilotage',
+    entries: [{ label: 'Tableau de bord', route: '/overview' }],
+  },
+  {
     // En premier parce que c'est la seule rubrique ou **l'inaction se paie** : une echeance manquee
     // ferme la caisse d'un client. Les autres attendent sans consequence.
     label: 'Commercial',

@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import { Component, effect, inject, input, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -29,7 +28,6 @@ const SEARCH_DEBOUNCE_MS = 300;
 @Component({
   selector: 'app-salon-audit',
   imports: [
-    DatePipe,
     ReactiveFormsModule,
     MatButtonModule,
     MatCardModule,

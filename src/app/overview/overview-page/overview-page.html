@@ -1,0 +1,159 @@
+<div class="bo-page">
+  <h1 class="bo-page-title">Tableau de bord</h1>
+  <p class="bo-page-intro">
+    Où en est la plateforme, et ce qui demande une action. Les listes complètes vivent sur leurs
+    écrans : ce tableau y renvoie plutôt que de les remplacer.
+  </p>
+
+  @if (error()) {
+    <p class="bo-error">{{ error() }}</p>
+  }
+
+  @if (loading()) {
+    <mat-spinner diameter="28" />
+  } @else if (overview(); as o) {
+    <!-- ─── Ce qui demande une action, en premier ────────────────────────────────
+         Avant les chiffres : on ouvre cet écran pour savoir quoi faire, pas pour
+         contempler un total. Rien ne s'affiche quand il n'y a rien à signaler — un
+         encadré « tout va bien » permanent apprend surtout à ne plus le lire. -->
+    @if (rapportsAVoir().length > 0) {
+      <section class="overview-actions">
+        <h2>À traiter</h2>
+        <div class="overview-grid">
+          @for (ligne of rapportsAVoir(); track ligne.titre) {
+            <mat-card>
+              <mat-card-content>
+                <a class="overview-report-count bo-numeric" [routerLink]="ligne.route">
+                  {{ ligne.rapport.total }}
+                </a>
+                <p class="overview-report-title">{{ ligne.titre }}</p>
+                <p class="bo-muted overview-report-help">{{ ligne.aide }}</p>
+                <!-- Quelques noms : de quoi commencer sans changer d'écran. -->
+                <p class="bo-muted overview-report-names">
+                  {{ ligne.rapport.exemples.join(' · ') }}@if (ligne.rapport.total > ligne.rapport.exemples.length) { …}
+                </p>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- ─── Le stock : où l'on en est ────────────────────────────────────────── -->
+    <section class="overview-block">
+      <h2>Aujourd'hui</h2>
+
+      <div class="overview-grid">
+        <mat-card>
+          <mat-card-content>
+            <!-- « Revenu contractualisé », jamais « chiffre d'affaires » : rien n'est encore
+                 facturé. Confondre les deux ferait lire un résultat qui n'existe pas. -->
+            <p class="overview-figure bo-numeric">{{ o.stock.revenu.mensuel | number: '1.0-0' }}</p>
+            <p class="overview-label">XPF de revenu contractualisé par mois</p>
+            <p class="bo-muted overview-help">
+              Ce que les clients se sont engagés à payer, remises déduites — <strong>pas une
+              recette</strong> : rien n'est encore facturé. L'annuel est ramené au mois pour
+              s'additionner au mensuel.
+            </p>
+            <dl class="overview-facts">
+              <dt>Sur un an</dt>
+              <dd class="bo-numeric">{{ o.stock.revenu.annuel | number: '1.0-0' }} XPF</dd>
+              @if (o.stock.revenu.dontResilie > 0) {
+                <dt>Dont résilié</dt>
+                <dd class="bo-numeric overview-warning">
+                  −{{ o.stock.revenu.dontResilie | number: '1.0-0' }} XPF au terme
+                </dd>
+              }
+              @if (o.stock.revenu.enEssai > 0) {
+                <dt>En essai</dt>
+                <dd class="bo-numeric">{{ o.stock.revenu.enEssai | number: '1.0-0' }} XPF potentiels</dd>
+              }
+              @if (o.stock.revenu.remisesAccordees > 0) {
+                <dt>Remises accordées</dt>
+                <dd class="bo-numeric">−{{ o.stock.revenu.remisesAccordees | number: '1.0-0' }} XPF/mois</dd>
+              }
+            </dl>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card>
+          <mat-card-content>
+            <p class="overview-figure bo-numeric">{{ o.stock.organisationsActives }}</p>
+            <p class="overview-label">clients actifs</p>
+            <p class="bo-muted overview-help">
+              sur {{ o.stock.organisations }} inscrits depuis l'ouverture.
+            </p>
+            <dl class="overview-facts">
+              @for (statut of statuts; track statut.valeur) {
+                <dt>{{ statut.label }}</dt>
+                <dd class="bo-numeric">{{ o.stock.abonnementsParStatut[statut.valeur] }}</dd>
+              }
+            </dl>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card>
+          <mat-card-content>
+            <p class="overview-figure bo-numeric">{{ o.stock.salonsActifs }}</p>
+            <p class="overview-label">salons en activité</p>
+            <p class="bo-muted overview-help">sur {{ o.stock.salons }} créés.</p>
+            <dl class="overview-facts">
+              @for (entree of o.stock.salonsActifsParTerritoire | keyvalue; track entree.key) {
+                <dt>{{ entree.key }}</dt>
+                <dd class="bo-numeric">{{ entree.value }}</dd>
+              }
+            </dl>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </section>
+
+    <!-- ─── Le mouvement : ce qui a bougé ───────────────────────────────────── -->
+    <section class="overview-block">
+      <div class="overview-block-head">
+        <h2>Sur la période</h2>
+        <mat-button-toggle-group
+          [value]="jours()"
+          (change)="changerPeriode($event.value)"
+          hideSingleSelectionIndicator
+        >
+          <mat-button-toggle [value]="30">30 j</mat-button-toggle>
+          <mat-button-toggle [value]="90">90 j</mat-button-toggle>
+          <mat-button-toggle [value]="365">1 an</mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+      <p class="bo-muted overview-help">
+        Comparé à la période précédente, de <strong>même longueur</strong> — comparer trente jours à
+        un mois civil fausserait la lecture.
+      </p>
+
+      <div class="overview-grid overview-grid-tight">
+        @for (m of [
+          { label: 'Inscriptions', e: o.mouvement.inscriptions },
+          { label: 'Résiliations', e: o.mouvement.resiliations },
+          { label: 'Salons ouverts', e: o.mouvement.salonsOuverts },
+          { label: 'Règlements enregistrés', e: o.mouvement.reglementsEnregistres }
+        ]; track m.label) {
+          <mat-card>
+            <mat-card-content>
+              <p class="overview-figure bo-numeric">{{ m.e.periode }}</p>
+              <p class="overview-label">{{ m.label }}</p>
+              <!-- Ce qui ne se calcule pas reste vide, jamais zéro : une progression depuis zéro
+                   n'est pas « +100 % », c'est un démarrage. -->
+              <p class="bo-muted overview-help">
+                @if (variation(m.e) !== null) {
+                  {{ variation(m.e)! > 0 ? '+' : '' }}{{ variation(m.e) }} % — {{ m.e.precedente }}
+                  sur la période précédente
+                } @else if (m.e.precedente === 0 && m.e.periode > 0) {
+                  rien sur la période précédente
+                } @else {
+                  aucun mouvement
+                }
+              </p>
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+    </section>
+  }
+</div>

@@ -29,7 +29,15 @@ export const routes: Routes = [
     children: [
       // L'accueil est l'etat des lieux des abonnements : c'est la seule page ou une inaction se
       // paie — la caisse d'un client se ferme. Les taxes, elles, attendent une annonce officielle.
-      { path: '', pathMatch: 'full', redirectTo: 'subscriptions' },
+      // **L'accueil est le tableau de bord.** Les abonnements l'etaient « parce que c'est la seule
+      // page ou l'inaction se paie » — le raisonnement reste juste, mais ce tableau porte desormais
+      // ce constat *et* le reste, et il y renvoie plutot que de le remplacer.
+      { path: '', pathMatch: 'full', redirectTo: 'overview' },
+      {
+        path: 'overview',
+        loadComponent: () =>
+          import('./overview/overview-page/overview-page').then((m) => m.OverviewPage),
+      },
       {
         path: 'subscriptions',
         loadComponent: () =>

@@ -103,6 +103,45 @@ le pattern tenant tiennent en deux points :
   autorite** — 403 partout — et l'ecran le lui dit. Ce backoffice donne acces aux donnees de
   **tous** les clients : son ouverture ne peut pas etre un effet de bord d'une connexion.
 
+## Tableau de bord (`overview/`) : l'accueil, et le partage des trois natures de chiffres
+
+**C'est l'ecran d'accueil**, a la place de l'etat des lieux des abonnements. Celui-ci l'etait « parce
+que c'est la seule page ou l'inaction se paie » — le raisonnement reste juste, mais ce tableau porte
+desormais ce constat **et** le reste. Il y **renvoie** plutot que de le remplacer : les listes
+completes vivent sur leurs ecrans, et les dupliquer ferait deux endroits a maintenir.
+
+**Trois natures de chiffres, separees a l'ecran et dans le modele** — les melanger ferait lire un
+total comme une progression :
+
+- **Ce qui demande une action**, en **premier** : on ouvre cet ecran pour savoir quoi faire, pas pour
+  contempler un total. **Rien ne s'affiche quand il n'y a rien a signaler** — un encadre permanent
+  « tout va bien » apprend surtout a ne plus le lire, meme regle que les points d'attention de
+  l'accueil du frontoffice. Chaque rapport porte un **compte** et quelques **noms** : le compte dit
+  l'ampleur, les noms permettent de commencer sans changer d'ecran.
+- **Le stock** : ou l'on en est aujourd'hui. **Tous les statuts figurent, y compris a zero** — un
+  statut absent se lirait comme une donnee manquante la ou il veut dire « aucun », et c'est justement
+  celui qu'on veut voir rester vide.
+- **Le mouvement** : ce qui a bouge sur une periode, comparee a la precedente **de meme longueur**.
+
+**« Revenu contractualise », jamais « chiffre d'affaires ».** Rien n'est encore facture : ce sont des
+engagements, pas des recettes. Les confondre ferait lire un resultat qui n'existe pas — meme exigence
+que l'encours de bons cadeaux cote frontoffice, presente comme une dette. Trois precisions
+l'accompagnent, et chacune corrige une lecture fausse : l'**annuel ramene au mois** (sinon la somme
+ne veut rien dire), la part **deja resiliee** (une baisse decidee, invisible autrement puisqu'un
+resilie paie jusqu'au terme), et les **essais a part** (un potentiel, que compter dans le revenu
+gonflerait d'argent que personne n'a promis).
+
+**Une progression depuis zero n'est pas « +100 % »**, c'est un demarrage : la variation n'est pas
+calculee cote serveur, et l'ecran affiche « rien sur la periode precedente » plutot qu'un pourcentage
+qui ne veut rien dire. Meme regle que la vue de groupe — ce qui ne se calcule pas reste vide, jamais
+zero.
+
+**Le serveur ne recalcule rien qui existe deja** : le stock et les rapports partent de la meme
+lecture que l'ecran des abonnements, donc les deux ne peuvent pas se contredire. Et **aucune colonne
+n'a ete ajoutee** pour les mouvements : les resiliations sont datees sur l'abonnement, les
+inscriptions sur l'organisation, et les reglements se comptent dans le **journal d'administration**,
+qui les trace depuis toujours.
+
 ## Abonnements (`subscriptions/`) : la page d'accueil, parce que c'est la seule ou l'inaction se paie
 
 **C'est l'ecran d'accueil du backoffice**, avant les taxes. Ce n'est pas un choix d'importance mais

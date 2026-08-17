@@ -33,6 +33,16 @@ describe('TaxPage', () => {
    * donc pose une seule fois — mais rejoue a chaque rechargement, une tranche pouvant venir
    * d'etre creee.
    */
+  /**
+   * Le panneau des territoires vit sur cette page et charge sa propre liste au demarrage.
+   *
+   * Sans ce service, `httpMock.verify()` echouerait sur une requete en attente — et le message
+   * pointerait vers les territoires plutot que vers ce que le test verifie.
+   */
+  function flushTerritories(): void {
+    httpMock.expectOne('/api/v1/platform/territories').flush([]);
+  }
+
   function flushCategories(): void {
     httpMock.expectOne('/api/v1/platform/tax/categories').flush([
       { code: 'NORMAL', label: 'Taux normal', position: 40 },
@@ -59,6 +69,7 @@ describe('TaxPage', () => {
   function open() {
     const fixture = TestBed.createComponent(TaxPage);
     fixture.detectChanges();
+    flushTerritories();
     flushCategories();
     httpMock.expectOne('/api/v1/platform/tax/regimes').flush([TGC, TVA_PF]);
     return fixture;
@@ -67,6 +78,7 @@ describe('TaxPage', () => {
   it('loadsTheGridOfEachRegimeOnInit', () => {
     const fixture = TestBed.createComponent(TaxPage);
     fixture.detectChanges();
+    flushTerritories();
 
     flushCategories();
     httpMock.expectOne('/api/v1/platform/tax/regimes').flush([TGC, TVA_PF]);
@@ -78,6 +90,7 @@ describe('TaxPage', () => {
   it('showsAnErrorWhenTheGridCannotBeLoaded', () => {
     const fixture = TestBed.createComponent(TaxPage);
     fixture.detectChanges();
+    flushTerritories();
 
     flushCategories();
     httpMock.expectOne('/api/v1/platform/tax/regimes').flush('boom', { status: 500, statusText: 'Server Error' });
@@ -88,6 +101,7 @@ describe('TaxPage', () => {
   it('doesNotSubmitAnIncompleteSchedulingForm', () => {
     const fixture = TestBed.createComponent(TaxPage);
     fixture.detectChanges();
+    flushTerritories();
     flushCategories();
     httpMock.expectOne('/api/v1/platform/tax/regimes').flush([TGC, TVA_PF]);
 
@@ -100,6 +114,7 @@ describe('TaxPage', () => {
   it('schedulesANewRateAndReloadsTheGrid', () => {
     const fixture = TestBed.createComponent(TaxPage);
     fixture.detectChanges();
+    flushTerritories();
     flushCategories();
     httpMock.expectOne('/api/v1/platform/tax/regimes').flush([TGC, TVA_PF]);
 
@@ -124,6 +139,7 @@ describe('TaxPage', () => {
   it('togglesTheHistoryOfARegime', () => {
     const fixture = TestBed.createComponent(TaxPage);
     fixture.detectChanges();
+    flushTerritories();
     flushCategories();
     httpMock.expectOne('/api/v1/platform/tax/regimes').flush([TGC, TVA_PF]);
 

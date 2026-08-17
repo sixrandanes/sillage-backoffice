@@ -1,0 +1,29 @@
+.territory-card {
+  margin-bottom: 24px;
+}
+
+.territory-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.territory-name {
+  font-weight: 500;
+}
+
+/* Le nom de la taxe leve l'ambiguite : « Polynesie francaise » et « TVA » disent la meme chose a
+   qui connait, rien a qui decouvre. */
+.territory-tax {
+  margin-left: 8px;
+  font-size: 12px;
+}
+
+.territory-note {
+  margin: 20px 0 0;
+  max-width: 70ch;
+  font-size: 13px;
+}

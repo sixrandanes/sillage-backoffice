@@ -170,6 +170,24 @@ de **tous** les clients pour ecrire quatre colonnes.
 - **Le refus du serveur s'affiche tel quel** : lui seul sait dire quelle adresse est deja prise,
   quel compte porte deja cet identifiant, ou qu'on s'apprete a retirer le **dernier** acces.
 
+## Territoires (`territories/`) : ou l'on vend
+
+Panneau pose **en tete de la page des taxes** : on decide d'abord ou l'on vend, ensuite comment on y
+taxe. Un ecran separe pour deux interrupteurs serait une entree de menu de plus pour rien.
+
+- **Le sous-titre dit ce que fermer ne fait pas** : les salons qui operent deja continuent
+  d'encaisser, de cloturer et d'archiver. Sans cette phrase, personne n'oserait fermer un
+  territoire — on croirait couper des clients.
+- **Une note dit ce qu'une case a cocher ne peut pas faire** : ouvrir un territoire que le logiciel
+  ne connait pas (Wallis) demande une version du produit — il lui faut son regime, son fuseau et son
+  bareme, qu'aucun reglage ne peut inventer.
+- **En cas de refus, on recharge l'etat reel.** Laisser l'interrupteur sur la position cliquee
+  ferait croire a un changement qui n'a pas eu lieu — c'est le mode de defaillance propre aux
+  interrupteurs, et il est silencieux.
+- **Piege des tests** : ce panneau vit sur la page des taxes et fait son propre appel au demarrage.
+  Toute spec de `tax-page` doit le servir, sinon `httpMock.verify()` echoue en pointant vers les
+  territoires plutot que vers ce que le test verifiait.
+
 ## Fiscalite (`tax/`) : le referentiel s'edite ici, et nulle part ailleurs
 
 **Les tranches sont des donnees**, plus un `enum` : c'est cet ecran qui en cree. Un `enum` cote

@@ -1,0 +1,42 @@
+<mat-card class="territory-card">
+  <mat-card-header>
+    <mat-card-title>Territoires ouverts</mat-card-title>
+    <mat-card-subtitle>
+      Où l'on vend. Fermer un territoire empêche d'y ouvrir un <strong>nouveau</strong> salon ; ceux
+      qui y opèrent déjà continuent d'encaisser, de clôturer et d'archiver.
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    @if (error()) {
+      <p class="bo-error">{{ error() }}</p>
+    }
+
+    @if (loading()) {
+      <mat-spinner diameter="28" />
+    } @else {
+      <ul class="territory-list">
+        @for (territory of territories(); track territory.regime) {
+          <li>
+            <mat-slide-toggle
+              [checked]="territory.open"
+              [disabled]="busy() === territory.regime"
+              (change)="toggle(territory, $event.checked)"
+            >
+              <span class="territory-name">{{ territory.territoryLabel }}</span>
+              <span class="bo-muted territory-tax">{{ territory.taxName }}</span>
+            </mat-slide-toggle>
+          </li>
+        }
+      </ul>
+
+      <!-- Dit ce qu'une case à cocher ne peut pas faire : ouvrir un territoire que le code ne
+           connaît pas demande une version du logiciel, pas un clic. -->
+      <p class="bo-muted territory-note">
+        Seuls les territoires que le logiciel sait taxer figurent ici. En ouvrir un nouveau — Wallis,
+        par exemple — demande une version du produit : il lui faut son régime, son fuseau horaire et
+        son barème, qu'aucun réglage ne peut inventer.
+      </p>
+    }
+  </mat-card-content>
+</mat-card>

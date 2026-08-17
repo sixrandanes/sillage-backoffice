@@ -1,0 +1,227 @@
+<div class="bo-page">
+  <h1 class="bo-page-title">Offres</h1>
+  <p class="bo-page-intro">
+    Ce qu'on vend : libellé, prix, périodicité, essai, frais d'installation et période de validité.
+    Le palier de droits — combien de salons l'offre ouvre — reste ce que le logiciel applique.
+  </p>
+
+  <div class="offer-controls">
+    <mat-form-field appearance="outline" class="offer-asof">
+      <mat-label>Grille au</mat-label>
+      <input matInput [matDatepicker]="picker" [value]="asOf()" (dateChange)="changeAsOf($event.value)" />
+      <mat-datepicker-toggle matIconSuffix [for]="picker" />
+      <mat-datepicker #picker />
+    </mat-form-field>
+    @if (isHistorical()) {
+      <button mat-button type="button" (click)="backToToday()">Revenir à aujourd'hui</button>
+      <!-- Sans ce rappel, on lirait une grille passée en croyant voir celle du jour, et on
+           modifierait un tarif à partir d'une lecture fausse. -->
+      <span class="bo-error offer-historical">
+        Grille au {{ asOf() | date: 'dd/MM/yyyy' }}, pas celle d'aujourd'hui.
+      </span>
+    }
+  </div>
+
+  @if (loading()) {
+    <mat-spinner diameter="32" />
+  } @else if (loadError()) {
+    <p class="bo-error">{{ loadError() }}</p>
+  } @else if (offers().length === 0) {
+    <p class="bo-empty">Aucune offre dans la grille à cette date.</p>
+  } @else {
+    <table mat-table [dataSource]="offers()" class="offer-table">
+      <ng-container matColumnDef="code">
+        <th mat-header-cell *matHeaderCellDef>Offre</th>
+        <td mat-cell *matCellDef="let offer">
+          <span class="offer-label">{{ offer.label }}</span>
+          <code class="offer-code">{{ offer.code }}</code>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="plan">
+        <th mat-header-cell *matHeaderCellDef>Palier</th>
+        <td mat-cell *matCellDef="let offer">
+          {{ offer.planLabel }}
+          <span class="bo-muted offer-limit">
+            @if (offer.maxActiveSalons > 1000) {
+              salons illimités
+            } @else {
+              {{ offer.maxActiveSalons }} salon(s)
+            }
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="price">
+        <th mat-header-cell *matHeaderCellDef>Prix</th>
+        <td mat-cell *matCellDef="let offer" class="bo-numeric">
+          <span class="offer-price">
+            {{ offer.price | number: '1.0-0' }} XPF {{ offer.billingPeriod === 'YEARLY' ? '/an' : '/mois' }}
+          </span>
+          @if (offer.freeMonths > 0) {
+            <!-- « Douze mois pour le prix de dix » : le tarif mensuel implicite est ce qui permet de
+                 vérifier que l'annuelle est cohérente avec la mensuelle du même palier. -->
+            <span class="offer-free">
+              {{ offer.freeMonths }} mois offerts — soit
+              {{ offer.impliedMonthlyPrice | number: '1.0-0' }} XPF/mois sur {{ 12 - offer.freeMonths }} mois payés
+            </span>
+          }
+          <span class="bo-muted offer-derived">
+            {{ offer.monthlyEquivalent | number: '1.0-0' }} XPF/mois réels
+            @if (offer.setupFee) {
+              · installation {{ offer.setupFee | number: '1.0-0' }} XPF
+            }
+            · 1<sup>re</sup> année {{ offer.firstYearCost | number: '1.0-0' }} XPF
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="trial">
+        <th mat-header-cell *matHeaderCellDef>Essai</th>
+        <td mat-cell *matCellDef="let offer" class="bo-numeric">{{ offer.trialDays }} j</td>
+      </ng-container>
+
+      <ng-container matColumnDef="validity">
+        <th mat-header-cell *matHeaderCellDef>Validité</th>
+        <td mat-cell *matCellDef="let offer">
+          <span class="offer-chip" [class]="'is-' + severity(offer)">{{ offer.statusLabel }}</span>
+          <span class="bo-muted offer-dates">
+            du {{ offer.validFrom | date: 'dd/MM/yyyy' }}
+            @if (offer.validTo) {
+              au {{ offer.validTo | date: 'dd/MM/yyyy' }}
+            } @else {
+              — sans terme
+            }
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let offer" class="offer-actions">
+          <button mat-button type="button" (click)="edit(offer)">Modifier</button>
+          <button mat-button type="button" [disabled]="busy()" (click)="delete(offer)">Supprimer</button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumns"
+        [class.is-editing]="editing()?.id === row.id"
+      ></tr>
+    </table>
+  }
+
+  <mat-card class="offer-form-card">
+    <mat-card-header>
+      <mat-card-title>
+        @if (editing(); as current) {
+          Modifier {{ current.label }}
+        } @else {
+          Ajouter une offre
+        }
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      @if (formError()) {
+        <p class="bo-error">{{ formError() }}</p>
+      }
+      @if (done()) {
+        <p class="bo-success">{{ done() }}</p>
+      }
+
+      <form class="bo-form" (ngSubmit)="submit()">
+        <mat-form-field appearance="outline">
+          <mat-label>Code</mat-label>
+          <input matInput [formControl]="form.controls.code" placeholder="SOLO_ANNUEL" />
+          <mat-hint>Stable : c'est par lui qu'un paiement désignera l'offre</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Libellé</mat-label>
+          <input matInput [formControl]="form.controls.label" placeholder="Salon unique — annuel" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Palier</mat-label>
+          <mat-select [formControl]="form.controls.plan">
+            @for (plan of options()?.plans ?? []; track plan.value) {
+              <mat-option [value]="plan.value">{{ plan.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Périodicité</mat-label>
+          <mat-select [formControl]="form.controls.billingPeriod">
+            @for (period of options()?.periods ?? []; track period.value) {
+              <mat-option [value]="period.value">{{ period.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Prix par période (XPF)</mat-label>
+          <input matInput type="number" [formControl]="form.controls.price" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Frais d'installation (XPF)</mat-label>
+          <input matInput type="number" [formControl]="form.controls.setupFee" />
+          <mat-hint>Facultatif, une seule fois</mat-hint>
+        </mat-form-field>
+
+        @if (freeMonthsApply()) {
+          <mat-form-field appearance="outline">
+            <mat-label>Mois offerts</mat-label>
+            <input matInput type="number" [formControl]="form.controls.freeMonths" />
+            <mat-hint>2 = douze mois pour le prix de dix</mat-hint>
+          </mat-form-field>
+        }
+
+        <mat-form-field appearance="outline">
+          <mat-label>Essai (jours)</mat-label>
+          <input matInput type="number" [formControl]="form.controls.trialDays" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Proposée à partir du</mat-label>
+          <input matInput [matDatepicker]="debut" [formControl]="form.controls.validFrom" />
+          <mat-datepicker-toggle matIconSuffix [for]="debut" />
+          <mat-datepicker #debut />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Jusqu'au</mat-label>
+          <input matInput [matDatepicker]="fin" [formControl]="form.controls.validTo" />
+          <mat-datepicker-toggle matIconSuffix [for]="fin" />
+          <mat-datepicker #fin />
+          <mat-hint>Vide : sans terme prévu</mat-hint>
+        </mat-form-field>
+
+        <div class="bo-actions">
+          <button mat-flat-button type="submit" [disabled]="busy() || form.invalid">
+            @if (editing()) { Enregistrer } @else { Ajouter }
+          </button>
+          @if (editing()) {
+            <button mat-button type="button" (click)="cancelEdit()">Annuler</button>
+          }
+        </div>
+      </form>
+
+      <!-- Dit franchement ce que cette grille ne fait pas encore : sans cette phrase, on croirait
+           qu'éditer une offre change quelque chose pour les clients. -->
+      <section class="offer-note">
+        <h2>Ce que cette grille fait, et ne fait pas</h2>
+        <p>
+          Elle est la référence qu'on lit pour facturer et pour appliquer les gestes d'abonnement.
+          <strong>Rien ne la consomme automatiquement</strong> : un nouveau client reçoit toujours
+          l'essai câblé dans le code, et l'encaissement reste manuel. La brancher suppose de décider
+          quelle offre reçoit un nouvel inscrit — une décision commerciale, pas technique.
+        </p>
+      </section>
+    </mat-card-content>
+  </mat-card>
+</div>

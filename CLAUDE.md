@@ -238,6 +238,32 @@ pas encore n'a pas de journal.
   `fixture.detectChanges()` manquant apres une mutation de signal fait echouer le test en annoncant
   une URL absente — message qui pointe vers la requete, jamais vers l'effet non declenche.
 
+## Offres (`offers/`) : la grille tarifaire
+
+Ce qu'on vend. **Le palier de droits n'est pas l'offre** : « Solo mensuel » et « Solo annuel »
+ouvrent les memes droits et se paient differemment — l'ecran affiche donc les deux, le palier et
+le prix.
+
+- **Trois montants derives sont affiches, et ce n'est pas du confort** : une grille ou l'on ne voit
+  que le prix par periode n'est pas comparable — 49 000 par an et 4 900 par mois se ressemblent a
+  l'oeil. L'ecran montre l'equivalent mensuel reel, le tarif mensuel implicite (mois offerts
+  deduits, pour verifier la coherence de l'annuelle), et le cout de la premiere annee installation
+  comprise. Tous **calcules cote serveur**.
+- **« 2 mois offerts » s'affiche avec sa traduction** : « soit 4 900 XPF/mois sur 10 mois payes ».
+  Sans elle, on ne sait pas si le prix annuel saisi correspond vraiment a l'offre mensuelle.
+- **Le champ « mois offerts » n'apparait que sur une offre annuelle**, et une valeur restee d'une
+  saisie precedente n'est jamais envoyee sur une mensuelle — le serveur la refuserait.
+- **Piege Angular rencontre** : `freeMonthsApply` lisait `form.controls.x.value` dans un
+  `computed()`. Un `computed` ne suit que des **signaux** : le calcul ne se reevaluait jamais et le
+  champ ne serait **jamais** apparu. Corrige avec `toSignal(valueChanges)`, et trouve par un test,
+  pas a l'oeil.
+- **La grille se lit a une date**, et l'ecran le dit en rouge quand ce n'est pas aujourd'hui : sans
+  ce rappel, on modifierait un tarif a partir d'une lecture fausse. Meme regle que la grille fiscale,
+  y compris le retour a aujourd'hui qui n'envoie **aucun** parametre.
+- **L'ecran dit franchement ce que la grille ne fait pas encore** : rien ne la consomme
+  automatiquement. Sans cette phrase, on croirait qu'editer une offre change quelque chose pour les
+  clients.
+
 ## Journal d'administration (`audit/`)
 
 Ce que le backoffice a fait, quand, et par qui. **La dette a ete contractee par le backoffice

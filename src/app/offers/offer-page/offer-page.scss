@@ -1,0 +1,104 @@
+.offer-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.offer-asof {
+  width: 180px;
+}
+
+.offer-historical {
+  font-weight: 600;
+}
+
+.offer-table {
+  width: 100%;
+}
+
+.offer-table .is-editing {
+  background: color-mix(in srgb, var(--mat-sys-primary) 8%, transparent);
+}
+
+.offer-label {
+  display: block;
+  font-weight: 500;
+}
+
+/* Le code se relit caractere par caractere : c'est un identifiant, pas une phrase. */
+.offer-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  color: var(--bo-muted);
+}
+
+.offer-price {
+  display: block;
+  font-weight: 500;
+}
+
+/* Les mois offerts sont l'argument commercial : ils se voient, sans crier. */
+.offer-free {
+  display: block;
+  font-size: 12px;
+  color: #1a6b3c;
+  font-weight: 600;
+}
+
+.offer-derived,
+.offer-dates,
+.offer-limit {
+  display: block;
+  font-size: 12px;
+}
+
+.offer-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid currentColor;
+
+  &.is-available {
+    color: #1a6b3c;
+  }
+
+  &.is-scheduled {
+    color: #8a5a00;
+  }
+
+  &.is-ended {
+    color: var(--bo-muted);
+  }
+}
+
+.offer-actions {
+  white-space: nowrap;
+}
+
+.offer-form-card {
+  margin-top: 24px;
+}
+
+.offer-note {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--bo-border);
+
+  h2 {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--bo-muted);
+    margin: 0 0 12px;
+  }
+
+  p {
+    margin: 0;
+    max-width: 70ch;
+  }
+}

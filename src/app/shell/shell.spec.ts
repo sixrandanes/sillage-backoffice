@@ -22,6 +22,17 @@ describe('Shell', () => {
 
   afterEach(() => httpMock.verify());
 
+  /**
+   * Sert les deux lectures de version faites au demarrage du shell.
+   *
+   * Sans elles, `httpMock.verify()` echouerait sur des requetes en attente — et le message
+   * pointerait vers la version, pas vers ce que le test essaie de verifier.
+   */
+  function flushVersions(): void {
+    httpMock.expectOne('/version.json').flush({ commit: 'aaaaaaa', builtAt: '2026-08-17T09:00:00Z' });
+    httpMock.expectOne('/api/v1/version').flush({ commit: 'bbbbbbb', builtAt: '2026-08-17T08:00:00Z' });
+  }
+
   function connect(): void {
     const payload = btoa(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + 3600 }));
     auth.storeToken(`entete.${payload}.signature`);
@@ -33,6 +44,7 @@ describe('Shell', () => {
     connect();
     const fixture = TestBed.createComponent(Shell);
     fixture.detectChanges();
+    flushVersions();
 
     expect(fixture.nativeElement.textContent).toContain('sylvain@sillage.nc');
   });
@@ -48,6 +60,7 @@ describe('Shell', () => {
     const fixture = TestBed.createComponent(Shell);
     fixture.detectChanges();
 
+    flushVersions();
     const marque: HTMLImageElement = fixture.nativeElement.querySelector('.shell-mark');
     expect(marque.getAttribute('src')).toBe('logo/icone-creme.svg');
     // `alt` vide : le mot « Sillage » juste a cote dit deja la meme chose.
@@ -64,7 +77,41 @@ describe('Shell', () => {
     const fixture = TestBed.createComponent(Shell);
     fixture.detectChanges();
 
+    flushVersions();
     fixture.componentInstance.logout();
     httpMock.expectOne('/api/v1/platform/auth/revoke').flush(null);
   });
+
+  /**
+   * Les deux conteneurs se deploient separement : l'un peut etre a jour et l'autre non, et c'est
+   * exactement le cas ou l'on cherche a comprendre. Les deux versions doivent donc etre lisibles
+   * cote a cote, sans navigation.
+   */
+  it('showsBothContainerVersionsSideBySide', () => {
+    connect();
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    flushVersions();
+    fixture.detectChanges();
+
+    const pied: string = fixture.nativeElement.querySelector('.shell-versions').textContent;
+    expect(pied).toContain('aaaaaaa');
+    expect(pied).toContain('bbbbbbb');
+  });
+
+  /**
+   * <b>Un echec se dit, il ne se cache pas.</b> Masquer la ligne ferait disparaitre l'information
+   * au moment ou elle compte : ne pas pouvoir lire la version du serveur **est** un diagnostic.
+   */
+  it('saysUnknownRatherThanHidingAVersionItCouldNotRead', () => {
+    connect();
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    httpMock.expectOne('/version.json').flush({ commit: 'aaaaaaa', builtAt: null });
+    httpMock.expectOne('/api/v1/version').error(new ProgressEvent('error'));
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.shell-versions').textContent).toContain('inconnue');
+  });
+
 });

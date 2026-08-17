@@ -238,6 +238,31 @@ pas encore n'a pas de journal.
   `fixture.detectChanges()` manquant apres une mutation de signal fait echouer le test en annoncant
   une URL absente — message qui pointe vers la requete, jamais vers l'effet non declenche.
 
+## Les deux versions en pied de page
+
+« Qu'est-ce qui tourne reellement ? » est la question qui precede toutes les autres, et le besoin
+n'est pas theorique : plusieurs echanges ont ete perdus, cote frontend, a diagnostiquer un ecran
+qui n'etait pas celui en ligne, la CI n'ayant pas livre.
+
+- **Les deux conteneurs se deploient separement**, donc les deux versions se lisent separement :
+  l'un peut etre a jour et l'autre non, et c'est exactement le cas ou l'on cherche a comprendre.
+  Le pied les montre cote a cote.
+- **En pied et non en bandeau** : on ne le lit que lorsqu'on le cherche — mais il doit toujours
+  etre la, sans navigation, parce qu'on le cherche precisement quand quelque chose ne va pas.
+- **Un echec se dit, il ne se cache pas** : « inconnue » plutot qu'une ligne masquee. Ne pas
+  pouvoir lire la version du serveur **est** un diagnostic.
+- **Lues une fois au demarrage du shell** : elles ne changent pas pendant une session, et les
+  resonder ferait deux requetes de plus a chaque navigation.
+- **`/api/v1/version` est ouverte sans authentification** cote backend, precisement parce qu'elle
+  sert quand plus rien ne fonctionne — elle ne divulgue qu'un SHA. Elle passe par la chaine
+  **tenant** (le `securityMatcher` plateforme ne couvre que `/api/v1/platform/**`), donc a travers
+  la passerelle sans jeton. Verifie en ligne, avec les en-tetes de cache : les deux reponses sont
+  `no-store` et `DYNAMIC` chez Cloudflare — une version mise en cache mentirait au moment ou l'on a
+  besoin qu'elle dise vrai.
+- **Piege des tests** : le shell fait desormais deux lectures au demarrage. Tout test qui le cree
+  doit les servir, sinon `httpMock.verify()` echoue en pointant vers la version plutot que vers ce
+  que le test verifiait.
+
 ## Offres (`offers/`) : la grille tarifaire
 
 Ce qu'on vend. **Le palier de droits n'est pas l'offre** : « Solo mensuel » et « Solo annuel »

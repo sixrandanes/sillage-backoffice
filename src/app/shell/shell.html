@@ -31,3 +31,20 @@
 <main>
   <router-outlet />
 </main>
+
+<!-- « Qu'est-ce qui tourne reellement ? » — la question qui precede toutes les autres. Les deux
+     conteneurs se deploient separement : l'un peut etre a jour et l'autre non, et c'est exactement
+     le cas ou l'on cherche a comprendre. En pied plutot qu'en bandeau : on ne le lit que lorsqu'on
+     le cherche. -->
+<footer class="shell-versions">
+  @if (backofficeVersion(); as bo) {
+    <span [title]="bo.builtAt ? ('construit le ' + (bo.builtAt | date: 'dd/MM/yyyy HH:mm')) : ''">
+      Backoffice <code>{{ bo.commit }}</code>
+    </span>
+  }
+  @if (backendVersion(); as api) {
+    <span [title]="api.builtAt ? ('construit le ' + (api.builtAt | date: 'dd/MM/yyyy HH:mm')) : ''">
+      Serveur <code>{{ api.commit }}</code>
+    </span>
+  }
+</footer>

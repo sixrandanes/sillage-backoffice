@@ -67,8 +67,9 @@
     </form>
   }
 
-  <!-- Rien en creation : un salon qui n'existe pas encore n'a pas de journal. -->
+  <!-- Rien en creation : un salon qui n'existe pas encore n'a ni journal ni archive. -->
   @if (salonId !== null && !loading()) {
     <app-salon-audit [salonId]="salonId" [zoneId]="zoneId()" />
+    <app-salon-archives [salonId]="salonId" [zoneId]="zoneId()" />
   }
 </div>

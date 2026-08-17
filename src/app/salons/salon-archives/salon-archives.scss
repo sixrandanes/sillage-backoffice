@@ -1,0 +1,77 @@
+.archives-card {
+  margin-top: 24px;
+}
+
+.archives-table {
+  width: 100%;
+}
+
+.archives-when {
+  white-space: nowrap;
+}
+
+/* Le numero d'archive sous l'exercice : c'est sa continuite qui rend une suppression detectable,
+   au meme titre que la sequence du journal de caisse. */
+.archives-number {
+  display: block;
+  font-size: 11px;
+  color: var(--bo-muted);
+}
+
+.archives-size {
+  display: block;
+  font-size: 11px;
+}
+
+/* L'empreinte se lit caractere par caractere, et se compare : chasse fixe obligatoire. */
+.archives-hash {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  color: var(--bo-muted);
+}
+
+/* Trois etats, trois lectures — et surtout, « non controlee » ne doit pas se peindre comme
+   « intacte » : ce serait affirmer une verification qui n'a jamais eu lieu. */
+.archives-integrity {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.archives-ok {
+  background-color: #e3f4e9;
+  color: #1b5e34;
+}
+
+.archives-broken {
+  background-color: #fdeaea;
+  color: #a02020;
+}
+
+.archives-unknown {
+  background-color: #eef0f2;
+  color: var(--bo-muted);
+}
+
+/* Un exercice jamais scelle est un fait a corriger chez le client, pas une erreur de l'ecran :
+   ambre, comme les points d'attention qui se reglent sans intervention du support. */
+.archives-pending {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border-left: 3px solid #c77700;
+  background-color: #fdf6e8;
+  font-size: 13px;
+  max-width: 90ch;
+}
+
+.archives-action {
+  text-align: right;
+}
+
+.archives-note {
+  margin-top: 16px;
+  max-width: 70ch;
+  font-size: 13px;
+}

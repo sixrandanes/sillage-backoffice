@@ -13,6 +13,7 @@ import { OrganizationService } from '../../organizations/organization.service';
 import { MAX_PAGE_SIZE } from '../../core/http/page';
 import { Territory, TerritoryInfo } from '../../tax/models';
 import { TaxService } from '../../tax/tax.service';
+import { SalonArchives } from '../salon-archives/salon-archives';
 import { SalonAudit } from '../salon-audit/salon-audit';
 import { SalonService } from '../salon.service';
 
@@ -26,6 +27,7 @@ import { SalonService } from '../salon.service';
     MatInputModule,
     MatProgressSpinnerModule,
     MatSelectModule,
+    SalonArchives,
     SalonAudit,
   ],
   templateUrl: './salon-form.html',

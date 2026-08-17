@@ -437,6 +437,40 @@ pas encore n'a pas de journal.
   `fixture.detectChanges()` manquant apres une mutation de signal fait echouer le test en annoncant
   une URL absente — message qui pointe vers la requete, jamais vers l'effet non declenche.
 
+## Archives fiscales d'un salon (`salons/salon-archives/`)
+
+**Ce que cet ecran repare est un angle mort, pas un manque de confort.** Une archive ne vivait que
+derriere la chaine cliente, et le serveur refuse tout jeton d'une organisation desactivee : le geste
+qui clot un client — desactiver son compte — **enfermait ses archives**, pour lui comme pour nous.
+L'article 286 I-3&deg; bis du CGI oblige a les produire pendant **six ans**, donc bien apres la fin
+de l'abonnement. Le defaut ne se serait vu que le jour d'un controle.
+
+- **Aucun scellement depuis le support, et ce n'est pas un oubli.** Sceller un exercice est un acte
+  du **contribuable**, date et attribue a une personne du salon ; le faire ici fabriquerait une piece
+  fiscale que personne chez le client n'a etablie. Le support **constate** qu'un exercice ne l'a
+  jamais ete, il ne le scelle pas. Un test refuse le bouton « Sceller » — sans quoi il reapparaitra
+  un jour « pour rendre service ».
+- **Le fichier telecharge est verifie contre son sceau avant d'etre enregistre.** L'empreinte est un
+  SHA-256 du contenu, donc recalculable par le navigateur (`crypto.subtle`). Une archive qui a derive
+  n'est **pas** remise, et l'ecran dit pourquoi : la remettre serait pire que ne rien remettre, elle
+  porterait l'apparence de la preuve sans en avoir la valeur. Eprouve **dans les deux sens** — un
+  controle qui refuserait tout fichier passerait autrement pour un controle.
+  <br>Si `crypto.subtle` manque (origine non sure), on rend le fichier : **ne pas pouvoir verifier
+  n'est pas constater une alteration**, et bloquer priverait le support du document pour une raison
+  qui ne dit rien de son integrite.
+- **« Non controlee » n'est pas « intacte ».** Une archive anterieure au controle d'integrite ne dit
+  rien du grand livre ; la peindre en vert affirmerait une verification qui n'a pas eu lieu, sur la
+  piece meme qu'on produirait devant l'administration. Trois etats, trois lectures.
+- **Une liste vide et « jamais scelle » ne veulent pas dire la meme chose.** La premiere se lit comme
+  une panne, la seconde est un fait a corriger chez le client — et c'est la premiere question devant
+  un controle. D'ou l'appel a `/pending`, affiche en ambre.
+- **Chaque telechargement est trace**, et a chaque fois : une archive nomme chaque vente et chaque
+  encaissement d'un exercice entier. Contrairement au journal de caisse — dedoublonne par tranche de
+  24 h parce que le feuilleter demande une dizaine de requetes — emporter une archive est un geste
+  unique et delibere.
+- **Sur la fiche du salon, sous le journal de caisse**, et absent en creation : meme raison, on
+  arrive ici en sachant de quel salon on parle.
+
 ## Le navigateur ne detient plus aucun jeton (BFF)
 
 Le jeton arrivait dans le fragment de l'URL puis vivait dans le `localStorage` — lisible par

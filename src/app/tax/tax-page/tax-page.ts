@@ -1,5 +1,5 @@
 import { DecimalPipe } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -66,6 +66,19 @@ export class TaxPage {
    * l'organisation et se vend dans les deux territoires : des tranches propres a chaque regime
    * rendraient la moitie du catalogue intaxable dans l'autre.
    */
+  /**
+   * La date a laquelle on lit la grille.
+   *
+   * <p>Le besoin est reel : verifier ce qui s'appliquait l'an dernier avant de repondre a un
+   * controle, ou ce qui s'appliquera au 1er janvier apres avoir programme trois changements.
+   * L'historique repond a la premiere question ligne par ligne, mais pas a la seconde — il ne
+   * montre jamais **la grille entiere** telle qu'elle se presentera.
+   *
+   * <p>Aucun bloc n'est stocke pour autant : ce sont les memes intervalles, interroges a une autre
+   * date (voir `../backend/CLAUDE.md`, fiscalite).
+   */
+  readonly asOf = signal<Date | null>(null);
+
   readonly categories = signal<TaxCategoryInfo[]>([]);
 
   /** Creation d'une tranche : elle ne s'applique nulle part tant qu'aucun taux ne lui est ouvert. */
@@ -91,7 +104,8 @@ export class TaxPage {
       // Le referentiel des taux reste lisible sans elles : on ne bloque pas l'ecran entier.
       error: () => this.categories.set([]),
     });
-    this.taxService.regimes().subscribe({
+    const on = this.asOf();
+    this.taxService.regimes(on ? toIsoDate(on) : undefined).subscribe({
       next: (regimes) => {
         this.panels.set(regimes.map((info) => this.newPanel(info)));
         this.loading.set(false);
@@ -102,6 +116,17 @@ export class TaxPage {
       },
     });
   }
+
+  /** Relit la grille a une autre date. Les gestes d'ecriture, eux, restent dates par leur propre
+      champ : consulter le passe ne doit pas laisser croire qu'on peut y ecrire. */
+  readAsOf(date: Date | null): void {
+    this.asOf.set(date);
+    this.reload();
+  }
+
+  /** Vrai des qu'on ne regarde plus aujourd'hui : l'ecran doit le dire, sans quoi on lirait une
+      grille passee en croyant voir celle du jour. */
+  readonly isHistorical = computed(() => this.asOf() !== null);
 
   toggleHistory(panel: RegimePanel): void {
     if (panel.history !== null) {

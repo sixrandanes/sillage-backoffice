@@ -93,6 +93,12 @@ territoires. Ce qui distingue les regimes — taux, libelle local, periode — v
   combien de produits portent encore la tranche, quelle date est trop ancienne. Le message
   generique qui existait auparavant (« vérifiez la date d'effet ») faisait perdre exactement ce qui
   aide a corriger.
+- **La grille se lit a une date choisie**, passee ou future. C'est la lecture « par blocs » que
+  reclame l'administration du bareme, obtenue sans qu'aucun bloc ne soit stocke. **Quand ce n'est
+  pas aujourd'hui, l'ecran le dit en rouge** : sans ce rappel, on lirait une grille passee en
+  croyant voir celle du jour, et on programmerait un taux a partir d'une lecture fausse.
+- **Revenir a aujourd'hui n'envoie pas la date du jour, mais aucun parametre.** C'est le serveur
+  qui sait dans quel territoire se place le regime, et l'ecart Noumea/Papeete est d'un jour entier.
 - **`isScheduled` compare a la date du poste**, quand le serveur tranche a la sienne. L'ecart
   possible est d'un jour, et c'est sans consequence : le serveur refuse au besoin, l'ecran ne fait
   qu'eviter de proposer un geste voue au refus.

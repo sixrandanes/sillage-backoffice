@@ -59,3 +59,16 @@
   gap: 12px;
   align-items: center;
 }
+
+.as-of {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* Le rappel est colore, pas gris : il corrige une lecture qu'on ferait autrement de travers. */
+.as-of-warning {
+  color: var(--mat-sys-error);
+  font-size: 13px;
+}

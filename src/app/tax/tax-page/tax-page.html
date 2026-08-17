@@ -6,6 +6,27 @@
     Un taux encore à venir, lui, peut être annulé.
   </p>
 
+  <!-- La grille se lit a une date choisie. L'historique repond ligne par ligne, mais ne montre
+       jamais **la grille entiere** telle qu'elle se presentera : c'est ce que ce champ ajoute. -->
+  <div class="as-of">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Grille au</mat-label>
+      <input matInput [matDatepicker]="asOfPicker" [value]="asOf()"
+             (dateChange)="readAsOf($event.value)" />
+      <mat-datepicker-toggle matIconSuffix [for]="asOfPicker" />
+      <mat-datepicker #asOfPicker />
+    </mat-form-field>
+
+    @if (isHistorical()) {
+      <!-- Sans ce rappel, on lirait une grille passee ou future en croyant voir celle du jour —
+           et on programmerait un taux a partir d'une lecture fausse. -->
+      <span class="as-of-warning">
+        Vous ne regardez pas la grille du jour.
+      </span>
+      <button mat-button type="button" (click)="readAsOf(null)">Revenir à aujourd'hui</button>
+    }
+  </div>
+
   @if (loading()) {
     <mat-spinner diameter="32" />
   } @else if (loadError()) {

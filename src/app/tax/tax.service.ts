@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -15,8 +15,16 @@ import { API } from '../core/api';
 export class TaxService {
   private readonly http = inject(HttpClient);
 
-  regimes(): Observable<TaxRegimeInfo[]> {
-    return this.http.get<TaxRegimeInfo[]>(`${API}/platform/tax/regimes`);
+  /**
+   * La grille de chaque regime, **a la date demandee**.
+   *
+   * <p>Sans date, c'est aujourd'hui. Le parametre donne la lecture « par blocs » que reclame
+   * l'administration du bareme — ce qui s'appliquait l'an dernier, ce qui s'appliquera au
+   * 1er janvier — sans qu'aucun bloc ne soit stocke : les intervalles portent deja l'information.
+   */
+  regimes(on?: string): Observable<TaxRegimeInfo[]> {
+    const params = on ? new HttpParams().set('on', on) : undefined;
+    return this.http.get<TaxRegimeInfo[]>(`${API}/platform/tax/regimes`, { params });
   }
 
   history(regime: TaxRegime): Observable<TaxRateInfo[]> {

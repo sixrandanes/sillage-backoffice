@@ -197,4 +197,46 @@ describe('TaxPage', () => {
 
     expect(fixture.componentInstance.categoryError()).toContain('majuscules');
   });
+
+  /**
+   * <b>La lecture « par blocs », sans blocs stockes.</b> L'historique repond ligne par ligne, mais
+   * ne montre jamais la grille **entiere** telle qu'elle se presentera apres trois changements
+   * programmes. Le parametre de date la donne, en interrogeant les memes intervalles.
+   */
+  it('readsTheGridAtTheChosenDate', () => {
+    const fixture = open();
+
+    fixture.componentInstance.readAsOf(new Date(2027, 0, 1));
+
+    flushCategories();
+    const req = httpMock.expectOne(
+      (r) => r.url === '/api/v1/platform/tax/regimes' && r.params.get('on') === '2027-01-01');
+    req.flush([TGC, TVA_PF]);
+
+    expect(fixture.componentInstance.isHistorical()).toBe(true);
+  });
+
+  /**
+   * Sans ce rappel, on lirait une grille passee ou future en croyant voir celle du jour — et on
+   * programmerait un taux a partir d'une lecture fausse.
+   */
+  it('saysPlainlyWhenTheGridIsNotTodays', () => {
+    const fixture = open();
+    expect(fixture.componentInstance.isHistorical()).toBe(false);
+
+    fixture.componentInstance.readAsOf(new Date(2020, 0, 1));
+    flushCategories();
+    httpMock.expectOne((r) => r.url === '/api/v1/platform/tax/regimes').flush([TGC, TVA_PF]);
+    expect(fixture.componentInstance.isHistorical()).toBe(true);
+
+    // Et l'on revient a aujourd'hui sans parametre, pas avec la date du jour : c'est le serveur
+    // qui sait dans quel territoire on est, et l'ecart Noumea/Papeete est d'un jour entier.
+    fixture.componentInstance.readAsOf(null);
+    flushCategories();
+    const retour = httpMock.expectOne((r) => r.url === '/api/v1/platform/tax/regimes');
+    expect(retour.request.params.has('on')).toBe(false);
+    retour.flush([TGC, TVA_PF]);
+
+    expect(fixture.componentInstance.isHistorical()).toBe(false);
+  });
 });

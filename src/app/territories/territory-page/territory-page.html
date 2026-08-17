@@ -19,21 +19,18 @@
           <mat-card-content>
             <!-- **Le titre vit dans le contenu, pas dans un `mat-card-header`.** Celui-ci pose une
                  grille qui reserve une colonne d'avatar : sans avatar, le titre n'a pas le meme
-                 bord gauche que ce qui le suit, et les deux cartes se lisaient de travers. Ici le
-                 nom du territoire et ses faits partagent le bord **par construction**.
-                 Le sous-titre a disparu au passage : il repetait la date locale, qui figure deja
-                 dans les faits. -->
+                 bord gauche que ce qui le suit. -->
             <h2 class="territory-name">
               {{ territory.territoryLabel }}
-              <span class="bo-muted territory-code">{{ territory.territoryCode }}</span>
+              <span class="territory-code">{{ territory.territoryCode }}</span>
             </h2>
+
             <dl class="territory-facts">
               <dt>Fuseau horaire</dt>
               <!-- **La date, pas seulement l'heure.** Vingt et une heures séparent Nouméa de
                    Papeete : ce n'est pas un décalage d'horaire, c'est un décalage de **jour**, et
                    c'est ce qui fait qu'une journée comptable ne se découpe pas au même moment des
-                   deux côtés. Afficher « 08:15 » sans dire quel jour serait plus trompeur que de
-                   ne rien afficher. -->
+                   deux côtés. -->
               <dd>
                 <span class="bo-numeric">{{ localDate(territory) }}</span>
                 <span class="bo-muted territory-zone">{{ territory.zoneId }}</span>
@@ -42,19 +39,25 @@
               <dt>Taxe</dt>
               <dd>
                 {{ territory.taxName }}
-                <a class="bo-muted territory-zone" routerLink="/taxes">voir le barème</a>
+                <a routerLink="/taxes">voir le barème</a>
               </dd>
 
               <dt>Salons en activité</dt>
               <dd class="bo-numeric">{{ territory.activeSalons }}</dd>
             </dl>
+          </mat-card-content>
 
+          <!-- **La décision est séparée des faits.** Au milieu de la liste, l'interrupteur se lisait
+               comme une ligne de plus ; c'est pourtant la seule chose qu'on vienne faire ici. -->
+          <div class="territory-decision">
             <mat-slide-toggle
               [checked]="territory.open"
               [disabled]="busy() === territory.territory"
               (change)="toggle(territory, $event.checked)"
             >
-              {{ territory.open ? 'Ouvert à la vente' : 'Fermé à la vente' }}
+              <span class="territory-state">
+                {{ territory.open ? 'Ouvert à la vente' : 'Fermé à la vente' }}
+              </span>
             </mat-slide-toggle>
 
             <!-- Dit ce que fermer ne fait pas. Sans cette phrase, personne n'oserait fermer un
@@ -62,8 +65,8 @@
             @if (territory.open && territory.activeSalons > 0) {
               <p class="bo-muted territory-note">
                 Fermer empêcherait d'y ouvrir un <strong>nouveau</strong> salon. Les
-                {{ territory.activeSalons }} qui y opèrent continueraient d'encaisser, de clôturer et
-                d'archiver.
+                {{ territory.activeSalons }} qui y opèrent continueraient d'encaisser, de clôturer
+                et d'archiver.
               </p>
             } @else if (territory.open) {
               <p class="bo-muted territory-note">
@@ -73,10 +76,10 @@
             } @else {
               <p class="bo-muted territory-note">
                 Aucun nouveau salon ne peut y être ouvert. Ceux qui y opèrent déjà continuent de
-                fonctionner normalement.
+                fonctionner normalement, et leur barème reste modifiable.
               </p>
             }
-          </mat-card-content>
+          </div>
         </mat-card>
       }
     </div>

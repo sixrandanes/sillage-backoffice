@@ -2,33 +2,59 @@
    que chaque territoire porte ses faits cote a cote sans etirer la page. */
 .territory-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 16px;
+  /* Les cartes commencent en haut de leur rangee et non etirees a la plus haute : deux cartes de
+     contenus differents n'ont aucune raison d'avoir la meme hauteur. */
+  align-items: start;
+}
+
+/* **La correction qui remet les cartes a la meme hauteur.** `styles.scss` pose
+   `.mat-mdc-card + .mat-mdc-card { margin-top: 20px }` pour aerer des cartes **empilees** — mais
+   dans une grille, la seconde carte est une sœur adjacente : elle heritait donc de 20 px de marge
+   haute et descendait d'autant, sans que rien dans ce fichier ne parle de marge. Le prochain qui
+   posera une grille de cartes rencontrera exactement ce piege. */
+.territory-grid .mat-mdc-card + .mat-mdc-card {
+  margin-top: 0;
+}
+
+.territory-card {
+  display: flex;
+  flex-direction: column;
 }
 
 /* Le nom du territoire, pose dans le contenu de la carte plutot que dans un `mat-card-header` :
    celui-ci reserve une colonne d'avatar et decalait le titre par rapport a ce qui le suit. */
 .territory-name {
-  margin: 0 0 14px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0 0 16px;
   font-size: 17px;
   font-weight: 600;
   line-height: 1.3;
 }
 
-/* Le code du territoire suit son libelle, attenue : c'est une precision, pas un titre. */
+/* Le code suit le libelle : une precision, pas un titre. En capitales espacees pour qu'il se lise
+   comme un sigle et non comme un mot tronque. */
 .territory-code {
-  font-size: 12px;
-  font-weight: 400;
-  margin-left: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--bo-muted);
+  border: 1px solid var(--bo-border);
+  border-radius: 4px;
+  padding: 1px 5px;
 }
 
-/* Les faits en deux colonnes : l'intitule a gauche, la valeur a droite. Un tableau serait plus
-   lourd pour deux lignes, et une liste a puces ne les alignerait pas. */
+/* Les faits en deux colonnes. **La colonne des intitules a une largeur fixe**, et c'est ce qui fait
+   que deux cartes cote a cote alignent leurs valeurs : avec `auto`, chaque carte dimensionnait la
+   sienne sur son propre contenu, et les valeurs ne tombaient pas au meme endroit. */
 .territory-facts {
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 4px 16px;
-  margin: 4px 0 16px;
+  grid-template-columns: 150px 1fr;
+  gap: 8px 12px;
+  margin: 0;
   font-size: 13.5px;
 }
 
@@ -40,20 +66,37 @@
   margin: 0;
 }
 
+/* Le fuseau IANA passe sous la date plutot qu'a cote : ensemble ils depassaient la carte, et c'est
+   la date qu'on lit — l'identifiant ne sert qu'a lever un doute. */
 .territory-zone {
+  display: block;
   font-size: 12px;
-  margin-left: 8px;
+  margin-top: 1px;
+}
+
+/* **La decision, separee des faits par un filet.** Au milieu de la liste, l'interrupteur se lisait
+   comme une ligne de plus ; c'est pourtant la seule chose qu'on vienne faire sur cet ecran. */
+.territory-decision {
+  border-top: 1px solid var(--bo-border);
+  padding: 16px;
+  margin-top: 4px;
+}
+
+.territory-state {
+  font-weight: 500;
 }
 
 .territory-note {
-  margin: 12px 0 0;
+  margin: 10px 0 0;
   font-size: 12.5px;
   line-height: 1.5;
 }
 
+/* La limite du produit, en pied de page : elle vaut pour tous les territoires, pas pour un. Meme
+   mesure de lecture que le chapo, pour que la page ait une seule largeur de texte. */
 .territory-limit {
-  margin-top: 20px;
+  margin-top: 24px;
   font-size: 12.5px;
   line-height: 1.55;
-  max-width: 68ch;
+  max-width: 70ch;
 }

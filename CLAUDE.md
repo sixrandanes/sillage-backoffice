@@ -210,6 +210,20 @@ directement, rien ne disait qu'un territoire porte un fuseau, et la prochaine qu
 correction : le concept a quitte `nc.sillage.tax` pour `nc.sillage.territory` (voir
 `../backend/CLAUDE.md`).
 
+- **Piege d'une grille de cartes** : `styles.scss` pose
+  `.mat-mdc-card + .mat-mdc-card { margin-top: 20px }` pour aerer des cartes **empilees**. Dans une
+  grille, la seconde carte est une sœur adjacente : elle herite donc de cette marge et **descend de
+  vingt pixels**, sans que rien dans le fichier de l'ecran ne parle de marge. Le symptome est deux
+  cartes cote a cote qui ne commencent pas a la meme hauteur, et la cause est a l'autre bout du
+  projet. Toute grille de cartes doit la neutraliser.
+- **Une grille de cartes s'aligne en haut** (`align-items: start`) : deux cartes de contenus
+  differents n'ont aucune raison d'avoir la meme hauteur, et les etirer laisse un vide en bas de la
+  plus courte.
+- **La colonne des intitules a une largeur fixe**, pas `auto` : c'est ce qui fait que deux cartes
+  cote a cote alignent leurs valeurs. Avec `auto`, chaque carte dimensionne la sienne sur son propre
+  contenu, et les valeurs ne tombent pas au meme endroit — l'œil le voit avant de savoir pourquoi.
+- **La decision est separee des faits par un filet.** Au milieu de la liste, l'interrupteur se lisait
+  comme une ligne de plus ; c'est pourtant la seule chose qu'on vienne faire sur cet ecran.
 - **Le titre vit dans le contenu de la carte, pas dans un `mat-card-header`.** Celui-ci pose une
   grille qui reserve une colonne d'avatar : sans avatar, le titre n'a pas le meme bord gauche que ce
   qui le suit, et les cartes se lisent de travers. Poser le nom dans `mat-card-content` lui fait

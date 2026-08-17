@@ -40,6 +40,18 @@
   font-weight: 500;
 }
 
+/* Le code de la tranche a une largeur variable — `EXEMPT` et `INTERMEDIATE` n'occupent pas la meme
+   place — et le bouton qui le suivait partait donc d'un point different a chaque ligne. Une largeur
+   plancher stabilise la colonne du milieu ; c'est `margin-left: auto` qui aligne reellement le
+   bouton, en le poussant contre le bord droit quelle que soit la longueur de ce qui precede. */
+.category-list li code {
+  min-width: 130px;
+}
+
+.category-list li button {
+  margin-left: auto;
+}
+
 .rate-actions {
   text-align: right;
   white-space: nowrap;

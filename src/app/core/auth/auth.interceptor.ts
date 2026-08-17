@@ -2,7 +2,23 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 
+import { API } from '../api';
 import { AuthService } from './auth.service';
+
+/**
+ * Les seules routes que ce backoffice a le droit d'autoriser.
+ *
+ * <p><b>Un jeton plateforme n'a rien a faire sur une route tenant</b>, et l'y envoyer ne le rendait
+ * pas seulement inutile : la chaine tenant valide tout jeton **present**, meme sur une route
+ * ouverte, et rejette celui-ci en `401` faute d'audience. Le pied de page des versions, qui lit
+ * `/api/v1/version`, a suffi a faire boucler l'application entiere — 401 non reconnu, reconnexion,
+ * retour, 401.
+ *
+ * <p><b>Le defaut etait invisible au `curl`</b> : sans jeton, la meme route repond `200`. Il ne se
+ * manifeste que connecte, exactement comme la panne CORS documentee cote backend, ou sept
+ * verifications passaient au vert sur un site hors service.
+ */
+const PLATFORM_PREFIX = `${API}/platform/`;
 
 /**
  * Pose le jeton, et rattrape ce que le garde de route ne voit pas : une expiration **en cours
@@ -20,7 +36,10 @@ import { AuthService } from './auth.service';
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
 
-  if (!req.url.startsWith('/api')) {
+  // Seules les routes plateforme portent le jeton. Une route tenant appelee d'ici — la version du
+  // serveur, par exemple — part **sans** en-tete : elle est ouverte, et lui en donner un la ferait
+  // refuser.
+  if (!req.url.startsWith(PLATFORM_PREFIX)) {
     return next(req);
   }
 

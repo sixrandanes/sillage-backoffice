@@ -256,6 +256,27 @@ pas encore n'a pas de journal.
   `fixture.detectChanges()` manquant apres une mutation de signal fait echouer le test en annoncant
   une URL absente — message qui pointe vers la requete, jamais vers l'effet non declenche.
 
+## Le jeton ne sort jamais de `/api/v1/platform/`
+
+**Une panne complete a coute cette regle**, et elle vaut d'etre retenue telle quelle : le pied de
+page des versions lit `/api/v1/version`, une route **tenant** ouverte. L'intercepteur y collait le
+jeton plateforme — or **`permitAll` ne dispense pas de valider un jeton present** : la chaine tenant
+le rejetait en `401` faute d'audience. Le `401` declenchait une reconnexion, qui ramenait au meme
+point. Backoffice inutilisable, en boucle.
+
+- **L'intercepteur n'autorise que les routes plateforme.** Un jeton plateforme n'a rien a faire sur
+  une route tenant : c'est le cloisonnement meme du produit, et l'y envoyer ne le rendait pas
+  seulement inutile, ca cassait tout.
+- **Il ne reconnecte pas sur un `401` venu d'ailleurs** : ce n'est pas notre session qui est en
+  cause, et reconnecter redonnerait le meme resultat.
+- **Le defaut etait invisible au `curl`** : sans jeton, la meme route repond `200`. Il ne se
+  manifeste que **connecte** — exactement la panne CORS documentee cote backend, ou sept
+  verifications passaient au vert sur un site hors service. **Verifier une route ouverte depuis le
+  backoffice suppose d'envoyer un `Authorization`**, sinon on ne verifie pas ce que l'application
+  vit reellement.
+- Verrouille par deux tests, et **eprouves a l'envers** : le correctif retire, ils echouent tous les
+  deux.
+
 ## Les deux versions en pied de page
 
 « Qu'est-ce qui tourne reellement ? » est la question qui precede toutes les autres, et le besoin

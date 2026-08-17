@@ -2,6 +2,7 @@ import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { vi } from 'vitest';
 
 import { authInterceptor } from './auth.interceptor';
 import { AuthService } from './auth.service';
@@ -90,4 +91,39 @@ describe('authInterceptor', () => {
 
     expect(reauthenticate).not.toHaveBeenCalled();
   });
+
+  /**
+   * <b>La regression qui a fait boucler le backoffice.</b> Le pied de page lit
+   * `/api/v1/version`, une route **tenant** ouverte. L'intercepteur y collait le jeton plateforme ;
+   * or la chaine tenant valide tout jeton present, meme sur une route ouverte, et rejetait
+   * celui-ci en 401 faute d'audience. Le 401 declenchait une reconnexion, qui ramenait au meme
+   * point : boucle.
+   *
+   * <p>Invisible au `curl` : sans jeton, cette route repond 200.
+   */
+  it('sendsNoTokenToATenantRouteEvenWhenConnected', () => {
+    auth.storeToken('un-jeton');
+
+    http.get('/api/v1/version').subscribe();
+    const req = httpMock.expectOne('/api/v1/version');
+
+    expect(req.request.headers.has('Authorization')).toBe(false);
+    req.flush({ commit: 'abcdef1' });
+  });
+
+  /**
+   * Et si une route tenant repond quand meme 401, on ne reconnecte pas : ce n'est pas notre
+   * session qui est en cause, et reconnecter redonnerait le meme resultat.
+   */
+  it('doesNotReauthenticateOnATenantRouteRefusal', () => {
+    auth.storeToken('un-jeton');
+    const reauthenticate = vi.spyOn(auth, 'reauthenticate');
+
+    http.get('/api/v1/version').subscribe({ error: () => undefined });
+    httpMock.expectOne('/api/v1/version')
+      .flush({}, { status: 401, statusText: 'Unauthorized' });
+
+    expect(reauthenticate).not.toHaveBeenCalled();
+  });
+
 });

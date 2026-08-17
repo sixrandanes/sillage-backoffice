@@ -138,6 +138,38 @@ de consequence : une annonce de la DSF attend qu'on la saisisse, alors qu'un ess
   regle que les moyens de paiement cote tenant. Si `/options` echoue, seul le changement d'offre
   devient indisponible : le reste de l'ecran continue de fonctionner.
 
+## Administrateurs (`admins/`) : ce qui remplace le SQL en production
+
+Rattacher un administrateur plateforme etait le dernier geste courant du produit sans aucune API :
+il fallait inserer la ligne a la main dans `platform_admins`. Un geste rare, mais qui revient a
+chaque arrivee et a chaque depart dans l'equipe, et qui obligeait a ouvrir une session sur la base
+de **tous** les clients pour ecrire quatre colonnes.
+
+- **« Actif » et « En attente de rattachement » ne veulent pas dire la meme chose**, et c'est tout
+  l'enjeu de l'ecran : une fiche active sans identifiant du fournisseur n'ouvre **aucun** acces.
+  Les peindre pareil ferait croire l'acces ouvert, et on chercherait la panne ailleurs — chez le
+  fournisseur, dans le navigateur, partout sauf ici. L'ordre de lecture compte aussi : desactive
+  prime sur non rattache.
+- **La marche a suivre est ecrite sur la page**, en trois etapes. Elle n'est devinable par
+  personne : on ne connait pas l'identifiant de quelqu'un avant qu'il ne se soit presente une fois
+  — et cette premiere connexion **se solde par un refus**, ce qui est attendu et doit etre annonce.
+  Sans ces lignes, on cree un compte, on annonce a la personne qu'elle peut entrer, et elle se
+  heurte a un mur que rien n'explique.
+- **L'identifiant s'affiche en chasse fixe** : c'est une valeur recopiee a la main, donc exactement
+  le champ ou une coquille est probable, et il faut pouvoir la relire caractere par caractere. Et
+  il est **modifiable** — sans ce chemin, une faute de frappe rendait le compte definitivement
+  inutilisable et il fallait rouvrir une session SQL, precisement ce dont on sort.
+- **Un champ vide part en `null`, jamais en chaine vide** : cote serveur, l'index unique partiel
+  traiterait `""` comme une valeur, et la deuxieme fiche creee ainsi serait refusee sans rapport
+  apparent.
+- **« Supprimer » n'apparait que sur une fiche jamais rattachee.** Le serveur refuse les autres, et
+  offrir un bouton dont on connait le refus d'avance est une invitation a se cogner — meme principe
+  que le selecteur de tranche fiscale.
+- **Sa propre ligne est marquee « vous ».** Desactiver son propre compte est legitime — on part —
+  mais ne doit pas se faire sans le savoir, et le message de confirmation le dit franchement.
+- **Le refus du serveur s'affiche tel quel** : lui seul sait dire quelle adresse est deja prise,
+  quel compte porte deja cet identifiant, ou qu'on s'apprete a retirer le **dernier** acces.
+
 ## Fiscalite (`tax/`) : le referentiel s'edite ici, et nulle part ailleurs
 
 **Les tranches sont des donnees**, plus un `enum` : c'est cet ecran qui en cree. Un `enum` cote

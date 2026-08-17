@@ -40,6 +40,10 @@ export const routes: Routes = [
         loadComponent: () => import('./tax/tax-page/tax-page').then((m) => m.TaxPage),
       },
       {
+        path: 'admins',
+        loadComponent: () => import('./admins/admin-page/admin-page').then((m) => m.AdminPage),
+      },
+      {
         path: 'organizations',
         loadComponent: () =>
           import('./organizations/organization-list/organization-list').then((m) => m.OrganizationList),

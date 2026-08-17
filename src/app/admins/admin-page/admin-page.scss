@@ -1,0 +1,99 @@
+// Le rythme de page vient de `.bo-page` ; ce fichier ne porte que le propre a cet ecran.
+
+.admin-table {
+  width: 100%;
+}
+
+.admin-table .is-editing {
+  background: color-mix(in srgb, var(--mat-sys-primary) 8%, transparent);
+}
+
+// « vous » a cote de son propre nom : la desactivation de son propre compte est un geste
+// legitime — on part — mais elle ne doit pas se faire sans le savoir.
+.admin-self {
+  margin-left: 8px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--mat-sys-primary) 14%, transparent);
+  color: var(--mat-sys-primary);
+}
+
+// L'identifiant se relit caractere par caractere : c'est une valeur recopiee a la main, donc
+// exactement le champ ou une coquille est probable.
+.admin-sub {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  background: color-mix(in srgb, var(--bo-chrome) 6%, transparent);
+  padding: 2px 5px;
+  border-radius: 3px;
+}
+
+// « Actif » et « En attente » ne veulent pas dire la meme chose, et c'est tout l'enjeu : une fiche
+// active sans identifiant n'ouvre aucun acces. Les peindre pareil ferait chercher la panne
+// ailleurs.
+.admin-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  border: 1px solid currentColor;
+
+  &.is-ok {
+    color: #1a6b3c;
+  }
+
+  &.is-pending {
+    color: #8a5a00;
+  }
+
+  &.is-off {
+    color: var(--bo-muted);
+  }
+}
+
+.admin-actions {
+  white-space: nowrap;
+}
+
+.admin-form-card {
+  margin-top: 24px;
+}
+
+.admin-sub-field {
+  min-width: 280px;
+}
+
+.admin-howto {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--bo-border);
+
+  h2 {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--bo-muted);
+    margin: 0 0 12px;
+  }
+
+  ol {
+    margin: 0;
+    padding-left: 20px;
+    max-width: 70ch;
+  }
+
+  li + li {
+    margin-top: 6px;
+  }
+
+  p {
+    margin: 12px 0 0;
+    max-width: 70ch;
+  }
+}

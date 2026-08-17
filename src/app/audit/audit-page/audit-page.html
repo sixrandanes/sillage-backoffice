@@ -1,0 +1,73 @@
+<div class="bo-page">
+  <h1 class="bo-page-title">Journal d'administration</h1>
+  <p class="bo-page-intro">
+    Ce que le backoffice a fait, quand, et par qui. Ce journal ne se modifie pas : aucune route ne
+    permet de l'écrire ni de le corriger.
+  </p>
+
+  <div class="audit-controls">
+    <mat-form-field appearance="outline" class="audit-filter">
+      <mat-label>Ce qui est en jeu</mat-label>
+      <mat-select [value]="family()" (valueChange)="changeFamily($event)">
+        <mat-option [value]="null">Tout</mat-option>
+        @for (option of families(); track option.value) {
+          <mat-option [value]="option.value">{{ option.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="audit-filter">
+      <mat-label>Lignes</mat-label>
+      <mat-select [value]="size()" (valueChange)="changeSize($event)">
+        <mat-option [value]="50">50 dernières</mat-option>
+        <mat-option [value]="100">100 dernières</mat-option>
+        <mat-option [value]="500">500 dernières</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  @if (loading()) {
+    <mat-spinner diameter="32" />
+  } @else if (loadError()) {
+    <p class="bo-error">{{ loadError() }}</p>
+  } @else if (entries().length === 0) {
+    <p class="bo-empty">Aucun geste enregistré.</p>
+  } @else {
+    <table mat-table [dataSource]="entries()" class="audit-table">
+      <ng-container matColumnDef="occurredAt">
+        <th mat-header-cell *matHeaderCellDef>Quand</th>
+        <td mat-cell *matCellDef="let entry" class="bo-numeric audit-when">
+          {{ entry.occurredAt | date: 'dd/MM/yyyy HH:mm' }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="action">
+        <th mat-header-cell *matHeaderCellDef>Geste</th>
+        <td mat-cell *matCellDef="let entry">
+          <span class="audit-action">{{ entry.actionLabel }}</span>
+          <span class="audit-family" [class]="'is-' + severity(entry)">{{ entry.familyLabel }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="subject">
+        <th mat-header-cell *matHeaderCellDef>Sur quoi</th>
+        <td mat-cell *matCellDef="let entry">
+          {{ entry.subjectLabel ?? '—' }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="details">
+        <th mat-header-cell *matHeaderCellDef>Ce qui a changé</th>
+        <td mat-cell *matCellDef="let entry" class="bo-muted">{{ entry.details ?? '' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actor">
+        <th mat-header-cell *matHeaderCellDef>Par qui</th>
+        <td mat-cell *matCellDef="let entry" class="bo-muted">{{ entry.actorLabel }}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  }
+</div>

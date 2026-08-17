@@ -1,0 +1,47 @@
+.audit-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.audit-filter {
+  width: 200px;
+}
+
+.audit-table {
+  width: 100%;
+}
+
+/* L'horodatage se compare a la verticale : chasse fixe obligatoire. */
+.audit-when {
+  white-space: nowrap;
+}
+
+.audit-action {
+  display: block;
+  font-weight: 500;
+}
+
+/* Ce qui touche a l'acces se distingue du reste : c'est la seule question qu'on se pose devant un
+   incident, et un journal tout gris obligerait a lire chaque ligne pour la trouver. */
+.audit-family {
+  display: inline-block;
+  margin-top: 2px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 1px 6px;
+  border-radius: 4px;
+
+  &.is-access {
+    color: #8a3d63;
+    background: color-mix(in srgb, #8a3d63 12%, transparent);
+    font-weight: 600;
+  }
+
+  &.is-ordinary {
+    color: var(--bo-muted);
+    background: color-mix(in srgb, var(--bo-chrome) 6%, transparent);
+  }
+}

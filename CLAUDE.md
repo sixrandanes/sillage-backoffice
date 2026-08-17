@@ -215,6 +215,25 @@ reste de Kaimana). Le formulaire ne propose que les categories actuellement ouve
 (`panel.info.rates`) : programmer un taux pour une categorie fermee echouerait cote backend
 (409 CONFLICT), inutile de laisser l'utilisateur y arriver.
 
+## Journal d'administration (`audit/`)
+
+Ce que le backoffice a fait, quand, et par qui. **La dette a ete contractee par le backoffice
+lui-meme** : tant qu'il ne servait qu'a saisir des taux, ne rien tracer se defendait ; il peut
+desormais accorder un acces a toutes les donnees clientes et reparer des comptes.
+
+- **Ce qui touche a l'acces se distingue du reste** — c'est la seule question qu'on se pose devant
+  un incident (« qu'a-t-on touche a l'acces ? »), et un journal tout gris obligerait a lire chaque
+  ligne pour la trouver. Le filtre porte donc sur la **famille**, pas sur l'action : la question ne
+  se pose pas action par action.
+- **Revenir a « Tout » n'envoie pas le mot « tout », mais aucun filtre** — meme convention que la
+  date de la grille fiscale : un filtre absent ne filtre pas, et c'est le serveur qui decide.
+- **Le sujet et le detail sont figes cote serveur**, jamais recalcules : ils disent le nom du jour
+  du geste, et c'est precisement quand un nom a change qu'on vient relire le journal.
+- **Aucune ecriture n'est possible**, et l'API n'en offre aucune : le journal est alimente par les
+  services qui tracent leurs propres gestes.
+- **Sans les familles, seul le filtre disparait** : le journal reste lisible. Une panne partielle ne
+  doit pas emporter l'ecran.
+
 ## Support des comptes clients (`organizations/organization-users/`)
 
 Le panneau est **sur la fiche de l'organisation**, pas sur un ecran autonome : c'est la qu'on

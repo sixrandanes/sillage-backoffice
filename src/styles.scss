@@ -1,39 +1,164 @@
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
+
+// ============================================================================================
+// Direction visuelle : un **outil**, pas un produit.
+//
+// **Le backoffice ne reprend deliberement pas la direction du frontoffice** — ni son lagon, ni sa
+// Fraunces, ni ses aplats de marque. Deux raisons, dont la seconde compte plus que la premiere :
+//
+// 1. Le public n'est pas le meme. Une poignee d'administrateurs qui viennent y faire un geste
+//    precis, pas une gerante qui passe sa journee dedans. Ce qu'ils veulent est de la densite et
+//    de la lisibilite, pas une identite.
+// 2. **Les deux applications s'ouvrent dans des onglets voisins.** Une difference visuelle franche
+//    dit d'un coup d'oeil ou l'on se trouve — et se tromper d'application quand on a acces aux
+//    donnees de *tous* les clients serait autrement plus grave qu'une page austere.
+//
+// Corollaire assume : aucun cout d'entretien. Pas de police a heberger, pas d'image, pas
+// d'animation, pas de theme sombre. Ce fichier et le gabarit du shell portent tout.
+// ============================================================================================
 
 html {
   height: 100%;
+
   @include mat.theme(
     (
-      color: (
-        primary: mat.$azure-palette,
-        tertiary: mat.$blue-palette,
-      ),
-      typography: Roboto,
-      density: 0,
+      // Azure conserve, mais il ne peint plus le chrome : il ne sert qu'aux actions. Un bandeau
+      // colore sur toute la largeur donne un air d'application grand public, exactement ce qu'on
+      // ne veut pas ici.
+      color: (primary: mat.$azure-palette, tertiary: mat.$blue-palette),
+      // Police systeme : rien a telecharger, et le rendu d'un outil plutot que d'un produit.
+      typography: (plain-family: (system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif)),
+      // Densite resserree : un outil d'administration montre des tableaux, pas des cartes aerees.
+      // -1 et non -2, qui rendait les champs de saisie inconfortables a la frappe.
+      density: -1,
     )
   );
+
+  // Fond legerement plus froid que le blanc pur : les cartes s'en detachent sans avoir besoin
+  // d'ombres marquees.
+  --bo-canvas: #f4f5f7;
+  --bo-chrome: #1f2933;
+  --bo-chrome-text: #e4e7eb;
+  --bo-border: #dfe3e8;
+  --bo-muted: #616e7c;
 }
 
 body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
+  // Un seul theme, et c'est un choix : personne ne passe assez de temps ici pour qu'un theme
+  // sombre en vaille l'entretien.
   color-scheme: light;
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
+  background-color: var(--bo-canvas);
   color: var(--mat-sys-on-surface);
   font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
   margin: 0;
   height: 100%;
 }
-/* You can add global styles to this file, and also import other style files */
+
+// ── Conventions de page ─────────────────────────────────────────────────────────────────────
+// Chaque ecran posait sa propre largeur et son propre padding : deux ecrans voisins ne
+// s'alignaient pas. Ces trois classes portent le rythme, comme `.sillage-page-header` cote
+// frontoffice — meme lecon, autre vocabulaire.
+
+.bo-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 24px 64px;
+}
+
+.bo-page-title {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+// Le chapo se detache du titre, et le contenu s'en detache franchement : un espacement uniforme
+// donnerait un pave compact au lieu d'un titre, son explication et son contenu.
+.bo-page-intro {
+  color: var(--bo-muted);
+  margin: 8px 0 28px;
+  max-width: 70ch;
+}
+
+// ── Surfaces ────────────────────────────────────────────────────────────────────────────────
+
+.bo-card,
+.mat-mdc-card {
+  border: 1px solid var(--bo-border);
+  border-radius: 8px;
+  // Pas d'ombre : sur un fond legerement teinte, une bordure fine suffit a poser la surface, et
+  // une pile d'ombres donne un aspect brouillon des qu'il y a plusieurs cartes.
+  box-shadow: none !important;
+  background: #fff;
+}
+
+.mat-mdc-card + .mat-mdc-card {
+  margin-top: 20px;
+}
+
+// ── Tableaux ────────────────────────────────────────────────────────────────────────────────
+// Ce sont eux qu'on vient lire : ils portent l'essentiel du soin.
+
+.mat-mdc-table {
+  width: 100%;
+}
+
+.mat-mdc-header-cell {
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--bo-muted);
+}
+
+.mat-mdc-row:hover {
+  background: color-mix(in srgb, var(--mat-sys-primary) 5%, transparent);
+}
+
+// Les chiffres s'alignent : une colonne de taux ou de montants se compare a la verticale, ce
+// qu'une chasse variable rend impossible.
+.bo-numeric,
+.mat-mdc-cell.bo-numeric {
+  font-variant-numeric: tabular-nums;
+}
+
+// ── Etats ───────────────────────────────────────────────────────────────────────────────────
+
+.bo-muted {
+  color: var(--bo-muted);
+}
+
+.bo-error {
+  color: var(--mat-sys-error);
+}
+
+.bo-success {
+  color: var(--mat-sys-primary);
+}
+
+// Un vide se dit, il ne se laisse pas deviner : une zone blanche se lit comme un chargement qui
+// n'a pas abouti.
+.bo-empty {
+  padding: 32px;
+  text-align: center;
+  color: var(--bo-muted);
+}
+
+// ── Formulaires ─────────────────────────────────────────────────────────────────────────────
+
+.bo-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.bo-form .mat-mdc-form-field {
+  min-width: 200px;
+}
+
+.bo-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}

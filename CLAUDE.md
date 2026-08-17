@@ -11,6 +11,37 @@ En cas de doute sur une regle metier (fiscalite, RBAC, cycle de vie d'une donnee
 "Backoffice plateforme (`nc.sillage.platform`)", qui documente le cloisonnement cote serveur que
 ce projet consomme.
 
+## Direction visuelle : un outil, pas un produit
+
+**Le backoffice ne reprend deliberement pas la direction du frontoffice** — ni son lagon, ni sa
+Fraunces, ni ses aplats de marque. Deux raisons, et la seconde compte plus que la premiere :
+
+1. **Le public n'est pas le meme.** Une poignee d'administrateurs qui viennent faire un geste
+   precis, pas une gerante qui passe sa journee dedans. Ce qu'ils veulent est de la densite et de
+   la lisibilite, pas une identite.
+2. **Les deux applications s'ouvrent dans des onglets voisins.** Une difference visuelle franche
+   dit d'un coup d'oeil ou l'on se trouve — et se tromper d'application quand on a acces aux
+   donnees de **tous** les clients serait autrement plus grave qu'une page austere. La pastille
+   « BACKOFFICE » du bandeau existe pour ca.
+
+Corollaire assume : **aucun cout d'entretien**. Pas de police a heberger (pile systeme), pas
+d'image, pas d'animation, pas de theme sombre — personne n'y passe assez de temps pour que ce
+dernier en vaille la maintenance. `styles.scss` et le gabarit du shell portent tout.
+
+- **Chrome neutre, accent reserve aux actions.** Le bandeau etait un `mat-toolbar color="primary"`
+  peint en azure sur toute la largeur : cela donnait un air d'application grand public. Il est
+  desormais ardoise, et la couleur ne sert qu'aux boutons et aux liens.
+- **Densite `-1`.** Un outil d'administration montre des tableaux, pas des cartes aerees. `-2`
+  rendait les champs de saisie inconfortables a la frappe.
+- **Les cartes ont une bordure, pas d'ombre.** Sur un fond legerement teinte, une bordure fine
+  suffit a poser la surface, et une pile d'ombres donne un aspect brouillon des qu'il y en a
+  plusieurs.
+- **`.bo-page`, `.bo-page-title`, `.bo-page-intro` portent le rythme.** Chaque ecran posait sa
+  propre largeur et son propre padding : deux ecrans voisins ne s'alignaient pas. Meme lecon que
+  `.sillage-page-header` cote frontoffice, autre vocabulaire.
+- **Les chiffres sont tabulaires** (`.bo-numeric`) : une colonne de taux se compare a la
+  verticale, ce qu'une chasse variable rend impossible.
+
 ## Pourquoi un projet separe, pas un ecran de plus dans `frontend/`
 
 Un compte du backoffice (`PLATFORM_ADMIN`) traverse toutes les organisations clientes — ce n'est

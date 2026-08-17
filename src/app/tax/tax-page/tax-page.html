@@ -1,6 +1,6 @@
-<div class="tax-page">
+<div class="bo-page">
   <h1>Taux de taxe</h1>
-  <p class="tax-page-intro">
+  <p class="bo-page-intro">
     Programmer un nouveau taux ferme automatiquement celui en vigueur à la date d'effet choisie.
     <strong>Un taux qui a pris effet ne se modifie plus</strong> : il a servi à taxer des ventes.
     Un taux encore à venir, lui, peut être annulé.
@@ -9,7 +9,7 @@
   @if (loading()) {
     <mat-spinner diameter="32" />
   } @else if (loadError()) {
-    <p class="tax-page-error">Impossible de charger le referentiel fiscal.</p>
+    <p class="bo-error">Impossible de charger le referentiel fiscal.</p>
   } @else {
     <!-- Le vocabulaire est commun aux deux regimes, et le modele produit l'impose : un produit
          appartient a l'organisation et se vend dans les deux territoires. Il est donc pose avant
@@ -40,7 +40,7 @@
         }
 
         @if (categoryError()) {
-          <p class="tax-page-error">{{ categoryError() }}</p>
+          <p class="bo-error">{{ categoryError() }}</p>
         }
 
         <form [formGroup]="categoryForm" (ngSubmit)="createCategory()" class="schedule-form">
@@ -184,10 +184,10 @@
             </mat-form-field>
 
             @if (panel.scheduleError) {
-              <p class="tax-page-error">{{ panel.scheduleError }}</p>
+              <p class="bo-error">{{ panel.scheduleError }}</p>
             }
             @if (panel.scheduleSuccess) {
-              <p class="tax-page-success">Taux programme.</p>
+              <p class="bo-success">Taux programme.</p>
             }
 
             <!-- Deux gestes distincts sur le meme formulaire : « programmer » ferme le taux en

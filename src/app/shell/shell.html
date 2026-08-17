@@ -1,15 +1,24 @@
-<mat-toolbar color="primary">
-  <span class="shell-brand">Kaimana — Backoffice</span>
+<!-- Chrome **neutre**, jamais `color="primary"` : un bandeau colore sur toute la largeur donne un
+     air d'application grand public. Ici on veut lire un outil, et surtout ne pas le confondre
+     avec le frontoffice ouvert dans l'onglet d'a cote. -->
+<header class="shell-bar">
+  <span class="shell-brand">Sillage</span>
+  <span class="shell-scope">Backoffice</span>
+
   <nav class="shell-nav">
-    <a routerLink="/organizations" routerLinkActive="shell-nav-active">Organisations</a>
-    <a routerLink="/salons" routerLinkActive="shell-nav-active">Salons</a>
-    <a routerLink="/taxes" routerLinkActive="shell-nav-active">Taxes</a>
+    <a routerLink="/organizations" routerLinkActive="is-active">Organisations</a>
+    <a routerLink="/salons" routerLinkActive="is-active">Salons</a>
+    <a routerLink="/taxes" routerLinkActive="is-active">Taxes</a>
   </nav>
+
   <span class="shell-spacer"></span>
+
   @if (currentAdmin(); as admin) {
     <span class="shell-admin">{{ admin.email }}</span>
   }
-  <button mat-button (click)="logout()">Deconnexion</button>
-</mat-toolbar>
+  <button mat-button class="shell-logout" (click)="logout()">Déconnexion</button>
+</header>
 
-<router-outlet />
+<main>
+  <router-outlet />
+</main>

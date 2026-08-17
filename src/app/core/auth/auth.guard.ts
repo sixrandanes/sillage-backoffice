@@ -4,15 +4,13 @@ import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from './auth.service';
 
 /**
- * Deux refus distincts, a ne pas confondre.
+ * Aucune session : on renvoie sur `/login`, qui propose une connexion explicite.
  *
- * <ul>
- *   <li><b>Aucune session</b> — on renvoie sur `/login`, qui propose une connexion explicite.</li>
- *   <li><b>Une session dont le jeton a expire</b> pendant que l'application etait ouverte — on
- *       repart en chercher un neuf. Sans ce second cas, on laisserait naviguer normalement puis
- *       chaque appel echouerait : l'ecran se remplirait d'erreurs sans que rien n'explique
- *       pourquoi, et on conclurait que le produit est casse.</li>
- * </ul>
+ * <p><b>Il n'y a plus d'echeance a inspecter ici</b>, et c'est une consequence directe du passage
+ * au cookie : le navigateur ne detient plus de jeton, donc plus rien a lire. La session est etablie
+ * au demarrage par `/me` (voir `provideAppInitializer`), et une expiration survenue **pendant**
+ * l'ecran se rattrape ou elle se manifeste — sur le `401` que l'intercepteur intercepte. Une
+ * verification locale ne pouvait de toute facon jamais faire mieux que le serveur.
  */
 export const authGuard: CanActivateFn = (_route, state) => {
   const auth = inject(AuthService);
@@ -20,10 +18,6 @@ export const authGuard: CanActivateFn = (_route, state) => {
 
   if (!auth.isAuthenticated()) {
     return router.createUrlTree(['/login'], { queryParams: { returnTo: state.url } });
-  }
-  if (auth.isTokenExpired()) {
-    auth.reauthenticate(state.url);
-    return false;
   }
   return true;
 };

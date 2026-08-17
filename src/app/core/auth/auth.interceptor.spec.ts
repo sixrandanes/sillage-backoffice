@@ -28,13 +28,17 @@ describe('authInterceptor', () => {
 
   afterEach(() => httpMock.verify());
 
-  it('carriesTheTokenOnApiCalls', () => {
-    auth.storeToken('un-jeton');
-
+  /**
+   * <b>Plus aucun jeton n'est pose, et c'est tout l'objet du changement.</b> Le navigateur n'en
+   * detient plus : le cookie `HttpOnly` voyage seul, et l'intercepteur ne fait que declarer que la
+   * requete en depend.
+   */
+  it('carriesTheSessionCookieInsteadOfABearerHeader', () => {
     http.get('/api/v1/platform/salons').subscribe();
     const req = httpMock.expectOne('/api/v1/platform/salons');
 
-    expect(req.request.headers.get('Authorization')).toBe('Bearer un-jeton');
+    expect(req.request.headers.has('Authorization')).toBe(false);
+    expect(req.request.withCredentials).toBe(true);
     req.flush([]);
   });
 
@@ -44,20 +48,17 @@ describe('authInterceptor', () => {
    * l'authentification sur un appel laisse par megarde sur une autre — panne silencieuse, la ou un
    * 401 se voit.
    */
+  /** Une URL etrangere ne doit pas emporter notre cookie de session. */
   it('leavesForeignUrlsAlone', () => {
-    auth.storeToken('un-jeton');
-
     http.get('https://exemple.nc/donnees').subscribe();
     const req = httpMock.expectOne('https://exemple.nc/donnees');
 
-    expect(req.request.headers.has('Authorization')).toBe(false);
+    expect(req.request.withCredentials).toBe(false);
     req.flush({});
   });
 
   it('goesForAFreshTokenOnA401', () => {
     const reauthenticate = vi.spyOn(auth, 'reauthenticate').mockImplementation(() => {});
-    auth.storeToken('un-jeton');
-
     http.get('/api/v1/platform/salons').subscribe({ error: () => {} });
     httpMock.expectOne('/api/v1/platform/salons')
       .flush({}, { status: 401, statusText: 'Unauthorized' });
@@ -71,8 +72,6 @@ describe('authInterceptor', () => {
    */
   it('neverReconnectsOnA403', () => {
     const reauthenticate = vi.spyOn(auth, 'reauthenticate').mockImplementation(() => {});
-    auth.storeToken('un-jeton');
-
     http.get('/api/v1/platform/salons').subscribe({ error: () => {} });
     httpMock.expectOne('/api/v1/platform/salons')
       .flush({}, { status: 403, statusText: 'Forbidden' });
@@ -83,8 +82,6 @@ describe('authInterceptor', () => {
   /** `/me` **etablit** la session : reagir a son 401 relancerait une connexion en plein jugement. */
   it('doesNotReconnectWhenItIsTheSessionCheckThatFails', () => {
     const reauthenticate = vi.spyOn(auth, 'reauthenticate').mockImplementation(() => {});
-    auth.storeToken('un-jeton');
-
     http.get('/api/v1/platform/auth/me').subscribe({ error: () => {} });
     httpMock.expectOne('/api/v1/platform/auth/me')
       .flush({}, { status: 401, statusText: 'Unauthorized' });
@@ -102,8 +99,6 @@ describe('authInterceptor', () => {
    * <p>Invisible au `curl` : sans jeton, cette route repond 200.
    */
   it('sendsNoTokenToATenantRouteEvenWhenConnected', () => {
-    auth.storeToken('un-jeton');
-
     http.get('/api/v1/version').subscribe();
     const req = httpMock.expectOne('/api/v1/version');
 
@@ -116,7 +111,6 @@ describe('authInterceptor', () => {
    * session qui est en cause, et reconnecter redonnerait le meme resultat.
    */
   it('doesNotReauthenticateOnATenantRouteRefusal', () => {
-    auth.storeToken('un-jeton');
     const reauthenticate = vi.spyOn(auth, 'reauthenticate');
 
     http.get('/api/v1/version').subscribe({ error: () => undefined });

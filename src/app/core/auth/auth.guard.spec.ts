@@ -10,15 +10,17 @@ describe('auth guards', () => {
   let auth: AuthService;
   let httpMock: HttpTestingController;
 
-  function aValidToken(secondsFromNow = 3600): string {
-    const payload = btoa(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + secondsFromNow }));
-    return `entete.${payload}.signature`;
-  }
-
-  function connect(secondsFromNow = 3600): void {
-    auth.storeToken(aValidToken(secondsFromNow));
+  /** « Etre connecte » veut desormais dire : `/me` a repondu. Il n'y a plus de jeton local. */
+  function connect(): void {
     auth.restoreSession().subscribe();
     httpMock.expectOne('/api/v1/platform/auth/me').flush({ id: 1, email: 'sylvain@sillage.nc' });
+  }
+
+  /** Et « pas connecte » : `/me` a refuse. */
+  function stayAnonymous(): void {
+    auth.restoreSession().subscribe();
+    httpMock.expectOne('/api/v1/platform/auth/me')
+      .flush({}, { status: 401, statusText: 'Unauthorized' });
   }
 
   beforeEach(() => {
@@ -42,21 +44,20 @@ describe('auth guards', () => {
   });
 
   it('sendsAnAnonymousVisitorToTheLoginScreen', () => {
+    stayAnonymous();
     expect(run(() => authGuard({} as any, { url: '/salons' } as any))).toBeInstanceOf(UrlTree);
   });
 
   /**
-   * Le cas qui manquait : un jeton expirant **pendant** que l'application etait ouverte. Sans ce
-   * garde, on laisserait naviguer normalement puis chaque appel echouerait — l'ecran se remplirait
-   * d'erreurs sans que rien n'explique pourquoi.
+   * <b>Le garde n'inspecte plus aucune echeance</b>, et c'est une consequence directe du passage au
+   * cookie : le navigateur ne detient plus de jeton. Une expiration survenue **pendant** l'ecran se
+   * rattrape la ou elle se manifeste — sur le 401 que l'intercepteur intercepte — et une
+   * verification locale ne pouvait de toute facon jamais faire mieux que le serveur.
    */
-  it('goesForAFreshTokenWhenTheCurrentOneHasExpired', () => {
+  it('leavesExpiryToTheServerBecauseTheBrowserHasNothingToInspect', () => {
     connect();
-    auth.storeToken(aValidToken(-1));
-    const reauthenticate = vi.spyOn(auth, 'reauthenticate').mockImplementation(() => {});
 
-    expect(run(() => authGuard({} as any, { url: '/salons' } as any))).toBe(false);
-    expect(reauthenticate).toHaveBeenCalledWith('/salons');
+    expect(run(() => authGuard({} as any, { url: '/salons' } as any))).toBe(true);
   });
 
   it('keepsAConnectedAdminAwayFromTheLoginScreen', () => {

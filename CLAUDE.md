@@ -256,6 +256,31 @@ pas encore n'a pas de journal.
   `fixture.detectChanges()` manquant apres une mutation de signal fait echouer le test en annoncant
   une URL absente — message qui pointe vers la requete, jamais vers l'effet non declenche.
 
+## Le navigateur ne detient plus aucun jeton (BFF)
+
+Le jeton arrivait dans le fragment de l'URL puis vivait dans le `localStorage` — lisible par
+**n'importe quelle XSS**, pendant toute la session. Le backend le garde desormais et ne pose qu'un
+cookie `HttpOnly`.
+
+- **Ce fichier n'a plus ni `token`, ni `storeToken`, ni `isTokenExpired`.** Il n'y a plus rien a
+  ranger ni a inspecter : le seul etat local est « qui suis-je », rendu par `/me`.
+- **Le garde n'inspecte plus aucune echeance**, consequence directe : le navigateur n'a rien a lire.
+  La session est etablie au demarrage par `provideAppInitializer`, et une expiration survenue
+  **pendant** l'ecran se rattrape la ou elle se manifeste — sur le `401` que l'intercepteur
+  intercepte. Une verification locale ne pouvait de toute facon jamais faire mieux que le serveur.
+- **`restoreSession` ne court-circuite plus rien** : elle demande toujours. Demander est aussi rapide
+  que deviner, et ne peut pas se tromper.
+- **L'intercepteur ne pose plus d'en-tete**, il declare `withCredentials`. C'est aussi ce qui rend
+  la boucle d'antan impossible : il n'y a plus rien a envoyer au mauvais endroit.
+- **Angular signe les ecritures tout seul** : il recopie le cookie `XSRF-TOKEN` dans
+  `X-XSRF-TOKEN` des lors que l'appel est en meme origine. C'est gratuit ici — l'API est servie par
+  le meme nginx — mais **ca cesserait de fonctionner si l'API passait sur un autre domaine**.
+- **`clearUserScopedStorage` reste appele alors que plus rien n'est range** : il balaie le jeton du
+  modele precedent, qu'un navigateur deja ouvert porte encore.
+- **La page `/callback` ne lit plus de fragment** et ne fait plus de `replaceState` : celui-ci
+  n'existait que pour faire disparaitre le jeton de la barre d'adresse. Il ne reste dans l'URL que
+  la destination.
+
 ## Le jeton ne sort jamais de `/api/v1/platform/`
 
 **Une panne complete a coute cette regle**, et elle vaut d'etre retenue telle quelle : le pied de

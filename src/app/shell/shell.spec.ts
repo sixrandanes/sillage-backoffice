@@ -33,9 +33,8 @@ describe('Shell', () => {
     httpMock.expectOne('/api/v1/version').flush({ commit: 'bbbbbbb', builtAt: '2026-08-17T08:00:00Z' });
   }
 
+  /** « Etre connecte » veut dire : `/me` a repondu. Il n'y a plus de jeton local a poser. */
   function connect(): void {
-    const payload = btoa(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + 3600 }));
-    auth.storeToken(`entete.${payload}.signature`);
     auth.restoreSession().subscribe();
     httpMock.expectOne('/api/v1/platform/auth/me').flush({ id: 1, email: 'sylvain@sillage.nc' });
   }

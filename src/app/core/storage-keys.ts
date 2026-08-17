@@ -10,7 +10,13 @@
  * navigateur deja ouvert reparte avec l'un d'eux, rejete a chaque requete sans que rien ne
  * l'explique.
  */
-export const TOKEN_KEY = 'sillage-backoffice.token';
+/**
+ * **Plus rien n'est range sous cette cle.** Depuis le passage au cookie `HttpOnly`, le navigateur ne
+ * detient aucun jeton — c'est tout l'objet du changement. Elle reste ici pour etre **balayee** : un
+ * navigateur deja ouvert porte encore le jeton du modele precedent, et un jeton qui traine est
+ * precisement ce qu'on vient de supprimer.
+ */
+const TOKEN_KEY = 'sillage-backoffice.token';
 
 const LEGACY_KEYS = ['kaimana-backoffice.token', 'kaimana-backoffice.admin'];
 

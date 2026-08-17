@@ -6,10 +6,9 @@ import { AuthService } from '../core/auth/auth.service';
 /**
  * Le retour du fournisseur : on range le jeton, on demande qui l'on est, puis on entre.
  *
- * <p><b>Le jeton arrive dans le fragment</b> (`#access_token=…`), pas en parametre de requete : un
- * fragment n'est pas transmis au serveur, donc absent des journaux d'acces et de l'en-tete
- * `Referer`. Il est retire de la barre d'adresse des qu'il est range — par `replaceState` et non
- * `pushState`, sinon un retour arriere y ramenerait.
+ * <p><b>Plus aucun jeton ne transite ici.</b> Il arrivait dans le fragment (`#access_token=…`) puis
+ * vivait dans le `localStorage` ; le backend le garde desormais et n'a pose qu'un cookie
+ * `HttpOnly`. Cette page ne recoit qu'une chose : ou l'on retournait.
  *
  * <p><b>Aucune garde sur cette route</b>, deliberement : `guestGuard` renverrait a l'accueil
  * quiconque se reconnecte, et `authGuard` refuserait tout le monde puisqu'on n'a precisement pas
@@ -46,18 +45,14 @@ export class Callback {
   protected readonly message = signal<string | null>(null);
 
   constructor() {
-    const fragment = new URLSearchParams(window.location.hash.replace(/^#/, ''));
-    const token = fragment.get('access_token');
-    const returnTo = fragment.get('return_to') ?? '/';
+    // Le backend a pose le cookie de session ; il ne reste dans l'URL que la destination. Rien de
+    // sensible, donc rien a effacer de la barre d'adresse — le `replaceState` d'avant existait
+    // uniquement pour faire disparaitre le jeton.
+    const returnTo =
+      new URLSearchParams(window.location.search).get('return_to') ?? '/';
 
-    if (!token) {
-      this.message.set("La connexion n'a pas abouti.");
-      return;
-    }
-
-    this.auth.storeToken(token);
-    history.replaceState(null, '', '/callback');
-
+    // On demande au serveur qui l'on est : c'est cette reponse, et elle seule, qui dit si la
+    // session tient. Le navigateur n'a plus rien a verifier lui-meme.
     this.auth.restoreSession().subscribe((admin) => {
       if (admin) {
         void this.router.navigateByUrl(returnTo);

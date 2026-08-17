@@ -6,6 +6,15 @@
   gap: 16px;
 }
 
+/* Le nom du territoire, pose dans le contenu de la carte plutot que dans un `mat-card-header` :
+   celui-ci reserve une colonne d'avatar et decalait le titre par rapport a ce qui le suit. */
+.territory-name {
+  margin: 0 0 14px;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
 /* Le code du territoire suit son libelle, attenue : c'est une precision, pas un titre. */
 .territory-code {
   font-size: 12px;

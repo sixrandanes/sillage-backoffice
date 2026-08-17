@@ -210,6 +210,10 @@ directement, rien ne disait qu'un territoire porte un fuseau, et la prochaine qu
 correction : le concept a quitte `nc.sillage.tax` pour `nc.sillage.territory` (voir
 `../backend/CLAUDE.md`).
 
+- **Le titre vit dans le contenu de la carte, pas dans un `mat-card-header`.** Celui-ci pose une
+  grille qui reserve une colonne d'avatar : sans avatar, le titre n'a pas le meme bord gauche que ce
+  qui le suit, et les cartes se lisent de travers. Poser le nom dans `mat-card-content` lui fait
+  partager le bord **par construction** — a preferer partout ou une carte n'a pas d'avatar.
 - **Le jour, pas seulement l'heure.** Vingt et une heures separent Nouméa de Papeete : ce n'est pas
   un decalage d'horaire, c'est un decalage de **jour**. Afficher « 08:15 » sans dire quel jour est
   plus trompeur que de ne rien afficher, puisque c'est le jour qui fait qu'une journee comptable ne

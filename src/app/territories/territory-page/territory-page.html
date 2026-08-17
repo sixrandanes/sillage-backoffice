@@ -16,18 +16,17 @@
     <div class="territory-grid">
       @for (territory of territories(); track territory.territory) {
         <mat-card class="territory-card">
-          <mat-card-header>
-            <mat-card-title>
+          <mat-card-content>
+            <!-- **Le titre vit dans le contenu, pas dans un `mat-card-header`.** Celui-ci pose une
+                 grille qui reserve une colonne d'avatar : sans avatar, le titre n'a pas le meme
+                 bord gauche que ce qui le suit, et les deux cartes se lisaient de travers. Ici le
+                 nom du territoire et ses faits partagent le bord **par construction**.
+                 Le sous-titre a disparu au passage : il repetait la date locale, qui figure deja
+                 dans les faits. -->
+            <h2 class="territory-name">
               {{ territory.territoryLabel }}
               <span class="bo-muted territory-code">{{ territory.territoryCode }}</span>
-            </mat-card-title>
-            <!-- Le sous-titre nomme le **territoire**, pas sa taxe : ranger la fiscalité en tête
-                 refaisait de la carte une carte fiscale. La taxe figure plus bas, comme une
-                 conséquence parmi les autres. -->
-            <mat-card-subtitle>{{ localDate(territory) }} sur place</mat-card-subtitle>
-          </mat-card-header>
-
-          <mat-card-content>
+            </h2>
             <dl class="territory-facts">
               <dt>Fuseau horaire</dt>
               <!-- **La date, pas seulement l'heure.** Vingt et une heures séparent Nouméa de

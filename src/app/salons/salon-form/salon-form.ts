@@ -13,6 +13,7 @@ import { OrganizationService } from '../../organizations/organization.service';
 import { MAX_PAGE_SIZE } from '../../core/http/page';
 import { TaxRegime, TaxRegimeInfo } from '../../tax/models';
 import { TaxService } from '../../tax/tax.service';
+import { SalonAudit } from '../salon-audit/salon-audit';
 import { SalonService } from '../salon.service';
 
 @Component({
@@ -25,6 +26,7 @@ import { SalonService } from '../salon.service';
     MatInputModule,
     MatProgressSpinnerModule,
     MatSelectModule,
+    SalonAudit,
   ],
   templateUrl: './salon-form.html',
   styleUrl: './salon-form.scss',

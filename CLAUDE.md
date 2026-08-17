@@ -215,6 +215,29 @@ reste de Kaimana). Le formulaire ne propose que les categories actuellement ouve
 (`panel.info.rates`) : programmer un taux pour une categorie fermee echouerait cote backend
 (409 CONFLICT), inutile de laisser l'utilisateur y arriver.
 
+## Journal de caisse d'un salon (`salons/salon-audit/`)
+
+Sur la fiche du salon : on y arrive avec un litige en tete (« qui a annule ce bon ? »), et un ecran
+autonome obligerait a retrouver le salon deux fois. **Absent en creation** — un salon qui n'existe
+pas encore n'a pas de journal.
+
+- **Le numero de sequence et l'empreinte sont affiches, et ce n'est pas decoratif** : c'est la
+  continuite des numeros qui detecte une suppression, et l'empreinte qui detecte une alteration.
+  Devant un litige, ce sont les deux seules colonnes qui prouvent quelque chose. L'empreinte est
+  abregee a douze caracteres — entiere, elle chasserait toute la ligne — et complete dans
+  l'infobulle.
+- **Les dates partent en `AAAA-MM-JJ`, jamais en instant**, et ici l'erreur d'un jour **n'est pas
+  cosmetique** : le serveur resout ces bornes dans le fuseau du salon, donc `toISOString()` — qui
+  convertit en UTC — retournerait les ecritures d'un autre jour depuis un poste a Noumea. L'ecran le
+  dit d'ailleurs en clair sous le tableau.
+- **Un filtre absent ne filtre pas** : aucun parametre vide n'est envoye, c'est le serveur qui
+  decide. Meme convention que la date de la grille fiscale.
+- **Changer un filtre ramene a la premiere page**, sinon on reste sur une page qui n'existe plus.
+- **Sans les libelles de nature, seul ce filtre disparait** : le journal reste lisible.
+- **Piege des tests** : les `effect()` ne s'executent pas sans cycle de detection. Un
+  `fixture.detectChanges()` manquant apres une mutation de signal fait echouer le test en annoncant
+  une URL absente — message qui pointe vers la requete, jamais vers l'effet non declenche.
+
 ## Journal d'administration (`audit/`)
 
 Ce que le backoffice a fait, quand, et par qui. **La dette a ete contractee par le backoffice

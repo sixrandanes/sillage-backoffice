@@ -1,0 +1,101 @@
+<mat-card class="audit-card">
+  <mat-card-header>
+    <mat-card-title>Journal de caisse</mat-card-title>
+    <mat-card-subtitle>
+      Les gestes d'encaissement de ce salon, tels que le grand livre les a figés. Lecture seule :
+      rien ici ne se modifie, ni depuis le support ni depuis le salon.
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="audit-filters">
+      <mat-form-field appearance="outline" class="audit-search">
+        <mat-label>Rechercher</mat-label>
+        <input matInput [formControl]="searchControl" placeholder="Numéro de vente, auteur, motif" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="audit-action">
+        <mat-label>Nature du geste</mat-label>
+        <mat-select [value]="action()" (valueChange)="changeAction($event)">
+          <mat-option [value]="null">Toutes</mat-option>
+          @for (option of actions(); track option.value) {
+            <mat-option [value]="option.value">{{ option.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="audit-date">
+        <mat-label>Du</mat-label>
+        <input matInput [matDatepicker]="debut" [value]="from()" (dateChange)="changeFrom($event.value)" />
+        <mat-datepicker-toggle matIconSuffix [for]="debut" />
+        <mat-datepicker #debut />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="audit-date">
+        <mat-label>Au</mat-label>
+        <input matInput [matDatepicker]="fin" [value]="to()" (dateChange)="changeTo($event.value)" />
+        <mat-datepicker-toggle matIconSuffix [for]="fin" />
+        <mat-datepicker #fin />
+      </mat-form-field>
+    </div>
+
+    @if (loading()) {
+      <mat-spinner diameter="28" />
+    } @else if (loadError()) {
+      <p class="bo-error">{{ loadError() }}</p>
+    } @else if (entries().length === 0) {
+      <p class="bo-empty">Aucune écriture ne correspond à ces critères.</p>
+    } @else {
+      <table mat-table [dataSource]="entries()" class="audit-table">
+        <ng-container matColumnDef="sequence">
+          <th mat-header-cell *matHeaderCellDef>N°</th>
+          <td mat-cell *matCellDef="let entry" class="bo-numeric">
+            {{ entry.sequenceNumber }}
+            <!-- L'empreinte n'est pas décorative : c'est elle qui rend une altération détectable,
+                 et la continuité des numéros qui rend une suppression détectable. Devant un
+                 litige, ce sont les deux seules colonnes qui prouvent quelque chose. -->
+            <span class="audit-hash" [title]="entry.hash">{{ shortHash(entry.hash) }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="occurredAt">
+          <th mat-header-cell *matHeaderCellDef>Quand</th>
+          <td mat-cell *matCellDef="let entry" class="bo-numeric audit-when">
+            {{ entry.occurredAt | date: 'dd/MM/yyyy HH:mm' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="action">
+          <th mat-header-cell *matHeaderCellDef>Geste</th>
+          <td mat-cell *matCellDef="let entry">{{ entry.actionLabel }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="details">
+          <th mat-header-cell *matHeaderCellDef>Détail</th>
+          <td mat-cell *matCellDef="let entry">{{ entry.details ?? '' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="actor">
+          <th mat-header-cell *matHeaderCellDef>Par qui</th>
+          <td mat-cell *matCellDef="let entry" class="bo-muted">{{ entry.actor }}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+
+      <mat-paginator
+        [length]="totalItems()"
+        [pageSize]="pageSize()"
+        [pageIndex]="page()"
+        [pageSizeOptions]="[25, 50, 100]"
+        (page)="changePage($event)"
+      />
+    }
+
+    <p class="bo-muted audit-note">
+      Les dates sont résolues dans le fuseau du salon, pas dans le vôtre : entre Nouméa et Papeete,
+      l'écart est d'un jour entier.
+    </p>
+  </mat-card-content>
+</mat-card>

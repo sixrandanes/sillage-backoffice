@@ -1,0 +1,46 @@
+.audit-card {
+  margin-top: 24px;
+}
+
+.audit-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.audit-search {
+  min-width: 260px;
+  flex: 1;
+}
+
+.audit-action {
+  min-width: 200px;
+}
+
+.audit-date {
+  width: 150px;
+}
+
+.audit-table {
+  width: 100%;
+}
+
+.audit-when {
+  white-space: nowrap;
+}
+
+/* L'empreinte se lit caractere par caractere, et se compare : chasse fixe obligatoire. Abregee a
+   l'ecran, complete dans l'infobulle — 64 caracteres chasseraient toute la ligne. */
+.audit-hash {
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  color: var(--bo-muted);
+}
+
+.audit-note {
+  margin-top: 16px;
+  max-width: 70ch;
+  font-size: 13px;
+}

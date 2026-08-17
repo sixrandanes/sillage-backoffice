@@ -66,4 +66,9 @@
       </div>
     </form>
   }
+
+  <!-- Rien en creation : un salon qui n'existe pas encore n'a pas de journal. -->
+  @if (salonId !== null && !loading()) {
+    <app-salon-audit [salonId]="salonId" />
+  }
 </div>

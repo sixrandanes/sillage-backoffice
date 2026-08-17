@@ -70,7 +70,7 @@ describe('SalonService', () => {
     return {
       id: 1, organizationId: 9, organizationName: 'Kaimana SARL', name: 'Kaimana Papeete',
       address: null, phone: null, email: null, active: true,
-      territory: Territory.TVA_PF, taxName: 'TVA', createdAt: '2026-01-01T00:00:00Z',
+      territory: Territory.TVA_PF, taxName: 'TVA', zoneId: 'Pacific/Tahiti', createdAt: '2026-01-01T00:00:00Z',
     };
   }
 });

@@ -15,7 +15,6 @@ const NC: TerritoryView = {
   territoryCode: 'NC',
   territoryLabel: 'Nouvelle-Calédonie',
   taxName: 'TGC',
-  taxLabel: 'Taxe générale sur la consommation',
   zoneId: 'Pacific/Noumea',
   activeSalons: 3,
   open: true,
@@ -25,7 +24,6 @@ const PF: TerritoryView = {
   territoryCode: 'PF',
   territoryLabel: 'Polynésie française',
   taxName: 'TVA',
-  taxLabel: 'Taxe sur la valeur ajoutée',
   zoneId: 'Pacific/Tahiti',
   activeSalons: 0,
   open: true,
@@ -82,26 +80,28 @@ describe('TerritoryPage', () => {
   });
 
   /**
-   * <b>Ce qui justifie que le territoire ait quitte l'ecran des taxes.</b> Le fuseau se lit comme
-   * une heure — « Pacific/Tahiti » n'apprend rien, savoir qu'il y est une autre heure fait
-   * comprendre d'un coup pourquoi une journee comptable ne se decoupe pas au meme moment.
+   * <b>Ce qui justifie que le territoire ait quitte l'ecran des taxes — et la date, pas l'heure.</b>
+   *
+   * <p>Vingt et une heures separent les deux territoires : ce n'est pas un decalage d'horaire, c'est
+   * un decalage de <b>jour</b>. Un ecran qui n'afficherait que l'heure serait plus trompeur que
+   * muet, puisque c'est le jour qui fait qu'une journee comptable ne se decoupe pas au meme moment.
    */
-  it('turns the IANA zone into the time it currently is over there', () => {
+  it('showsTheLocalDateAndNotOnlyTheLocalTime', () => {
     const { component } = create();
 
-    expect(component.localTime(NC)).toMatch(/^\d{2}:\d{2}$/);
-    // Vingt-et-une heures separent les deux territoires : les deux heures ne peuvent pas coincider.
-    expect(component.localTime(PF)).not.toBe(component.localTime(NC));
+    expect(component.localDate(NC)).toMatch(/\d{2}\/\d{2}\/\d{4}/);
+    // Les deux territoires ne peuvent pas afficher le meme instant local.
+    expect(component.localDate(PF)).not.toBe(component.localDate(NC));
   });
 
   /**
-   * Un fuseau que le navigateur ne connait pas ne doit pas casser l'ecran : mieux vaut afficher
-   * l'identifiant brut que rien du tout.
+   * Un fuseau que le navigateur ne connait pas ne doit pas casser l'ecran — mais il ne doit pas non
+   * plus passer inapercu.
    */
-  it('falls back to the raw zone rather than breaking on one it cannot resolve', () => {
+  it('saysSoRatherThanBreakingOnAZoneItCannotResolve', () => {
     const { component } = create();
 
-    expect(component.localTime({ ...NC, zoneId: 'Pacific/Nulle-Part' })).toBe('Pacific/Nulle-Part');
+    expect(component.localDate({ ...NC, zoneId: 'Pacific/Nulle-Part' })).toContain('fuseau inconnu');
   });
 
   it('reports a failure to load without leaving a blank panel', () => {

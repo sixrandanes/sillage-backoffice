@@ -21,18 +21,29 @@
               {{ territory.territoryLabel }}
               <span class="bo-muted territory-code">{{ territory.territoryCode }}</span>
             </mat-card-title>
-            <mat-card-subtitle>{{ territory.taxLabel }} ({{ territory.taxName }})</mat-card-subtitle>
+            <!-- Le sous-titre nomme le **territoire**, pas sa taxe : ranger la fiscalité en tête
+                 refaisait de la carte une carte fiscale. La taxe figure plus bas, comme une
+                 conséquence parmi les autres. -->
+            <mat-card-subtitle>{{ localDate(territory) }} sur place</mat-card-subtitle>
           </mat-card-header>
 
           <mat-card-content>
             <dl class="territory-facts">
               <dt>Fuseau horaire</dt>
-              <!-- L'heure qu'il est là-bas, maintenant : lire « Pacific/Tahiti » n'apprend rien,
-                   lire l'heure locale fait comprendre pourquoi une journée comptable ne se
-                   découpe pas au même moment des deux côtés. -->
+              <!-- **La date, pas seulement l'heure.** Vingt et une heures séparent Nouméa de
+                   Papeete : ce n'est pas un décalage d'horaire, c'est un décalage de **jour**, et
+                   c'est ce qui fait qu'une journée comptable ne se découpe pas au même moment des
+                   deux côtés. Afficher « 08:15 » sans dire quel jour serait plus trompeur que de
+                   ne rien afficher. -->
               <dd>
-                <span class="bo-numeric">{{ localTime(territory) }}</span>
+                <span class="bo-numeric">{{ localDate(territory) }}</span>
                 <span class="bo-muted territory-zone">{{ territory.zoneId }}</span>
+              </dd>
+
+              <dt>Taxe</dt>
+              <dd>
+                {{ territory.taxName }}
+                <a class="bo-muted territory-zone" routerLink="/taxes">voir le barème</a>
               </dd>
 
               <dt>Salons en activité</dt>

@@ -12,7 +12,7 @@ const TGC: TerritoryInfo = {
   territoryCode: 'NC',
   territoryLabel: 'Nouvelle-Calédonie',
   taxName: 'TGC',
-  taxLabel: 'Taxe générale sur la consommation',
+  taxLabel: 'Taxe générale sur la consommation', open: true,
   rates: [{ id: 1, category: 'NORMAL', label: 'Taux normal', rate: 0.11, validFrom: '2018-10-01', validTo: null }],
 };
 
@@ -21,7 +21,7 @@ const TVA_PF: TerritoryInfo = {
   territoryCode: 'PF',
   territoryLabel: 'Polynésie française',
   taxName: 'TVA',
-  taxLabel: 'Taxe sur la valeur ajoutée',
+  taxLabel: 'Taxe sur la valeur ajoutée', open: true,
   rates: [{ id: 1, category: 'NORMAL', label: 'Taux normal', rate: 0.16, validFrom: '2018-01-01', validTo: null }],
 };
 

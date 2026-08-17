@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -6,6 +7,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 import { Territory } from '../../tax/models';
 import { TerritoryView } from '../models';
+import { formatInZone } from '../../core/zone';
 import { TerritoryService } from '../territory.service';
 
 /**
@@ -25,7 +27,13 @@ import { TerritoryService } from '../territory.service';
  */
 @Component({
   selector: 'app-territory-page',
-  imports: [MatButtonModule, MatCardModule, MatProgressSpinnerModule, MatSlideToggleModule],
+  imports: [
+    RouterLink,
+    MatButtonModule,
+    MatCardModule,
+    MatProgressSpinnerModule,
+    MatSlideToggleModule,
+  ],
   templateUrl: './territory-page.html',
   styleUrl: './territory-page.scss',
 })
@@ -42,26 +50,20 @@ export class TerritoryPage {
   }
 
   /**
-   * L'heure qu'il est **la-bas**, maintenant.
+   * La date et l'heure qu'il est **la-bas**, maintenant.
    *
-   * <p>C'est ce qui rend le fuseau tangible : lire « Pacific/Tahiti » n'apprend rien, lire qu'il y
-   * est 3 h du matin quand il est minuit ici fait comprendre d'un coup pourquoi une journee
-   * comptable ne se decoupe pas au meme moment. Le serveur rend l'identifiant IANA, la mise en forme
-   * appartient au client.
+   * <p><b>La date, et pas seulement l'heure</b> — c'est la correction qui compte. Vingt et une
+   * heures separent Nouméa de Papeete : ce n'est pas un decalage d'horaire, c'est un decalage de
+   * <b>jour</b>. Afficher « 08:15 » sans dire quel jour est plus trompeur que de ne rien afficher,
+   * puisque c'est precisement le jour qui fait qu'une journee comptable ne se decoupe pas au meme
+   * moment des deux cotes.
    *
-   * <p>Un fuseau que le navigateur ne connait pas ne casse rien : on rend l'identifiant brut plutot
-   * qu'une erreur. Il vaut mieux afficher « Pacific/Tahiti » que rien.
+   * <p>Le serveur rend l'identifiant IANA, la mise en forme appartient au client — et elle passe par
+   * `Intl`, jamais par la `DatePipe`, qui ne comprend pas un nom IANA et retombe <b>en silence</b>
+   * sur le fuseau du navigateur.
    */
-  localTime(territory: TerritoryView): string {
-    try {
-      return new Intl.DateTimeFormat('fr-FR', {
-        timeZone: territory.zoneId,
-        hour: '2-digit',
-        minute: '2-digit',
-      }).format(new Date());
-    } catch {
-      return territory.zoneId;
-    }
+  localDate(territory: TerritoryView): string {
+    return formatInZone(new Date(), territory.zoneId);
   }
 
   toggle(territory: TerritoryView, open: boolean): void {

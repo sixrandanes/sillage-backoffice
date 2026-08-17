@@ -14,8 +14,8 @@ function activatedRouteStub(id: string | null) {
 }
 
 const REGIMES: TerritoryInfo[] = [
-  { territory: Territory.TGC, territoryCode: 'NC', territoryLabel: 'Nouvelle-Calédonie', taxName: 'TGC', taxLabel: 'TGC', rates: [] },
-  { territory: Territory.TVA_PF, territoryCode: 'PF', territoryLabel: 'Polynésie française', taxName: 'TVA', taxLabel: 'TVA', rates: [] },
+  { territory: Territory.TGC, territoryCode: 'NC', territoryLabel: 'Nouvelle-Calédonie', taxName: 'TGC', taxLabel: 'TGC', open: true, rates: [] },
+  { territory: Territory.TVA_PF, territoryCode: 'PF', territoryLabel: 'Polynésie française', taxName: 'TVA', taxLabel: 'TVA', open: true, rates: [] },
 ];
 
 describe('SalonForm — creation', () => {

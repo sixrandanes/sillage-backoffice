@@ -15,7 +15,6 @@ export interface TerritoryView {
   territoryCode: string;
   territoryLabel: string;
   taxName: string;
-  taxLabel: string;
   /** Identifiant IANA, ex. `Pacific/Noumea`. Le serveur donne le fait, le client le met en forme. */
   zoneId: string;
   /** Salons actifs qui y operent — ce que fermer ne suspendra pas. */

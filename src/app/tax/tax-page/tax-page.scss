@@ -72,3 +72,11 @@
   color: var(--mat-sys-error);
   font-size: 13px;
 }
+
+/* Le rappel sur un territoire ferme : discret, mais au-dessus du bareme — c'est la qu'on se pose
+   la question, et l'ignorer ferait hesiter a saisir une annonce officielle. */
+.regime-closed {
+  margin: 0 0 12px;
+  font-size: 12.5px;
+  line-height: 1.5;
+}

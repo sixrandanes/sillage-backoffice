@@ -35,6 +35,14 @@ export interface TerritoryInfo {
   territoryLabel: string;
   taxName: string;
   taxLabel: string;
+  /**
+   * Le territoire est-il ouvert à la commercialisation ?
+   *
+   * Le serveur l'envoyait depuis le début, ce modèle ne le déclarait pas. **Fermer un territoire ne
+   * ferme pas son barème** : fermer est commercial, taxer est réglementaire, et les salons qui y
+   * opèrent continuent d'encaisser — donc d'avoir besoin du bon taux.
+   */
+  open: boolean;
   rates: TaxRateInfo[];
 }
 

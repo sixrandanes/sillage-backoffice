@@ -11,6 +11,12 @@ export interface SalonAdmin {
   active: boolean;
   territory: Territory;
   taxName: string;
+  /**
+   * Fuseau du territoire, en IANA. **Pas décoratif** : entre Nouméa et Papeete il y a vingt et une
+   * heures, donc un même instant n'y tombe pas le même **jour**. Toute date de ce salon se met en
+   * forme avec, jamais avec celui du navigateur.
+   */
+  zoneId: string;
   createdAt: string;
 }
 

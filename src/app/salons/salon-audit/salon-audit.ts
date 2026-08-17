@@ -15,6 +15,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 import { AuditActionOption, SalonAuditEntry } from '../audit.models';
+import { formatInZone } from '../../core/zone';
 import { SalonAuditService } from '../salon-audit.service';
 
 const SEARCH_DEBOUNCE_MS = 300;
@@ -48,6 +49,21 @@ export class SalonAudit {
   private readonly salonAuditService = inject(SalonAuditService);
 
   readonly salonId = input.required<number>();
+
+  /**
+   * Le fuseau du salon, pour dater ses écritures **chez lui**.
+   *
+   * <p>Le journal les rendait dans le fuseau du navigateur : depuis Nouméa, chaque ligne d'un salon
+   * polynésien annonçait le mauvais **jour**. C'est le même défaut que celui documenté côté
+   * frontoffice, où il avait touché six écrans — et il est plus grave ici, puisque le backoffice
+   * regarde par construction des salons d'autres territoires que celui de l'opérateur.
+   */
+  readonly zoneId = input<string | null>(null);
+
+  /** Une écriture, datée dans le fuseau du salon. */
+  protected when(occurredAt: string): string {
+    return formatInZone(occurredAt, this.zoneId());
+  }
 
   readonly entries = signal<SalonAuditEntry[]>([]);
   readonly actions = signal<AuditActionOption[]>([]);

@@ -1,5 +1,6 @@
 import { DecimalPipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -39,6 +40,7 @@ interface RegimePanel {
 @Component({
   selector: 'app-tax-page',
   imports: [
+    RouterLink,
         DecimalPipe,
     ReactiveFormsModule,
     MatButtonModule,

@@ -61,7 +61,7 @@
         <ng-container matColumnDef="occurredAt">
           <th mat-header-cell *matHeaderCellDef>Quand</th>
           <td mat-cell *matCellDef="let entry" class="bo-numeric audit-when">
-            {{ entry.occurredAt | date: 'dd/MM/yyyy HH:mm' }}
+            {{ when(entry.occurredAt) }}
           </td>
         </ng-container>
 

@@ -210,6 +210,26 @@ directement, rien ne disait qu'un territoire porte un fuseau, et la prochaine qu
 correction : le concept a quitte `nc.sillage.tax` pour `nc.sillage.territory` (voir
 `../backend/CLAUDE.md`).
 
+- **Le jour, pas seulement l'heure.** Vingt et une heures separent Nouméa de Papeete : ce n'est pas
+  un decalage d'horaire, c'est un decalage de **jour**. Afficher « 08:15 » sans dire quel jour est
+  plus trompeur que de ne rien afficher, puisque c'est le jour qui fait qu'une journee comptable ne
+  se decoupe pas au meme moment des deux cotes. La premiere version de cet ecran ne montrait que
+  l'heure.
+- **Toute date d'un salon se met en forme dans le fuseau de son territoire**, jamais dans celui du
+  navigateur — et le backoffice est l'endroit ou cela compte le plus, puisqu'il regarde par
+  construction des salons d'autres territoires que celui de l'operateur. Le **journal de caisse**
+  (`salons/salon-audit/`) le faisait dans le fuseau du navigateur : chaque ligne d'un salon
+  polynesien annoncait le mauvais jour. `core/zone.ts` porte la mise en forme, et le serveur envoie
+  le fuseau du salon (`zoneId` sur la fiche).
+  <br>**Jamais la `DatePipe`** : elle n'accepte pas un nom IANA — elle le resout via `Date.parse`,
+  qui rend `NaN`, et **retombe alors en silence sur le fuseau du navigateur**. Ni erreur, ni
+  avertissement : la date s'affiche, simplement fausse. Meme piege que celui documente cote
+  frontoffice, ou il avait touche six ecrans.
+- **La taxe n'est plus le sous-titre de la carte**, elle est un fait parmi les autres, avec un lien
+  vers le bareme. Le libelle long (« Taxe generale sur la consommation ») a quitte la vue : il
+  appartient a l'ecran de la fiscalite. Le nom court reste, parce que « la taxe s'appelle TGC ici »
+  est un fait **territorial** au meme titre que le fuseau — la frontiere passe entre le **nom** et le
+  **bareme**, pas entre le territoire et sa taxe.
 - **L'ecran porte des faits, pas un interrupteur.** Une carte par territoire : son code, sa taxe,
   son **fuseau rendu en heure locale courante**, et le nombre de **salons en activite**. C'est ce qui
   fait gagner a l'ecran la place qu'on lui refusait — et l'heure locale est ce qui rend le fuseau
@@ -273,6 +293,21 @@ l'achetent, ce qui s'applique a tous, et nous — jamais la nature technique de 
   le rail tient entier a l'ecran avec l'entree courante en aplat sous sa rubrique. Repeter la
   rubrique dans le titre de la page serait de la redite, et la regle « aucun cout d'entretien » de ce
   depot s'applique aussi aux bonnes idees du voisin.
+
+## Fermer un territoire ne ferme pas son bareme
+
+**La question se pose, et la reponse est non.** Fermer un territoire est une decision
+**commerciale** — on n'y ouvre plus de nouveau salon. Taxer est une obligation **reglementaire**, et
+les salons qui y operent continuent d'encaisser, de cloturer et d'archiver : ils ont donc besoin du
+bon taux, quoi qu'on ait decide de la prospection.
+
+Le pire serait de lier les deux. Le jour ou la DICP annonce un changement sur un territoire ferme,
+ne pas pouvoir le saisir laisserait ces salons encaisser au **mauvais taux** — ou plus du tout, le
+taux ne se resolvant plus et `rateFor` refusant la vente. On aurait coupe des clients qui paient
+parce qu'on a cesse de prospecter chez eux, exactement ce que la fermeture evite par ailleurs.
+
+L'ecran des taxes le **dit** sur le panneau d'un territoire ferme, parce que c'est la qu'on se
+poserait la question : sans cette phrase, on hesiterait a saisir une annonce officielle.
 
 ## Fiscalite (`tax/`) : le referentiel s'edite ici, et nulle part ailleurs
 

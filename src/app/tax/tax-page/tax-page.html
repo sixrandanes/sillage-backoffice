@@ -97,6 +97,21 @@
         </mat-card-header>
 
         <mat-card-content>
+          <!-- **Fermer un territoire ne ferme pas son barème**, et il faut le dire ici, parce que
+               c'est l'endroit où l'on se poserait la question. Fermer est une décision
+               *commerciale* — on n'y vend plus ; taxer est une obligation *réglementaire*, et les
+               salons qui y opèrent continuent d'encaisser, donc d'avoir besoin du bon taux. Sans
+               cette phrase, on hésiterait à saisir une annonce de la DICP sur un territoire fermé,
+               et ces salons encaisseraient au mauvais taux — ou plus du tout, le taux ne se
+               résolvant plus. -->
+          @if (!panel.info.open) {
+            <p class="bo-muted regime-closed">
+              Territoire <strong>fermé à la commercialisation</strong> : on n'y ouvre plus de
+              nouveau salon. Le barème reste modifiable, et il doit l'être — ceux qui y opèrent
+              déjà continuent d'encaisser, de clôturer et d'archiver.
+              <a routerLink="/territories">Voir les territoires</a>
+            </p>
+          }
           <table mat-table [dataSource]="panel.info.rates" class="rate-table">
             <ng-container matColumnDef="category">
               <th mat-header-cell *matHeaderCellDef>Tranche</th>

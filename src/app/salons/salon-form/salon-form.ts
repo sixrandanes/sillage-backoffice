@@ -45,6 +45,8 @@ export class SalonForm {
   readonly organizations = signal<OrganizationAdmin[]>([]);
   readonly regimes = signal<TerritoryInfo[]>([]);
   readonly organizationName = signal<string | null>(null);
+  /** Fuseau du territoire du salon, transmis au journal pour qu'il date chez lui. */
+  readonly zoneId = signal<string | null>(null);
   readonly loading = signal(true);
   readonly saving = signal(false);
   readonly errorMessage = signal<string | null>(null);
@@ -94,6 +96,8 @@ export class SalonForm {
           active: salon.active,
         });
         this.organizationName.set(salon.organizationName);
+        // Le fuseau du salon, qui datera son journal de caisse chez lui.
+        this.zoneId.set(salon.zoneId);
         this.loading.set(false);
       },
       error: () => {

@@ -1,7 +1,26 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+# Surveillance des dependances tierces.
+#
+# **Pourquoi ce fichier existe.** Une faille dans une bibliotheque tierce n'apparait dans aucun
+# diff : elle n'est pas introduite par un commit, elle est *decouverte*, parfois des annees apres
+# qu'on a fige la version. Aucun test ne la revele, aucune relecture non plus — le code fautif
+# n'est pas le notre. C'est le seul defaut qui surgit dans un depot que personne n'a touche.
+#
+# **Ce fichier ne pilote que les montees de version.** Les *correctifs de securite* automatiques
+# dependent d'un reglage du depot — « Dependabot alerts » — qui se coche dans Settings, pas ici.
+# Les deux se completent : celui-ci suit le rythme, celui-la reagit a une publication.
+#
+# **Signaler, jamais corriger tout seul.** Une pull request se relit ; une correction appliquee
+# sans lecture peut casser. Le cas est documente dans `frontend/CLAUDE.md` : `npm audit fix`
+# propose de retrograder `@angular/build` d'une majeure entiere sur un projet Angular 21, ce qui
+# ne compile pas. La commande qui « corrige » casse le build.
+#
+# **Ce fichier remplace une ebauche qui ne faisait rien.** Il portait le `package-ecosystem: ""`
+# du gabarit depose par GitHub — une valeur vide, donc invalide : Dependabot ne surveillait rien,
+# et la configuration presente donnait l'impression du contraire. C'est le pire des deux etats.
+#
+# **Attention au bloc `overrides` de `package.json`** : il force des versions transitives pour
+# fermer des avis que l'outillage Angular ne corrige pas de lui-meme. Une pull request de
+# Dependabot peut entrer en conflit avec lui — la relire, ne jamais la fusionner a l'aveugle.
 
 version: 2
 updates:
@@ -9,3 +28,35 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
+      # Heure locale : les PR arrivent quand quelqu'un peut les lire, pas au milieu de la nuit.
+      time: "07:00"
+      timezone: "Pacific/Noumea"
+    # Les montees mineures et correctives partent **groupees**, en une seule pull request par
+    # semaine : une PR par paquet noierait la revue, et personne ne lit ce qu'il y a en trop. Les
+    # majeures restent seules — elles demandent une lecture, pas un clic.
+    groups:
+      routine:
+        update-types: ["minor", "patch"]
+    # Plafond volontairement bas : au-dela, on cesse de regarder.
+    open-pull-requests-limit: 5
+
+  # Les actions de la CI sont du code tiers qui s'execute **avec les secrets de deploiement** — cle
+  # du registre, cle IAM Scaleway. Les oublier reviendrait a surveiller la maison en laissant la
+  # porte de service ouverte.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      # Heure locale : les PR arrivent quand quelqu'un peut les lire, pas au milieu de la nuit.
+      time: "07:00"
+      timezone: "Pacific/Noumea"
+    # Les montees mineures et correctives partent **groupees**, en une seule pull request par
+    # semaine : une PR par paquet noierait la revue, et personne ne lit ce qu'il y a en trop. Les
+    # majeures restent seules — elles demandent une lecture, pas un clic.
+    groups:
+      routine:
+        update-types: ["minor", "patch"]
+    # Plafond volontairement bas : au-dela, on cesse de regarder.
+    open-pull-requests-limit: 5

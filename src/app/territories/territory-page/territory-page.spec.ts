@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { TaxRegime } from '../../tax/models';
 import { Territory } from '../models';
-import { TerritoryPanel } from './territory-panel';
+import { TerritoryPage } from './territory-page';
 
 const URL = '/api/v1/platform/territories';
 
@@ -15,6 +15,9 @@ const NC: Territory = {
   territoryCode: 'NC',
   territoryLabel: 'Nouvelle-Calédonie',
   taxName: 'TGC',
+  taxLabel: 'Taxe générale sur la consommation',
+  zoneId: 'Pacific/Noumea',
+  activeSalons: 3,
   open: true,
 };
 const PF: Territory = {
@@ -22,22 +25,25 @@ const PF: Territory = {
   territoryCode: 'PF',
   territoryLabel: 'Polynésie française',
   taxName: 'TVA',
+  taxLabel: 'Taxe sur la valeur ajoutée',
+  zoneId: 'Pacific/Tahiti',
+  activeSalons: 0,
   open: true,
 };
 
-describe('TerritoryPanel', () => {
+describe('TerritoryPage', () => {
   let http: HttpTestingController;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [TerritoryPanel],
+      imports: [TerritoryPage],
       providers: [provideHttpClient(), provideHttpClientTesting(), provideNoopAnimations()],
     });
     http = TestBed.inject(HttpTestingController);
   });
 
   function create(rows: Territory[] = [NC, PF]) {
-    const fixture = TestBed.createComponent(TerritoryPanel);
+    const fixture = TestBed.createComponent(TerritoryPage);
     http.expectOne(URL).flush(rows);
     return { fixture, component: fixture.componentInstance };
   }
@@ -75,8 +81,31 @@ describe('TerritoryPanel', () => {
     expect(component.territories()[1].open).toBe(true);
   });
 
+  /**
+   * <b>Ce qui justifie que le territoire ait quitte l'ecran des taxes.</b> Le fuseau se lit comme
+   * une heure — « Pacific/Tahiti » n'apprend rien, savoir qu'il y est une autre heure fait
+   * comprendre d'un coup pourquoi une journee comptable ne se decoupe pas au meme moment.
+   */
+  it('turns the IANA zone into the time it currently is over there', () => {
+    const { component } = create();
+
+    expect(component.localTime(NC)).toMatch(/^\d{2}:\d{2}$/);
+    // Vingt-et-une heures separent les deux territoires : les deux heures ne peuvent pas coincider.
+    expect(component.localTime(PF)).not.toBe(component.localTime(NC));
+  });
+
+  /**
+   * Un fuseau que le navigateur ne connait pas ne doit pas casser l'ecran : mieux vaut afficher
+   * l'identifiant brut que rien du tout.
+   */
+  it('falls back to the raw zone rather than breaking on one it cannot resolve', () => {
+    const { component } = create();
+
+    expect(component.localTime({ ...NC, zoneId: 'Pacific/Nulle-Part' })).toBe('Pacific/Nulle-Part');
+  });
+
   it('reports a failure to load without leaving a blank panel', () => {
-    const fixture = TestBed.createComponent(TerritoryPanel);
+    const fixture = TestBed.createComponent(TerritoryPage);
     http.expectOne(URL).error(new ProgressEvent('error'));
 
     expect(fixture.componentInstance.error()).toBeTruthy();

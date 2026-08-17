@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 
 import { AuthService } from '../core/auth/auth.service';
 import { Version, VersionService } from '../core/version.service';
+import { NAVIGATION } from './navigation';
 
 @Component({
   selector: 'app-shell',
@@ -13,6 +14,12 @@ import { Version, VersionService } from '../core/version.service';
   styleUrl: './shell.scss',
 })
 export class Shell {
+  /**
+   * Les rubriques, lues depuis `navigation.ts` et non recopiees dans le gabarit : c'est ce qui
+   * permet a un test de verifier qu'aucun ecran ne se perd du menu.
+   */
+  readonly navigation = NAVIGATION;
+
   private readonly authService = inject(AuthService);
   private readonly versionService = inject(VersionService);
 

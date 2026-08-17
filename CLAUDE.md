@@ -170,23 +170,85 @@ de **tous** les clients pour ecrire quatre colonnes.
 - **Le refus du serveur s'affiche tel quel** : lui seul sait dire quelle adresse est deja prise,
   quel compte porte deja cet identifiant, ou qu'on s'apprete a retirer le **dernier** acces.
 
-## Territoires (`territories/`) : ou l'on vend
+## Territoires (`territories/`) : ou l'on vend, et ce que le territoire determine
 
-Panneau pose **en tete de la page des taxes** : on decide d'abord ou l'on vend, ensuite comment on y
-taxe. Un ecran separe pour deux interrupteurs serait une entree de menu de plus pour rien.
+**Un territoire n'est pas une notion fiscale**, et ce module l'a longtemps traite comme telle : le
+panneau vivait en tete de la page des taxes, au motif qu'« un ecran separe pour deux interrupteurs
+serait une entree de menu de plus pour rien ». **Le raisonnement etait juste, la premisse etait
+fausse.** Un territoire determine le <b>fuseau horaire</b> qui decoupe les journees comptables — plus
+de vingt heures separent Noumea de Papeete, donc un meme instant n'y tombe pas le meme jour —, le
+bareme applicable, le nom porte sur les tickets de ses salons, et l'indicatif telephonique par
+defaut des messages sortants. La fiscalite est une de ses **consequences**, pas son cadre.
 
-- **Le sous-titre dit ce que fermer ne fait pas** : les salons qui operent deja continuent
-  d'encaisser, de cloturer et d'archiver. Sans cette phrase, personne n'oserait fermer un
-  territoire — on croirait couper des clients.
+Le ranger sous les taxes avait un cout concret, et il se mesure : on ne pouvait pas y arriver
+directement, rien ne disait qu'un territoire porte un fuseau, et la prochaine question territoriale
+— une devise, un plan de numerotation — n'aurait eu nulle part ou aller. Cote serveur, la meme
+correction : le concept a quitte `nc.sillage.tax` pour `nc.sillage.territory` (voir
+`../backend/CLAUDE.md`).
+
+- **L'ecran porte des faits, pas un interrupteur.** Une carte par territoire : son code, sa taxe,
+  son **fuseau rendu en heure locale courante**, et le nombre de **salons en activite**. C'est ce qui
+  fait gagner a l'ecran la place qu'on lui refusait — et l'heure locale est ce qui rend le fuseau
+  tangible : lire « Pacific/Tahiti » n'apprend rien, lire qu'il y est une autre heure fait
+  comprendre d'un coup pourquoi une journee comptable ne se decoupe pas au meme moment.
+- **Le serveur rend l'identifiant IANA, le client met en forme.** Un fuseau que le navigateur ne
+  connait pas retombe sur l'identifiant brut plutot que de casser l'ecran : mieux vaut afficher
+  « Pacific/Tahiti » que rien.
+- **Le nombre de salons est ce qu'il faut savoir avant de fermer.** Fermer n'eteint rien — mais
+  fermer sans savoir combien d'etablissements y operent, c'est fermer a l'aveugle. Le compte remonte
+  du module `salon` par inversion de dependance (`TerritoryOccupancy`), `salon` dependant deja de
+  `territory`.
+- **Le texte dit ce que fermer ne fait pas**, et il le dit avec le chiffre : les salons qui operent
+  deja continuent d'encaisser, de cloturer et d'archiver. Sans cette phrase, personne n'oserait
+  fermer un territoire — on croirait couper des clients qui paient.
 - **Une note dit ce qu'une case a cocher ne peut pas faire** : ouvrir un territoire que le logiciel
-  ne connait pas (Wallis) demande une version du produit — il lui faut son regime, son fuseau et son
+  ne connait pas (Wallis) demande une version du produit — il lui faut son fuseau, son regime et son
   bareme, qu'aucun reglage ne peut inventer.
 - **En cas de refus, on recharge l'etat reel.** Laisser l'interrupteur sur la position cliquee
   ferait croire a un changement qui n'a pas eu lieu — c'est le mode de defaillance propre aux
   interrupteurs, et il est silencieux.
-- **Piege des tests** : ce panneau vit sur la page des taxes et fait son propre appel au demarrage.
-  Toute spec de `tax-page` doit le servir, sinon `httpMock.verify()` echoue en pointant vers les
-  territoires plutot que vers ce que le test verifiait.
+- **Le piege de test a disparu avec le panneau** : la spec de `tax-page` n'a plus a servir l'appel
+  des territoires. C'etait un couplage entre deux ecrans dont l'un n'avait aucune raison de connaitre
+  l'autre, et il se manifestait par un `httpMock.verify()` qui pointait vers les territoires plutot
+  que vers ce que le test verifiait.
+
+## Rubriques : la navigation predit ou chercher
+
+Les huit ecrans etaient **a plat** dans le bandeau, dans un ordre qui ne disait rien. Rien ne
+permettait de prevoir ou chercher, et chaque ecran ajoute allongeait la liste d'un cran.
+
+**Quatre rubriques, deux ecrans chacune** (`shell/navigation.ts`) : **Commercial** (abonnements,
+offres), **Clients** (organisations, salons), **Référentiel** (territoires, taxes), **Plateforme**
+(administrateurs, journal). Le decoupage suit **ce dont on parle** — ce qu'on vend, les clients qui
+l'achetent, ce qui s'applique a tous, et nous — jamais la nature technique de l'ecran.
+
+- **« Commercial » vient en premier** parce que c'est la seule rubrique ou l'inaction se paie : une
+  echeance manquee ferme la caisse d'un client. Les autres attendent sans consequence.
+- **« Territoires » precede « Taxes »** dans le referentiel : on decide ou l'on vend avant de decider
+  comment on y taxe.
+- **Une rubrique doit reduire la recherche.** C'est la lecon du menu du frontoffice, ou « Gestion »
+  couvrait sept entrees sur onze et ne permettait donc de rien prevoir. Un test refuse toute rubrique
+  qui depasserait la moitie des ecrans.
+- **La navigation est une donnee, pas un gabarit.** Recopiee dans le HTML, elle serait
+  inverifiable : `shell.spec.ts` epingle que **tout ecran de premier niveau figure au menu une fois
+  et une seule**, et que les libelles des rubriques ne changent pas en silence. C'est l'invariant que
+  le frontoffice s'est donne apres avoir laisse six entrees sans icone et dix-sept ecrans afficher
+  une rubrique abandonnee — ici il a attrape les territoires, atteignables uniquement en passant par
+  les taxes.
+- **La navigation quitte le bandeau pour un rail lateral.** Huit entrees groupees ne tiennent pas
+  dans une barre horizontale, et les rubriques sont ce qui rend le menu previsible.
+- **Le rail reste dans la palette neutre** — surface claire, bordure fine, petites capitales
+  attenuees — et **pas** dans l'encre sombre du frontoffice. Ce n'est pas une preference : les deux
+  applications s'ouvrent dans des onglets voisins, et se tromper d'application quand on a acces aux
+  donnees de **tous** les clients coute autrement plus cher qu'un rail austere. Meme argument que la
+  pastille « BACKOFFICE » et que le favicon en encre.
+- **C'est le filet qui separe, l'intertitre ne fait que nommer.** Seul, un libelle en petites
+  capitales attenuees se lit comme du bruit dans une liste — lecon reprise telle quelle du menu du
+  frontoffice.
+- **Pas d'eyebrow sur les ecrans**, contrairement au frontoffice, et c'est une divergence assumee :
+  le rail tient entier a l'ecran avec l'entree courante en aplat sous sa rubrique. Repeter la
+  rubrique dans le titre de la page serait de la redite, et la regle « aucun cout d'entretien » de ce
+  depot s'applique aussi aux bonnes idees du voisin.
 
 ## Fiscalite (`tax/`) : le referentiel s'edite ici, et nulle part ailleurs
 

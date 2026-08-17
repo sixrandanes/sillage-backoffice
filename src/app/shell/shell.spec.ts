@@ -3,7 +3,9 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
+import { routes } from '../app.routes';
 import { AuthService } from '../core/auth/auth.service';
+import { NAVIGATION } from './navigation';
 import { Shell } from './shell';
 
 describe('Shell', () => {
@@ -111,6 +113,70 @@ describe('Shell', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('.shell-versions').textContent).toContain('inconnue');
+  });
+
+
+  /**
+   * <b>L'invariant qui compte, et celui que le frontoffice s'est donne apres l'avoir paye.</b> Tout
+   * ecran de premier niveau doit figurer au menu <b>une fois et une seule</b>. Sans ce test, un
+   * ecran ajoute reste atteignable par son URL et introuvable a l'ecran — c'est exactement ce qui
+   * est arrive aux territoires, accessibles seulement en passant par la page des taxes.
+   *
+   * <p>Les ecrans de detail en sont exclus : on arrive sur `/salons/:id` depuis la liste, pas depuis
+   * le menu.
+   */
+  it('putsEveryFirstLevelScreenInTheMenuExactlyOnce', () => {
+    const shell = routes.find((r) => r.path === '');
+    const ecrans = (shell?.children ?? [])
+      .map((r) => r.path ?? '')
+      .filter((p) => p !== '' && !p.includes(':') && !p.includes('/'));
+
+    const auMenu = NAVIGATION.flatMap((s) => s.entries).map((e) => e.route.replace(/^\//, ''));
+
+    expect([...auMenu].sort()).toEqual([...ecrans].sort());
+  });
+
+  /**
+   * Les rubriques sont epinglees ici pour qu'un renommage passe forcement par ce test — le
+   * frontoffice a laisse dix-sept ecrans afficher une rubrique que son menu avait abandonnee.
+   *
+   * <p>Une rubrique doit **reduire la recherche** : elle nomme une matiere dont on peut prevoir le
+   * contenu. « Gestion », cote frontoffice, couvrait sept entrees sur onze et ne permettait donc de
+   * rien prevoir.
+   */
+  it('groupsTheScreensUnderRubricsThatPredictTheirContent', () => {
+    expect(NAVIGATION.map((s) => s.label)).toEqual([
+      'Commercial',
+      'Clients',
+      'Référentiel',
+      'Plateforme',
+    ]);
+    // Aucune rubrique vide, et aucune rubrique fourre-tout : au-dela de la moitie des ecrans, elle
+    // cesse de predire quoi que ce soit.
+    const total = NAVIGATION.flatMap((s) => s.entries).length;
+    for (const section of NAVIGATION) {
+      expect(section.entries.length).toBeGreaterThan(0);
+      expect(section.entries.length).toBeLessThan(total / 2);
+    }
+  });
+
+  /**
+   * <b>Le rail reste dans la palette neutre.</b> Reprendre l'encre sombre du frontoffice rendrait
+   * les deux applications confusables dans deux onglets voisins — et se tromper d'application quand
+   * on a acces aux donnees de **tous** les clients coute autrement plus cher qu'un rail austere.
+   */
+  it('rendersTheRubricsInTheRailRatherThanTheSlateBar', () => {
+    connect();
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    flushVersions();
+    fixture.detectChanges();
+
+    const rail = fixture.nativeElement.querySelector('.shell-rail');
+    expect(rail).not.toBeNull();
+    expect(rail.querySelectorAll('.shell-rail-section')).toHaveLength(NAVIGATION.length);
+    // Le bandeau ne porte plus de navigation : c'est ce qui a libere la place pour les rubriques.
+    expect(fixture.nativeElement.querySelector('.shell-bar .shell-nav')).toBeNull();
   });
 
 });

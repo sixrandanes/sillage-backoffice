@@ -36,33 +36,72 @@
   background: rgba(255, 255, 255, 0.12);
 }
 
-.shell-nav {
+/* Le corps : rail a gauche, contenu a droite. Le rail defile avec la page plutot que d'etre
+   fixe — huit entrees tiennent dans n'importe quel ecran, et une seconde zone de defilement
+   coute plus qu'elle n'apporte. */
+.shell-body {
   display: flex;
-  gap: 4px;
-  margin-left: 12px;
+  align-items: flex-start;
+  min-height: calc(100vh - 52px);
 }
 
-.shell-nav a {
+/* Surface claire et bordure fine, **jamais** l'encre sombre du frontoffice : les deux
+   applications s'ouvrent dans des onglets voisins, et se tromper d'application quand on a acces
+   aux donnees de tous les clients serait autrement plus grave qu'un rail austere. */
+.shell-rail {
+  flex: 0 0 188px;
+  align-self: stretch;
+  padding: 14px 10px 24px;
+  background: #fff;
+  border-right: 1px solid var(--bo-border);
+  position: sticky;
+  top: 52px;
+}
+
+/* L'intertitre **nomme**, le filet **separe** : seul, un libelle en petites capitales attenuees
+   se lit comme du bruit dans une liste. Le premier n'a pas de filet — il n'a rien a separer. */
+.shell-rail-section {
+  margin: 0;
+  padding: 16px 10px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  color: var(--bo-muted);
+  border-top: 1px solid var(--bo-border);
+  margin-top: 14px;
+}
+
+.shell-rail-section:first-child {
+  border-top: none;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.shell-rail a {
+  display: block;
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-size: 13.5px;
   color: inherit;
   text-decoration: none;
-  font-size: 13.5px;
-  padding: 6px 12px;
-  border-radius: 6px;
-  opacity: 0.72;
-  transition: background-color 0.12s ease, opacity 0.12s ease;
+  transition: background-color 0.12s ease;
 }
 
-.shell-nav a:hover {
-  opacity: 1;
-  background: rgba(255, 255, 255, 0.08);
+.shell-rail a:hover {
+  background: rgba(31, 41, 51, 0.06);
 }
 
 /* L'entree courante se marque par un aplat, pas par un soulignement : souligne, elle se
-   confondait avec un lien survole. */
-.shell-nav a.is-active {
-  opacity: 1;
+   confondait avec un lien survole. Meme choix que l'ancien bandeau. */
+.shell-rail a.is-active {
   font-weight: 600;
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(31, 41, 51, 0.09);
+}
+
+.shell-body main {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .shell-spacer {

@@ -36,6 +36,14 @@ export const routes: Routes = [
           import('./subscriptions/subscription-page/subscription-page').then((m) => m.SubscriptionPage),
       },
       {
+        // Avant les taxes, dans la rubrique « Référentiel » : on décide d'abord **où** l'on vend,
+        // ensuite comment on y taxe. C'était un panneau dans l'écran des taxes, ce qui rangeait le
+        // territoire sous une de ses conséquences — voir `territory-page`.
+        path: 'territories',
+        loadComponent: () =>
+          import('./territories/territory-page/territory-page').then((m) => m.TerritoryPage),
+      },
+      {
         path: 'taxes',
         loadComponent: () => import('./tax/tax-page/tax-page').then((m) => m.TaxPage),
       },

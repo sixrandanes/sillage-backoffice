@@ -40,7 +40,6 @@ describe('TaxPage', () => {
    * pointerait vers les territoires plutot que vers ce que le test verifie.
    */
   function flushTerritories(): void {
-    httpMock.expectOne('/api/v1/platform/territories').flush([]);
   }
 
   function flushCategories(): void {

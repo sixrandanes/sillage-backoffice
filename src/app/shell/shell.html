@@ -10,16 +10,6 @@
   <span class="shell-brand">Sillage</span>
   <span class="shell-scope">Backoffice</span>
 
-  <nav class="shell-nav">
-    <a routerLink="/subscriptions" routerLinkActive="is-active">Abonnements</a>
-    <a routerLink="/offers" routerLinkActive="is-active">Offres</a>
-    <a routerLink="/organizations" routerLinkActive="is-active">Organisations</a>
-    <a routerLink="/salons" routerLinkActive="is-active">Salons</a>
-    <a routerLink="/taxes" routerLinkActive="is-active">Taxes</a>
-    <a routerLink="/admins" routerLinkActive="is-active">Administrateurs</a>
-    <a routerLink="/audit" routerLinkActive="is-active">Journal</a>
-  </nav>
-
   <span class="shell-spacer"></span>
 
   @if (currentAdmin(); as admin) {
@@ -28,9 +18,25 @@
   <button mat-button class="shell-logout" (click)="logout()">Déconnexion</button>
 </header>
 
-<main>
-  <router-outlet />
-</main>
+<!-- La navigation quitte le bandeau pour un rail lateral : huit entrees a plat n'y tenaient pas
+     en rubriques, et les rubriques sont ce qui permet de prevoir ou chercher. Le rail reste dans
+     la palette neutre — surface claire, bordure fine — et **pas** dans l'encre sombre du
+     frontoffice : les deux applications doivent rester distinguables d'un coup d'oeil quand les
+     deux onglets sont ouverts. -->
+<div class="shell-body">
+  <nav class="shell-rail">
+    @for (section of navigation; track section.label) {
+      <p class="shell-rail-section">{{ section.label }}</p>
+      @for (entry of section.entries; track entry.route) {
+        <a [routerLink]="entry.route" routerLinkActive="is-active">{{ entry.label }}</a>
+      }
+    }
+  </nav>
+
+  <main>
+    <router-outlet />
+  </main>
+</div>
 
 <!-- « Qu'est-ce qui tourne reellement ? » — la question qui precede toutes les autres. Les deux
      conteneurs se deploient separement : l'un peut etre a jour et l'autre non, et c'est exactement

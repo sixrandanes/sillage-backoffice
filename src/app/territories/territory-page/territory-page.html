@@ -1,0 +1,82 @@
+<div class="bo-page">
+  <h1 class="bo-page-title">Territoires</h1>
+  <p class="bo-page-intro">
+    Où Sillage est ouvert à la commercialisation. Un territoire détermine bien plus que sa taxe : le
+    <strong>fuseau horaire</strong> qui découpe les journées comptables, le barème applicable, et le
+    nom porté sur les tickets de ses salons.
+  </p>
+
+  @if (error()) {
+    <p class="bo-error">{{ error() }}</p>
+  }
+
+  @if (loading()) {
+    <mat-spinner diameter="28" />
+  } @else {
+    <div class="territory-grid">
+      @for (territory of territories(); track territory.regime) {
+        <mat-card class="territory-card">
+          <mat-card-header>
+            <mat-card-title>
+              {{ territory.territoryLabel }}
+              <span class="bo-muted territory-code">{{ territory.territoryCode }}</span>
+            </mat-card-title>
+            <mat-card-subtitle>{{ territory.taxLabel }} ({{ territory.taxName }})</mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <dl class="territory-facts">
+              <dt>Fuseau horaire</dt>
+              <!-- L'heure qu'il est là-bas, maintenant : lire « Pacific/Tahiti » n'apprend rien,
+                   lire l'heure locale fait comprendre pourquoi une journée comptable ne se
+                   découpe pas au même moment des deux côtés. -->
+              <dd>
+                <span class="bo-numeric">{{ localTime(territory) }}</span>
+                <span class="bo-muted territory-zone">{{ territory.zoneId }}</span>
+              </dd>
+
+              <dt>Salons en activité</dt>
+              <dd class="bo-numeric">{{ territory.activeSalons }}</dd>
+            </dl>
+
+            <mat-slide-toggle
+              [checked]="territory.open"
+              [disabled]="busy() === territory.regime"
+              (change)="toggle(territory, $event.checked)"
+            >
+              {{ territory.open ? 'Ouvert à la vente' : 'Fermé à la vente' }}
+            </mat-slide-toggle>
+
+            <!-- Dit ce que fermer ne fait pas. Sans cette phrase, personne n'oserait fermer un
+                 territoire — on croirait couper des clients qui paient. -->
+            @if (territory.open && territory.activeSalons > 0) {
+              <p class="bo-muted territory-note">
+                Fermer empêcherait d'y ouvrir un <strong>nouveau</strong> salon. Les
+                {{ territory.activeSalons }} qui y opèrent continueraient d'encaisser, de clôturer et
+                d'archiver.
+              </p>
+            } @else if (territory.open) {
+              <p class="bo-muted territory-note">
+                Fermer empêcherait d'y ouvrir un <strong>nouveau</strong> salon. Aucun n'y opère
+                aujourd'hui.
+              </p>
+            } @else {
+              <p class="bo-muted territory-note">
+                Aucun nouveau salon ne peut y être ouvert. Ceux qui y opèrent déjà continuent de
+                fonctionner normalement.
+              </p>
+            }
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+
+    <!-- Dit ce qu'une case à cocher ne peut pas faire : ouvrir un territoire que le code ne connaît
+         pas demande une version du logiciel, pas un clic. -->
+    <p class="bo-muted territory-limit">
+      Seuls les territoires que le logiciel sait traiter figurent ici. En ouvrir un nouveau — Wallis,
+      par exemple — demande une version du produit : il lui faut son fuseau horaire, son régime et
+      son barème, qu'aucun réglage ne peut inventer.
+    </p>
+  }
+</div>

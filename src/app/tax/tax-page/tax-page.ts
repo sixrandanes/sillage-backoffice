@@ -11,7 +11,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 
 import { TaxCategory, TaxCategoryInfo, TaxRateInfo, TaxRegime, TaxRegimeInfo } from '../models';
-import { TerritoryPanel } from '../../territories/territory-panel/territory-panel';
 import { TaxService } from '../tax.service';
 
 interface ScheduleForm {
@@ -40,8 +39,7 @@ interface RegimePanel {
 @Component({
   selector: 'app-tax-page',
   imports: [
-    TerritoryPanel,
-    DecimalPipe,
+        DecimalPipe,
     ReactiveFormsModule,
     MatButtonModule,
     MatCardModule,

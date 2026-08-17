@@ -1,0 +1,50 @@
+/* Deux territoires aujourd'hui, trois demain : une grille qui s'adapte plutot qu'une liste, pour
+   que chaque territoire porte ses faits cote a cote sans etirer la page. */
+.territory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+/* Le code du territoire suit son libelle, attenue : c'est une precision, pas un titre. */
+.territory-code {
+  font-size: 12px;
+  font-weight: 400;
+  margin-left: 8px;
+}
+
+/* Les faits en deux colonnes : l'intitule a gauche, la valeur a droite. Un tableau serait plus
+   lourd pour deux lignes, et une liste a puces ne les alignerait pas. */
+.territory-facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 16px;
+  margin: 4px 0 16px;
+  font-size: 13.5px;
+}
+
+.territory-facts dt {
+  color: var(--bo-muted);
+}
+
+.territory-facts dd {
+  margin: 0;
+}
+
+.territory-zone {
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+.territory-note {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.territory-limit {
+  margin-top: 20px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  max-width: 68ch;
+}

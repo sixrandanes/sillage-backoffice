@@ -35,14 +35,14 @@ describe('TaxService', () => {
 
   it('schedulesANewRate', () => {
     service.scheduleRate(TaxRegime.TGC, {
-      category: TaxCategory.NORMAL, rate: 0.12, label: 'Taux normal', validFrom: '2027-01-01',
+      category: 'NORMAL', rate: 0.12, label: 'Taux normal', validFrom: '2027-01-01',
     }).subscribe();
 
     const req = httpMock.expectOne('/api/v1/platform/tax/regimes/TGC/rates');
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({
-      category: TaxCategory.NORMAL, rate: 0.12, label: 'Taux normal', validFrom: '2027-01-01',
+      category: 'NORMAL', rate: 0.12, label: 'Taux normal', validFrom: '2027-01-01',
     });
-    req.flush({ category: TaxCategory.NORMAL, label: 'Taux normal', rate: 0.12, validFrom: '2027-01-01', validTo: null });
+    req.flush({ id: 1, category: 'NORMAL', label: 'Taux normal', rate: 0.12, validFrom: '2027-01-01', validTo: null });
   });
 });

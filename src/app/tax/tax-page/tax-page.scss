@@ -37,3 +37,44 @@
 .schedule-form mat-form-field {
   flex: 1 1 180px;
 }
+
+/* Les tranches : une liste courte, pas un tableau — trois colonnes pour deux mots feraient
+   paraitre la page plus complexe qu'elle n'est. */
+.category-list {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+}
+
+.category-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+
+.category-label {
+  min-width: 180px;
+  font-weight: 500;
+}
+
+.rate-actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* « À venir » distingue d'un coup d'oeil ce qui se corrige encore de ce qui est fige. */
+.rate-scheduled {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--mat-sys-primary);
+  margin-right: 8px;
+}
+
+.schedule-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}

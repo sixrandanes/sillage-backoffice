@@ -41,7 +41,32 @@ le pattern tenant tiennent en deux points :
   autorite** — 403 partout — et l'ecran le lui dit. Ce backoffice donne acces aux donnees de
   **tous** les clients : son ouverture ne peut pas etre un effet de bord d'une connexion.
 
-## Fiscalite (`tax/`) : consomme `/api/v1/platform/tax`, jamais `/api/v1/tax`
+## Fiscalite (`tax/`) : le referentiel s'edite ici, et nulle part ailleurs
+
+**Les tranches sont des donnees**, plus un `enum` : c'est cet ecran qui en cree. Un `enum` cote
+client aurait rendu impossible d'afficher la tranche qu'on vient de creer — le defaut se serait vu
+immediatement, mais il etait le meme cote frontend tenant, ou il ne se voyait pas.
+
+**Le vocabulaire est pose avant les regimes, pas duplique dans chacun.** Il leur est commun, et le
+modele produit l'impose : un produit appartient a l'organisation et se vend dans les deux
+territoires. Ce qui distingue les regimes — taux, libelle local, periode — vit dans leur panneau.
+
+**Cinq gestes, et une seule regle les gouverne : un taux qui a pris effet ne se touche plus.**
+
+- Le selecteur de tranche est **groupe en deux** : « deja appliquees ici » et « pas encore
+  appliquees ici ». Ce ne sont pas les memes gestes — faire evoluer un taux existant, ou ouvrir une
+  tranche que ce territoire n'applique pas. D'ou aussi deux boutons plutot qu'un.
+- **Une ligne « a venir » se distingue a l'oeil** et porte un bouton *Annuler* ; une ligne en
+  vigueur porte *Fermer*. Sans ce marquage, rien ne dirait ce qui reste manœuvrable.
+- **Le refus du serveur s'affiche tel quel**, partout. C'est lui qui sait dire ce qui bloque —
+  combien de produits portent encore la tranche, quelle date est trop ancienne. Le message
+  generique qui existait auparavant (« vérifiez la date d'effet ») faisait perdre exactement ce qui
+  aide a corriger.
+- **`isScheduled` compare a la date du poste**, quand le serveur tranche a la sienne. L'ecart
+  possible est d'un jour, et c'est sans consequence : le serveur refuse au besoin, l'ecran ne fait
+  qu'eviter de proposer un geste voue au refus.
+
+## Fiscalite : consomme `/api/v1/platform/tax`, jamais `/api/v1/tax`
 
 `TaxService` (`tax/tax.service.ts`) parle exclusivement a `/api/v1/platform/tax/**` — le referentiel
 tenant en lecture seule (`/api/v1/tax/**`, consomme par `frontend/`) vit derriere la chaine de

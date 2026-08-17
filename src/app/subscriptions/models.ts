@@ -39,6 +39,30 @@ export interface SubscriptionAdminView {
   cancelledAt: string | null;
   accessUntil: string;
   activeSalons: number;
+
+  /**
+   * Remise commerciale en cours, en **pourcentage** — la fraction est un détail de stockage côté
+   * serveur, l'écran et l'opérateur parlent en pour-cent. `null` quand il n'y en a pas.
+   *
+   * À ne pas confondre avec les remises de caisse, qui vont dans l'autre sens : ce qu'un salon
+   * accorde à sa cliente au comptoir.
+   */
+  discountPercent: number | null;
+  /** Périodes facturées restant à remiser. */
+  discountPeriods: number | null;
+  discountReason: string | null;
+  discountGrantedAt: string | null;
+
+  /**
+   * Ce que le client paiera réellement à la prochaine échéance, remise déduite.
+   *
+   * **Calculé par le serveur**, jamais ici : recopier la règle d'arrondi la ferait diverger au
+   * premier ajustement, et c'est le chiffre qu'on annonce au téléphone. `null` sans offre
+   * rattachée — il n'y a alors pas de prix à remiser, et zéro laisserait croire à la gratuité.
+   */
+  nextPeriodPrice: number | null;
+  /** Ce que la remise retire. Les deux retombent exactement sur le prix de l'offre. */
+  nextPeriodDiscount: number | null;
 }
 
 export interface PlanOption {

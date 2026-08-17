@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -36,6 +36,7 @@ type Scope = 'expiring' | 'all';
   selector: 'app-subscription-page',
   imports: [
     DatePipe,
+    DecimalPipe,
     ReactiveFormsModule,
     MatButtonModule,
     MatButtonToggleModule,
@@ -96,6 +97,33 @@ export class SubscriptionPage {
 
   readonly offerForm = new FormGroup({
     offerCode: new FormControl<string | null>(null, { validators: [Validators.required] }),
+  });
+
+  /**
+   * Une remise commerciale : ce que **Sillage** consent à un salon sur son abonnement.
+   *
+   * À ne pas confondre avec les remises de caisse du frontoffice, qui vont dans l'autre sens —
+   * ce qu'un salon accorde à sa cliente au comptoir. Deux notions homonymes, et c'est le genre de
+   * voisinage où une correction faite d'un côté finit par être crue faite des deux.
+   *
+   * Le pourcentage se saisit **tel qu'on le dit** : « 20 », pas « 0,2 ». Les bornes sont exclusives
+   * — zéro ne serait pas une remise, et cent serait une période offerte, qui est un autre geste :
+   * on ne facture pas du tout, au lieu de facturer zéro.
+   */
+  readonly discountForm = new FormGroup({
+    percent: new FormControl<number | null>(null, {
+      validators: [Validators.required, Validators.min(0.01), Validators.max(99.99)],
+    }),
+    periods: new FormControl(1, {
+      nonNullable: true,
+      validators: [Validators.required, Validators.min(1), Validators.max(60)],
+    }),
+    // Obligatoire, et le serveur le refuse aussi : il sera relu bien plus tard, par quelqu'un
+    // d'autre, qui demandera pourquoi ce client paie moins que le tarif affiché.
+    reason: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.maxLength(500)],
+    }),
   });
 
   readonly scheduledOfferForm = new FormGroup({
@@ -302,6 +330,29 @@ export class SubscriptionPage {
    * filtrée : un abonnement qu'on vient de couvrir n'en fait plus partie, et le laisser affiché
    * ferait croire que le geste n'a rien changé.
    */
+  grantDiscount(): void {
+    const row = this.selected();
+    if (!row || this.discountForm.invalid) {
+      return;
+    }
+    const { percent, periods, reason } = this.discountForm.getRawValue();
+    this.run(
+      this.subscriptionService.grantDiscount(row.organizationId, percent!, periods, reason),
+      'Remise accordée.',
+    );
+  }
+
+  revokeDiscount(): void {
+    const row = this.selected();
+    if (!row) {
+      return;
+    }
+    this.run(
+      this.subscriptionService.revokeDiscount(row.organizationId, 'Retirée depuis le backoffice'),
+      'Remise retirée.',
+    );
+  }
+
   private run(call: Observable<SubscriptionAdminView>, done: string): void {
     this.busy.set(true);
     this.actionError.set(null);

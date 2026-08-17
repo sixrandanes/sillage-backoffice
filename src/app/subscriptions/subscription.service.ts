@@ -84,6 +84,31 @@ export class SubscriptionService {
     );
   }
 
+  /**
+   * Accorde une remise commerciale sur les prochaines périodes facturées.
+   *
+   * Le pourcentage part **tel qu'on le dit** — « 20 », pas « 0,2 ». La fraction est un détail de
+   * stockage, et convertir ici ferait deux endroits où se tromper d'un facteur cent.
+   */
+  grantDiscount(
+    organizationId: number,
+    percent: number,
+    periods: number,
+    reason: string,
+  ): Observable<SubscriptionAdminView> {
+    return this.http.post<SubscriptionAdminView>(`${this.base}/${organizationId}/discount`, {
+      percent,
+      periods,
+      reason,
+    });
+  }
+
+  revokeDiscount(organizationId: number, reason: string): Observable<SubscriptionAdminView> {
+    return this.http.delete<SubscriptionAdminView>(`${this.base}/${organizationId}/discount`, {
+      params: reason ? { reason } : {},
+    });
+  }
+
   renew(organizationId: number): Observable<SubscriptionAdminView> {
     return this.http.post<SubscriptionAdminView>(`${this.base}/${organizationId}/renew`, {});
   }

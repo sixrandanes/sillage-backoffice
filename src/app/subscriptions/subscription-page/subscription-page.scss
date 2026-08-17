@@ -127,3 +127,14 @@
   color: #1a5fb4;
   font-weight: 600;
 }
+
+/* La remise en cours se lit d'un bloc : le taux, ce qu'il donne en francs, et son motif. Les trois
+   ensemble, parce que c'est la question qu'on pose — « il paie combien, et pourquoi moins ? ». */
+.discount-current p {
+  margin: 0 0 8px;
+}
+
+.discount-reason {
+  width: 100%;
+  max-width: 520px;
+}

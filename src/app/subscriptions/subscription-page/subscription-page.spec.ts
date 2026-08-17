@@ -37,6 +37,13 @@ function view(overrides: Partial<SubscriptionAdminView> = {}): SubscriptionAdmin
     cancelledAt: null,
     accessUntil: '2026-09-17T00:00:00Z',
     activeSalons: 1,
+    // Aucune remise par defaut : c'est le cas courant, et celui qui doit rester lisible.
+    discountPercent: null,
+    discountPeriods: null,
+    discountReason: null,
+    discountGrantedAt: null,
+    nextPeriodPrice: null,
+    nextPeriodDiscount: null,
     ...overrides,
   };
 }
@@ -298,4 +305,30 @@ describe('SubscriptionPage', () => {
     expect(fixture.nativeElement.textContent).toContain('Mensuel');
   });
 
+
+  /**
+   * <b>Le pourcentage part tel qu'on le dit.</b> Convertir en fraction cote client ferait deux
+   * endroits ou se tromper d'un facteur cent, et l'erreur ne se verrait qu'a la facture.
+   */
+  it('sendsThePercentageAsTypedRatherThanAsAFraction', () => {
+    const { component } = create([view({ offerCode: 'SOLO_MENSUEL', nextPeriodPrice: 4900 })]);
+    component.select(component.rows()[0]);
+
+    component.discountForm.setValue({ percent: 20, periods: 3, reason: 'Geste de lancement' });
+    component.grantDiscount();
+
+    const requete = http.expectOne('/api/v1/platform/subscriptions/1/discount');
+    expect(requete.request.body).toEqual({ percent: 20, periods: 3, reason: 'Geste de lancement' });
+  });
+
+  /** Le motif est obligatoire : sans lui, le bouton ne doit rien envoyer. */
+  it('refusesToGrantADiscountWithoutAReason', () => {
+    const { component } = create([view({ offerCode: 'SOLO_MENSUEL' })]);
+    component.select(component.rows()[0]);
+
+    component.discountForm.setValue({ percent: 20, periods: 3, reason: '' });
+    component.grantDiscount();
+
+    http.expectNone('/api/v1/platform/subscriptions/1/discount');
+  });
 });

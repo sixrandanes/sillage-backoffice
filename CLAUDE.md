@@ -138,6 +138,30 @@ de consequence : une annonce de la DSF attend qu'on la saisisse, alors qu'un ess
   regle que les moyens de paiement cote tenant. Si `/options` echoue, seul le changement d'offre
   devient indisponible : le reste de l'ecran continue de fonctionner.
 
+## Remise commerciale, sur la fiche d'abonnement
+
+Ce que **Sillage consent a un salon**. **A ne pas confondre avec les remises de caisse** du
+frontoffice, qui vont dans l'autre sens : ce qu'un salon accorde a sa cliente au comptoir. Deux
+notions homonymes, et c'est le genre de voisinage ou une correction faite d'un cote finit par etre
+crue faite des deux.
+
+- **Le pourcentage se saisit tel qu'on le dit** — « 20 », pas « 0,2 ». La fraction est un detail de
+  stockage serveur ; convertir ici ferait deux endroits ou se tromper d'un facteur cent, et l'erreur
+  ne se verrait qu'a la facture. Verrouille par un test, et **eprouve a l'envers** : la conversion
+  reintroduite, il echoue.
+- **La remise en cours se lit d'un bloc** : le taux, ce qu'il donne **en francs**, et son motif. Les
+  trois ensemble, parce que c'est la question qu'on pose — « il paie combien, et pourquoi moins ? ».
+  Le motif est **affiche**, pas seulement enregistre : c'est lui qu'on vient relire.
+- **Les deux montants viennent du serveur.** Recopier la regle d'arrondi ici la ferait diverger au
+  premier ajustement, et c'est le chiffre qu'on annonce au telephone.
+- **L'ecran dit ce que la remise n'est pas**, avant qu'on cherche a faire l'autre geste avec : pour
+  offrir une periode entiere, on pose une date de couverture — une periode offerte ne se facture pas
+  du tout, elle ne se facture pas a zero. Et changer d'offre retire la remise, puisqu'elle a ete
+  consentie sur un tarif precis.
+- **Accorder et retirer s'excluent a l'ecran** : quand une remise existe, on ne propose que de la
+  retirer. Deux formulaires cote a cote laisseraient croire qu'on peut en empiler plusieurs — ce que
+  le serveur refuse de toute facon, en remplacant.
+
 ## Administrateurs (`admins/`) : ce qui remplace le SQL en production
 
 Rattacher un administrateur plateforme etait le dernier geste courant du produit sans aucune API :

@@ -312,6 +312,74 @@
         </section>
 
         <section class="subscription-gesture">
+          <h2>Remise</h2>
+
+          <!-- Ce que Sillage consent à ce client — à ne pas confondre avec les remises de caisse
+               du frontoffice, qui vont dans l'autre sens. -->
+          @if (current.discountPercent !== null) {
+            <div class="discount-current">
+              <p>
+                <strong>{{ current.discountPercent }} %</strong> sur
+                {{ current.discountPeriods }} période(s) restante(s).
+                @if (current.nextPeriodPrice !== null) {
+                  <br />
+                  Prochaine échéance :
+                  <strong class="bo-numeric">{{ current.nextPeriodPrice | number: '1.0-0' }}</strong>
+                  XPF au lieu de
+                  <span class="bo-numeric">
+                    {{ current.nextPeriodPrice + (current.nextPeriodDiscount ?? 0) | number: '1.0-0' }}
+                  </span>
+                  XPF.
+                }
+              </p>
+              <!-- Le motif est affiché, pas seulement enregistré : c'est lui qu'on vient relire
+                   quand on se demande pourquoi ce client paie moins que le tarif. -->
+              <p class="bo-muted">« {{ current.discountReason }} »</p>
+              <div class="bo-actions">
+                <button mat-stroked-button type="button" [disabled]="busy()" (click)="revokeDiscount()">
+                  Retirer la remise
+                </button>
+              </div>
+            </div>
+          } @else {
+            <div class="bo-field-row">
+              <mat-form-field>
+                <mat-label>Remise</mat-label>
+                <input matInput type="number" min="0.01" max="99.99" step="1"
+                       [formControl]="discountForm.controls.percent" />
+                <span matTextSuffix>%</span>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Sur combien de périodes</mat-label>
+                <input matInput type="number" min="1" max="60"
+                       [formControl]="discountForm.controls.periods" />
+              </mat-form-field>
+            </div>
+            <mat-form-field class="discount-reason">
+              <mat-label>Motif</mat-label>
+              <input matInput [formControl]="discountForm.controls.reason" />
+              <mat-hint>
+                Obligatoire : il sera relu bien plus tard, par quelqu'un qui demandera pourquoi ce
+                client paie moins que le tarif affiché.
+              </mat-hint>
+            </mat-form-field>
+            <div class="bo-actions">
+              <button mat-stroked-button type="button"
+                      [disabled]="busy() || discountForm.invalid" (click)="grantDiscount()">
+                Accorder la remise
+              </button>
+            </div>
+            <!-- Dit ce que la remise n'est pas, avant qu'on cherche à faire l'autre geste avec. -->
+            <p class="bo-muted">
+              Une remise réduit le prix facturé. Pour offrir une période <strong>entière</strong>,
+              posez plutôt une date de couverture : une période offerte ne se facture pas du tout,
+              elle ne se facture pas à zéro. Changer d'offre retire la remise — elle a été consentie
+              sur un tarif précis.
+            </p>
+          }
+        </section>
+
+        <section class="subscription-gesture">
           <h2>Arrêter</h2>
           @if (current.cancelledAt) {
             <div class="bo-actions">

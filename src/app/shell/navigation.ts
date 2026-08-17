@@ -32,7 +32,11 @@ export const NAVIGATION: readonly NavSection[] = [
     // les ecrans qui portent les listes. Meme vocabulaire que le frontoffice, ou « Pilotage »
     // designe deja ce qui se regarde plutot que ce qui se fait.
     label: 'Pilotage',
-    entries: [{ label: 'Tableau de bord', route: '/overview' }],
+    entries: [
+      { label: 'Tableau de bord', route: '/overview' },
+      // Ce qui se regarde quand quelque chose ne marche pas : meme rubrique, autre question.
+      { label: 'Services extérieurs', route: '/dependencies' },
+    ],
   },
   {
     // En premier parce que c'est la seule rubrique ou **l'inaction se paie** : une echeance manquee

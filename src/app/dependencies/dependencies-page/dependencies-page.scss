@@ -1,0 +1,94 @@
+.dep-window {
+  margin-bottom: 20px;
+}
+
+.dep-table {
+  width: 100%;
+}
+
+.dep-usage,
+.dep-target,
+.dep-rate {
+  display: block;
+  font-size: 11px;
+  color: var(--bo-muted);
+}
+
+.dep-when {
+  white-space: nowrap;
+}
+
+.dep-cause-cell {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+}
+
+/* Quatre etats, quatre lectures. Le gris de `dep-unknown` est deliberе : « jamais appelee » ne
+   doit ressembler ni au vert (« tout va bien ») ni au rouge (« reparez »). */
+.dep-pill {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.dep-ok {
+  background-color: #e3f4e9;
+  color: #1b5e34;
+}
+
+.dep-degraded {
+  background-color: #fdf6e8;
+  color: #8a5300;
+}
+
+.dep-down {
+  background-color: #fdeaea;
+  color: #a02020;
+}
+
+.dep-unknown {
+  background-color: #eef0f2;
+  color: var(--bo-muted);
+}
+
+/* Ce qui demande une action passe avant le tableau, et ne s'affiche que s'il y a quelque chose. */
+.dep-alert {
+  margin-bottom: 20px;
+  border-left: 3px solid #a02020;
+}
+
+.dep-alert-title {
+  margin: 0 0 8px;
+  font-weight: 500;
+}
+
+.dep-alert-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+}
+
+.dep-cause {
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  color: var(--bo-muted);
+}
+
+.dep-failures {
+  margin-top: 20px;
+}
+
+.dep-section-title {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.dep-note {
+  margin-top: 16px;
+  max-width: 80ch;
+  font-size: 13px;
+}

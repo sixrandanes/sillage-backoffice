@@ -1,0 +1,153 @@
+<div class="bo-page">
+  <h1 class="bo-page-title">Services extérieurs</h1>
+  <p class="bo-page-intro">
+    Ce que Sillage demande à l'extérieur, et ce qu'il obtient. Rien n'est sondé : ces chiffres
+    viennent du trafic réel, donc de ce que les salons vivent. Une dépendance que personne n'a
+    appelée est annoncée comme telle — jamais comme saine.
+  </p>
+
+  <mat-button-toggle-group
+    class="dep-window"
+    [value]="days()"
+    (change)="changeWindow($event.value)"
+    aria-label="Fenêtre observée"
+  >
+    <mat-button-toggle [value]="1">24 h</mat-button-toggle>
+    <mat-button-toggle [value]="7">7 jours</mat-button-toggle>
+    <mat-button-toggle [value]="30">30 jours</mat-button-toggle>
+  </mat-button-toggle-group>
+
+  @if (loading()) {
+    <mat-spinner diameter="32" />
+  } @else if (loadError()) {
+    <p class="bo-error">{{ loadError() }}</p>
+  } @else if (health(); as etat) {
+    <!-- Ce qui demande une action, en premier. Rien ne s'affiche quand il n'y a rien à signaler :
+         un encadré permanent « tout va bien » apprend surtout à ne plus le lire. -->
+    @if (enSouffrance().length > 0) {
+      <mat-card class="dep-alert">
+        <mat-card-content>
+          <p class="dep-alert-title">
+            {{ enSouffrance().length }} service{{ enSouffrance().length > 1 ? 's' : '' }} ne
+            répond{{ enSouffrance().length > 1 ? 'ent' : '' }} pas normalement
+          </p>
+          <ul class="dep-alert-list">
+            @for (souffrant of enSouffrance(); track souffrant.code) {
+              <li>
+                <strong>{{ souffrant.libelle }}</strong> — {{ souffrant.usage }}.
+                @if (souffrant.derniereCause) {
+                  <!-- Un compte dit l'ampleur ; seule la cause permet de commencer à corriger. -->
+                  <span class="dep-cause">{{ souffrant.derniereCause }}</span>
+                }
+              </li>
+            }
+          </ul>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <mat-card>
+      <mat-card-content>
+        <table mat-table [dataSource]="etat.dependances" class="dep-table">
+          <ng-container matColumnDef="service">
+            <th mat-header-cell *matHeaderCellDef>Service</th>
+            <td mat-cell *matCellDef="let dep">
+              {{ dep.libelle }}
+              <span class="dep-usage">{{ dep.usage }}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="statut">
+            <th mat-header-cell *matHeaderCellDef>État</th>
+            <td mat-cell *matCellDef="let dep">
+              <span class="dep-pill" [class]="statusClass(dep.statut)">
+                {{ statusLabel(dep.statut) }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="appels">
+            <th mat-header-cell *matHeaderCellDef>Appels</th>
+            <td mat-cell *matCellDef="let dep" class="bo-numeric">{{ dep.appels }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="echecs">
+            <th mat-header-cell *matHeaderCellDef>Échecs</th>
+            <td mat-cell *matCellDef="let dep" class="bo-numeric">
+              {{ dep.echecs }}
+              <span class="dep-rate">{{ failureRate(dep) }}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="duree">
+            <th mat-header-cell *matHeaderCellDef>Temps moyen</th>
+            <td mat-cell *matCellDef="let dep" class="bo-numeric">
+              {{ dep.dureeMoyenneMs === null ? '—' : dep.dureeMoyenneMs + ' ms' }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="dernier">
+            <th mat-header-cell *matHeaderCellDef>Dernier échec</th>
+            <td mat-cell *matCellDef="let dep" class="bo-numeric dep-when">
+              {{ when(dep.dernierEchec) }}
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="columns"></tr>
+          <tr mat-row *matRowDef="let row; columns: columns"></tr>
+        </table>
+
+        @if (jamaisAppelees().length > 0) {
+          <!-- Distingué des pannes à dessein : une intégration pas encore câblée appelle une
+               vérification, pas une réparation. Les mêler ferait crier au loup. -->
+          <p class="bo-muted dep-note">
+            {{ jamaisAppelees().length }} service{{ jamaisAppelees().length > 1 ? 's' : '' }}
+            n'{{ jamaisAppelees().length > 1 ? 'ont' : 'a' }} reçu aucun appel sur cette fenêtre.
+            Cela veut dire « on n'en sait rien », pas « tout va bien » — et c'est ce qu'on lit le
+            jour où l'on croit avoir câblé une intégration.
+          </p>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    @if (etat.derniersEchecs.length > 0) {
+      <mat-card class="dep-failures">
+        <mat-card-content>
+          <h2 class="dep-section-title">Derniers refus</h2>
+          <table mat-table [dataSource]="etat.derniersEchecs" class="dep-table">
+            <ng-container matColumnDef="quand">
+              <th mat-header-cell *matHeaderCellDef>Quand</th>
+              <td mat-cell *matCellDef="let echec" class="bo-numeric dep-when">
+                {{ when(echec.quand) }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="service">
+              <th mat-header-cell *matHeaderCellDef>Service</th>
+              <td mat-cell *matCellDef="let echec">{{ echec.dependance }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="operation">
+              <th mat-header-cell *matHeaderCellDef>Demande</th>
+              <td mat-cell *matCellDef="let echec">
+                {{ echec.operation }}
+                <!-- Masqué côté serveur : cette table est lue par tout le support, tous clients
+                     confondus. Les quatre derniers caractères suffisent à rapprocher un incident
+                     d'un appel client. -->
+                <span class="dep-target">{{ echec.cible ?? '' }}</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="cause">
+              <th mat-header-cell *matHeaderCellDef>Ce que le service a répondu</th>
+              <td mat-cell *matCellDef="let echec" class="dep-cause-cell">{{ echec.cause ?? '' }}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="failureColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: failureColumns"></tr>
+          </table>
+        </mat-card-content>
+      </mat-card>
+    }
+  }
+</div>

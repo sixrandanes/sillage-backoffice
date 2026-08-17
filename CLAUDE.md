@@ -142,6 +142,36 @@ n'a ete ajoutee** pour les mouvements : les resiliations sont datees sur l'abonn
 inscriptions sur l'organisation, et les reglements se comptent dans le **journal d'administration**,
 qui les trace depuis toujours.
 
+## Services exterieurs (`dependencies/`) : ce qu'on regarde quand quelque chose ne marche pas
+
+**Un email refuse et une API en panne sont le meme fait** : un appel sortant qui a echoue. C'est ce
+qui permet a un seul ecran de repondre aux deux questions — « pourquoi la cliente n'a pas recu son
+bon ? » et « EPayNC repond-il ? ». Sous « Pilotage », a cote du tableau de bord : meme rubrique,
+autre question.
+
+- **Rien n'est sonde.** Le serveur lit le **trafic reel**, donc ce que les salons vivent — pas ce
+  qu'une sonde synthetique aurait mesure sur son propre chemin. Interroger EPayNC pour savoir s'il
+  repond supposerait d'emettre un paiement.
+- **Le silence n'est pas la sante**, et c'est le point qui fait tout l'interet de l'ecran. Une
+  dependance qu'aucun appel n'a touchee est peinte en **gris**, jamais en vert : c'est l'etat d'une
+  integration qu'on croit avoir cablee et qui ne l'est pas. Verrouille par un test.
+- **Une integration pas encore cablee n'est pas une panne.** Elle est nommee a part, sous le tableau,
+  et **exclue** de l'encadre d'alerte : les meler ferait crier au loup sur chaque dependance non
+  branchee, et l'encadre cesserait d'etre lu.
+- **Ce qui demande une action passe en premier, et rien ne s'affiche quand il n'y a rien a
+  signaler** — meme regle que le tableau de bord : un encadre permanent « tout va bien » apprend
+  surtout a ne plus le lire.
+- **Un taux d'echec, jamais un taux de reussite.** On ouvre cet ecran pour trouver ce qui ne va pas ;
+  « 99,4 % de reussite » demande une soustraction mentale pour repondre a la question posee.
+- **Un compte dit l'ampleur, la cause permet de corriger.** « 14 echecs » envoie lire les journaux
+  d'un conteneur ; « 535 authentification refusée » envoie changer un mot de passe. L'ecran affiche
+  donc toujours ce que le service a **repondu**.
+- **Les cibles sont deja masquees par le serveur** (`j***@gmail.com`, `***4512`) : cette table est
+  lue par tout le support, tous clients confondus. Elle doit dire ce qui ne marche pas, pas qui en
+  est la victime.
+- **Les dates sont dans le fuseau du poste**, contrairement a tout le reste du backoffice : il s'agit
+  d'exploitation, pas de la caisse d'un salon. C'est la seule exception, et elle est deliberee.
+
 ## Abonnements (`subscriptions/`) : la page d'accueil, parce que c'est la seule ou l'inaction se paie
 
 **C'est l'ecran d'accueil du backoffice**, avant les taxes. Ce n'est pas un choix d'importance mais

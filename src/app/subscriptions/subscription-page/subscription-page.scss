@@ -104,3 +104,17 @@
     max-width: 70ch;
   }
 }
+
+.subscription-offer {
+  display: block;
+  font-weight: 500;
+}
+
+/* Un abonnement sans offre n'est pas une anomalie — c'est un client d'avant la grille. Mais il faut
+   le voir, sinon il y reste pour toujours : c'est le piege du champ reglable nulle part. */
+.subscription-no-offer {
+  display: block;
+  font-size: 12px;
+  color: #8a5a00;
+  font-weight: 600;
+}

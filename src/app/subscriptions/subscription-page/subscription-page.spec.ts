@@ -25,6 +25,8 @@ function view(overrides: Partial<SubscriptionAdminView> = {}): SubscriptionAdmin
     organizationActive: true,
     plan: 'SOLO',
     planLabel: 'Salon unique',
+    offerCode: null,
+    offerLabel: null,
     billingPeriod: null,
     status: 'TRIAL',
     statusLabel: 'Essai en cours',
@@ -51,6 +53,8 @@ describe('SubscriptionPage', () => {
   function create(rows: SubscriptionAdminView[] = [view()]) {
     const fixture = TestBed.createComponent(SubscriptionPage);
     const component = fixture.componentInstance;
+    // La page charge aussi la grille tarifaire, pour pouvoir rattacher une offre.
+    http.expectOne('/api/v1/platform/offers').flush([]);
     http.expectOne('/api/v1/platform/subscriptions/options').flush(OPTIONS);
     http.expectOne('/api/v1/platform/subscriptions/expiring?days=60').flush(rows);
     return { fixture, component };
@@ -204,6 +208,8 @@ describe('SubscriptionPage', () => {
 
   it('reports a failure to load without leaving a blank screen', () => {
     const fixture = TestBed.createComponent(SubscriptionPage);
+    // La page charge aussi la grille tarifaire, pour pouvoir rattacher une offre.
+    http.expectOne('/api/v1/platform/offers').flush([]);
     http.expectOne('/api/v1/platform/subscriptions/options').flush(OPTIONS);
     http
       .expectOne('/api/v1/platform/subscriptions/expiring?days=60')
@@ -211,4 +217,34 @@ describe('SubscriptionPage', () => {
 
     expect(fixture.componentInstance.loadError()).toBeTruthy();
   });
+
+  /**
+   * <b>Le geste qui sort les clients d'avant la grille de leur etat sans offre.</b> Sans lui, ils y
+   * resteraient pour toujours — le piege du champ reglable nulle part.
+   */
+  it('attaches the offer a client is actually on', () => {
+    const { component } = create([view({ offerCode: null, offerLabel: null })]);
+    component.select(view({ offerCode: null, offerLabel: null }));
+
+    component.offerForm.setValue({ offerCode: 'SOLO_ANNUEL' });
+    component.changeOffer();
+
+    const request = http.expectOne('/api/v1/platform/subscriptions/1/offer');
+    expect(request.request.body).toEqual({ offerCode: 'SOLO_ANNUEL' });
+    request.flush(view({ offerCode: 'SOLO_ANNUEL', offerLabel: 'Salon unique — annuel' }));
+    http.expectOne('/api/v1/platform/subscriptions/expiring?days=60').flush([]);
+    expect(component.actionDone()).toBe('Offre rattachée.');
+  });
+
+  /** Sans la grille, seul le rattachement est indisponible : le reste de l'ecran doit tenir. */
+  it('still works when the price grid cannot be loaded', () => {
+    const fixture = TestBed.createComponent(SubscriptionPage);
+    http.expectOne('/api/v1/platform/offers').error(new ProgressEvent('error'));
+    http.expectOne('/api/v1/platform/subscriptions/options').flush(OPTIONS);
+    http.expectOne('/api/v1/platform/subscriptions/expiring?days=60').flush([view()]);
+
+    expect(fixture.componentInstance.offers()).toEqual([]);
+    expect(fixture.componentInstance.rows()).toHaveLength(1);
+  });
+
 });

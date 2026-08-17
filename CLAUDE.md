@@ -281,6 +281,20 @@ qui n'etait pas celui en ligne, la CI n'ayant pas livre.
   doit les servir, sinon `httpMock.verify()` echoue en pointant vers la version plutot que vers ce
   que le test verifiait.
 
+## L'offre sur la fiche d'abonnement
+
+- **« Aucune offre rattachée » se voit, en ambre.** Ce n'est pas une anomalie — c'est un client
+  d'avant la grille tarifaire — mais sans cette mention il y resterait pour toujours : le piege du
+  champ reglable nulle part, que ce projet a deja paye deux fois.
+- **Le rattachement propose la grille du jour.** Une offre terminee n'y figure pas, alors que le
+  serveur l'accepterait : c'est assume — l'ecran sert a rattacher le tarif courant, et constater
+  qu'un client est reste sur un ancien passe par l'API. Le jour ou le cas devient courant, il faudra
+  une case « voir les offres terminees ».
+- **L'ecran dit que le palier et la periodicite sont recopies** au moment du rattachement : sans
+  cette phrase, on croirait qu'une revalorisation de l'offre suivra l'abonnement.
+- **Sans la grille, seul le rattachement est indisponible** : le reste de l'ecran continue de
+  fonctionner.
+
 ## Offres (`offers/`) : la grille tarifaire
 
 Ce qu'on vend. **Le palier de droits n'est pas l'offre** : « Solo mensuel » et « Solo annuel »

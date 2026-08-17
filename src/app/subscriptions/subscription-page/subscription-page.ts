@@ -21,6 +21,8 @@ import {
   SubscriptionPlan,
   statusSeverity,
 } from '../models';
+import { Offer } from '../../offers/models';
+import { OfferService } from '../../offers/offer.service';
 import { SubscriptionService } from '../subscription.service';
 
 /** Deux mois : le délai qui laisse le temps de facturer un annuel **et** d'être payé. */
@@ -52,6 +54,7 @@ type Scope = 'expiring' | 'all';
 })
 export class SubscriptionPage {
   private readonly subscriptionService = inject(SubscriptionService);
+  private readonly offerService = inject(OfferService);
 
   readonly rows = signal<SubscriptionAdminView[]>([]);
   readonly options = signal<SubscriptionOptions | null>(null);
@@ -81,6 +84,20 @@ export class SubscriptionPage {
     billingPeriod: new FormControl<BillingPeriod | null>('MONTHLY'),
   });
 
+  /**
+   * La grille, pour rattacher une offre à un abonnement.
+   *
+   * Chargée telle qu'elle est **aujourd'hui**. Une offre terminée n'y figure donc pas, alors que le
+   * serveur l'accepterait : c'est assumé — l'écran sert à rattacher le tarif courant, et constater
+   * qu'un client est resté sur un ancien passe par l'API. Le jour où le cas devient courant, il
+   * faudra une case « voir les offres terminées ».
+   */
+  readonly offers = signal<Offer[]>([]);
+
+  readonly offerForm = new FormGroup({
+    offerCode: new FormControl<string | null>(null, { validators: [Validators.required] }),
+  });
+
   readonly planForm = new FormGroup({
     plan: new FormControl<SubscriptionPlan | null>(null, { validators: [Validators.required] }),
   });
@@ -97,6 +114,11 @@ export class SubscriptionPage {
   );
 
   constructor() {
+    this.offerService.list(null).subscribe({
+      next: (offers) => this.offers.set(offers),
+      // Sans la grille, seul le rattachement d'offre est indisponible.
+      error: () => this.offers.set([]),
+    });
     this.subscriptionService.options().subscribe({
       next: (options) => this.options.set(options),
       // Sans les offres, seuls les gestes de changement d'offre sont indisponibles : le reste de
@@ -123,6 +145,7 @@ export class SubscriptionPage {
     this.actionError.set(null);
     this.actionDone.set(null);
     this.planForm.reset({ plan: row.plan });
+    this.offerForm.reset({ offerCode: row.offerCode });
     this.coverForm.reset({
       through: row.paidThrough ? new Date(row.paidThrough) : null,
       billingPeriod: row.billingPeriod ?? 'MONTHLY',
@@ -189,6 +212,18 @@ export class SubscriptionPage {
       return;
     }
     this.run(this.subscriptionService.renew(row.organizationId), "Abonnement reconduit d'une période.");
+  }
+
+  changeOffer(): void {
+    const row = this.selected();
+    const offerCode = this.offerForm.getRawValue().offerCode;
+    if (!row || !offerCode) {
+      return;
+    }
+    this.run(
+      this.subscriptionService.changeOffer(row.organizationId, offerCode),
+      'Offre rattachée.',
+    );
   }
 
   changePlan(): void {

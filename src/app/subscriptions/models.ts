@@ -17,6 +17,12 @@ export interface SubscriptionAdminView {
   organizationActive: boolean;
   plan: SubscriptionPlan;
   planLabel: string;
+  /**
+   * L'offre souscrite. `null` sur les abonnements antérieurs à la grille tarifaire — et c'est
+   * précisément ce que l'écran doit montrer, pour qu'on sache lesquels restent à rattacher.
+   */
+  offerCode: string | null;
+  offerLabel: string | null;
   billingPeriod: BillingPeriod | null;
   status: SubscriptionStatus;
   statusLabel: string;

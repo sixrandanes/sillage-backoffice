@@ -52,6 +52,19 @@ export class SubscriptionService {
     });
   }
 
+  /**
+   * Rattache l'offre souscrite.
+   *
+   * Accepte une offre terminée, contrairement à la souscription publique : le support doit pouvoir
+   * **constater** qu'un client est resté sur un ancien tarif, alors que la vitrine ne doit pas le
+   * **vendre**.
+   */
+  changeOffer(organizationId: number, offerCode: string): Observable<SubscriptionAdminView> {
+    return this.http.post<SubscriptionAdminView>(`${this.base}/${organizationId}/offer`, {
+      offerCode,
+    });
+  }
+
   renew(organizationId: number): Observable<SubscriptionAdminView> {
     return this.http.post<SubscriptionAdminView>(`${this.base}/${organizationId}/renew`, {});
   }

@@ -3,8 +3,8 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { API } from '../core/api';
-import { TaxRegime } from '../tax/models';
-import { Territory } from './models';
+import { Territory } from '../tax/models';
+import { TerritoryView } from './models';
 
 @Injectable({ providedIn: 'root' })
 export class TerritoryService {
@@ -12,11 +12,11 @@ export class TerritoryService {
 
   private readonly base = `${API}/platform/territories`;
 
-  list(): Observable<Territory[]> {
-    return this.http.get<Territory[]>(this.base);
+  list(): Observable<TerritoryView[]> {
+    return this.http.get<TerritoryView[]>(this.base);
   }
 
-  setOpen(regime: TaxRegime, open: boolean): Observable<Territory> {
-    return this.http.post<Territory>(`${this.base}/${regime}`, { open });
+  setOpen(regime: Territory, open: boolean): Observable<TerritoryView> {
+    return this.http.post<TerritoryView>(`${this.base}/${regime}`, { open });
   }
 }

@@ -1,4 +1,4 @@
-import { TaxRegime } from '../tax/models';
+import { Territory } from '../tax/models';
 
 /**
  * Un territoire, et ce qu'il determine.
@@ -9,9 +9,9 @@ import { TaxRegime } from '../tax/models';
  * meme instant n'y tombe pas le meme jour — et il porte un nombre d'**etablissements en activite**,
  * qui est precisement ce qu'il faut savoir avant de fermer.
  */
-export interface Territory {
+export interface TerritoryView {
   /** Identifiant du regime fiscal, heritage du nom : c'est la cle du territoire. */
-  regime: TaxRegime;
+  territory: Territory;
   territoryCode: string;
   territoryLabel: string;
   taxName: string;

@@ -4,14 +4,14 @@ import { TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { TaxRegime } from '../../tax/models';
-import { Territory } from '../models';
+import { Territory } from '../../tax/models';
+import { TerritoryView } from '../models';
 import { TerritoryPage } from './territory-page';
 
 const URL = '/api/v1/platform/territories';
 
-const NC: Territory = {
-  regime: TaxRegime.TGC,
+const NC: TerritoryView = {
+  territory: Territory.TGC,
   territoryCode: 'NC',
   territoryLabel: 'Nouvelle-Calédonie',
   taxName: 'TGC',
@@ -20,8 +20,8 @@ const NC: Territory = {
   activeSalons: 3,
   open: true,
 };
-const PF: Territory = {
-  regime: TaxRegime.TVA_PF,
+const PF: TerritoryView = {
+  territory: Territory.TVA_PF,
   territoryCode: 'PF',
   territoryLabel: 'Polynésie française',
   taxName: 'TVA',
@@ -42,7 +42,7 @@ describe('TerritoryPage', () => {
     http = TestBed.inject(HttpTestingController);
   });
 
-  function create(rows: Territory[] = [NC, PF]) {
+  function create(rows: TerritoryView[] = [NC, PF]) {
     const fixture = TestBed.createComponent(TerritoryPage);
     http.expectOne(URL).flush(rows);
     return { fixture, component: fixture.componentInstance };

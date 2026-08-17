@@ -4,11 +4,11 @@ import { TestBed } from '@angular/core/testing';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
-import { TaxCategory, TaxRegime, TaxRegimeInfo } from '../models';
+import { TaxCategory, Territory, TerritoryInfo } from '../models';
 import { TaxPage } from './tax-page';
 
-const TGC: TaxRegimeInfo = {
-  regime: TaxRegime.TGC,
+const TGC: TerritoryInfo = {
+  territory: Territory.TGC,
   territoryCode: 'NC',
   territoryLabel: 'Nouvelle-Calédonie',
   taxName: 'TGC',
@@ -16,8 +16,8 @@ const TGC: TaxRegimeInfo = {
   rates: [{ id: 1, category: 'NORMAL', label: 'Taux normal', rate: 0.11, validFrom: '2018-10-01', validTo: null }],
 };
 
-const TVA_PF: TaxRegimeInfo = {
-  regime: TaxRegime.TVA_PF,
+const TVA_PF: TerritoryInfo = {
+  territory: Territory.TVA_PF,
   territoryCode: 'PF',
   territoryLabel: 'Polynésie française',
   taxName: 'TVA',

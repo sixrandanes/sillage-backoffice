@@ -40,9 +40,9 @@
 
       <mat-form-field appearance="outline">
         <mat-label>Territoire et fiscalité</mat-label>
-        <mat-select formControlName="taxRegime">
-          @for (regime of regimes(); track regime.regime) {
-            <mat-option [value]="regime.regime">{{ regime.territoryLabel }} — {{ regime.taxName }}</mat-option>
+        <mat-select formControlName="territory">
+          @for (regime of regimes(); track regime.territory) {
+            <mat-option [value]="regime.territory">{{ regime.territoryLabel }} — {{ regime.taxName }}</mat-option>
           }
         </mat-select>
       </mat-form-field>

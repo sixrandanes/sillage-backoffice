@@ -11,7 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { OrganizationAdmin } from '../../organizations/models';
 import { OrganizationService } from '../../organizations/organization.service';
 import { MAX_PAGE_SIZE } from '../../core/http/page';
-import { TaxRegime, TaxRegimeInfo } from '../../tax/models';
+import { Territory, TerritoryInfo } from '../../tax/models';
 import { TaxService } from '../../tax/tax.service';
 import { SalonAudit } from '../salon-audit/salon-audit';
 import { SalonService } from '../salon.service';
@@ -43,7 +43,7 @@ export class SalonForm {
   readonly salonId = this.idParam ? Number(this.idParam) : null;
 
   readonly organizations = signal<OrganizationAdmin[]>([]);
-  readonly regimes = signal<TaxRegimeInfo[]>([]);
+  readonly regimes = signal<TerritoryInfo[]>([]);
   readonly organizationName = signal<string | null>(null);
   readonly loading = signal(true);
   readonly saving = signal(false);
@@ -55,7 +55,7 @@ export class SalonForm {
     address: [''],
     phone: [''],
     email: ['', Validators.email],
-    taxRegime: [TaxRegime.TGC, Validators.required],
+    territory: [Territory.TGC, Validators.required],
     active: [true],
   });
 
@@ -90,7 +90,7 @@ export class SalonForm {
           address: salon.address ?? '',
           phone: salon.phone ?? '',
           email: salon.email ?? '',
-          taxRegime: salon.taxRegime,
+          territory: salon.territory,
           active: salon.active,
         });
         this.organizationName.set(salon.organizationName);
@@ -120,14 +120,14 @@ export class SalonForm {
           address: raw.address || null,
           phone: raw.phone || null,
           email: raw.email || null,
-          taxRegime: raw.taxRegime,
+          territory: raw.territory,
         })
       : this.salonService.update(this.salonId, {
           name: raw.name,
           address: raw.address || null,
           phone: raw.phone || null,
           email: raw.email || null,
-          taxRegime: raw.taxRegime,
+          territory: raw.territory,
           active: raw.active,
         });
 

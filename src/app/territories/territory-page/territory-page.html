@@ -14,7 +14,7 @@
     <mat-spinner diameter="28" />
   } @else {
     <div class="territory-grid">
-      @for (territory of territories(); track territory.regime) {
+      @for (territory of territories(); track territory.territory) {
         <mat-card class="territory-card">
           <mat-card-header>
             <mat-card-title>
@@ -41,7 +41,7 @@
 
             <mat-slide-toggle
               [checked]="territory.open"
-              [disabled]="busy() === territory.regime"
+              [disabled]="busy() === territory.territory"
               (change)="toggle(territory, $event.checked)"
             >
               {{ territory.open ? 'Ouvert à la vente' : 'Fermé à la vente' }}

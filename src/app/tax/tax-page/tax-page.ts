@@ -10,7 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 
-import { TaxCategory, TaxCategoryInfo, TaxRateInfo, TaxRegime, TaxRegimeInfo } from '../models';
+import { TaxCategory, TaxCategoryInfo, TaxRateInfo, Territory, TerritoryInfo } from '../models';
 import { TaxService } from '../tax.service';
 
 interface ScheduleForm {
@@ -22,7 +22,7 @@ interface ScheduleForm {
 
 /** Panneau d'un seul regime : sa grille en vigueur, son formulaire de programmation, son historique. */
 interface RegimePanel {
-  info: TaxRegimeInfo;
+  info: TerritoryInfo;
   form: FormGroup<{
     category: FormControl<TaxCategory | null>;
     ratePercent: FormControl<number>;
@@ -136,7 +136,7 @@ export class TaxPage {
     }
     panel.historyLoading = true;
     this.panels.set([...this.panels()]);
-    this.taxService.history(panel.info.regime).subscribe({
+    this.taxService.history(panel.info.territory).subscribe({
       next: (history) => {
         panel.history = history;
         panel.historyLoading = false;
@@ -161,7 +161,7 @@ export class TaxPage {
     panel.scheduleSuccess = false;
     this.panels.set([...this.panels()]);
 
-    this.taxService.scheduleRate(panel.info.regime, {
+    this.taxService.scheduleRate(panel.info.territory, {
       category: raw.category!,
       rate: raw.ratePercent / 100,
       label: raw.label,
@@ -238,7 +238,7 @@ export class TaxPage {
     }
     const raw = panel.form.getRawValue();
     this.begin(panel);
-    this.taxService.openRate(panel.info.regime, {
+    this.taxService.openRate(panel.info.territory, {
       category: raw.category!,
       rate: raw.ratePercent / 100,
       label: raw.label,
@@ -262,7 +262,7 @@ export class TaxPage {
       return;
     }
     this.begin(panel);
-    this.taxService.closeRate(panel.info.regime, rate.category, { closesOn: toIsoDate(closesOn) })
+    this.taxService.closeRate(panel.info.territory, rate.category, { closesOn: toIsoDate(closesOn) })
       .subscribe({
         next: () => this.reload(),
         error: (err) => this.failed(panel, err, 'Impossible de fermer cette tranche.'),
@@ -291,7 +291,7 @@ export class TaxPage {
     this.panels.set([...this.panels()]);
   }
 
-  private newPanel(info: TaxRegimeInfo): RegimePanel {
+  private newPanel(info: TerritoryInfo): RegimePanel {
     return {
       info,
       form: this.fb.group({

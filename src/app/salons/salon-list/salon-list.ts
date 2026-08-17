@@ -53,7 +53,7 @@ export class SalonList {
   readonly organizationId = signal<number | null>(null);
   readonly loading = signal(true);
   readonly errorMessage = signal<string | null>(null);
-  readonly displayedColumns = ['name', 'organization', 'contact', 'taxRegime', 'status'];
+  readonly displayedColumns = ['name', 'organization', 'contact', 'territory', 'status'];
 
   constructor() {
     // Peuple le filtre par organisation : le volume reste modeste pour un outil interne, un

@@ -4,8 +4,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
-import { TaxRegime } from '../../tax/models';
-import { Territory } from '../models';
+import { Territory } from '../../tax/models';
+import { TerritoryView } from '../models';
 import { TerritoryService } from '../territory.service';
 
 /**
@@ -32,10 +32,10 @@ import { TerritoryService } from '../territory.service';
 export class TerritoryPage {
   private readonly territoryService = inject(TerritoryService);
 
-  readonly territories = signal<Territory[]>([]);
+  readonly territories = signal<TerritoryView[]>([]);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
-  readonly busy = signal<TaxRegime | null>(null);
+  readonly busy = signal<Territory | null>(null);
 
   constructor() {
     this.load();
@@ -52,7 +52,7 @@ export class TerritoryPage {
    * <p>Un fuseau que le navigateur ne connait pas ne casse rien : on rend l'identifiant brut plutot
    * qu'une erreur. Il vaut mieux afficher « Pacific/Tahiti » que rien.
    */
-  localTime(territory: Territory): string {
+  localTime(territory: TerritoryView): string {
     try {
       return new Intl.DateTimeFormat('fr-FR', {
         timeZone: territory.zoneId,
@@ -64,10 +64,10 @@ export class TerritoryPage {
     }
   }
 
-  toggle(territory: Territory, open: boolean): void {
-    this.busy.set(territory.regime);
+  toggle(territory: TerritoryView, open: boolean): void {
+    this.busy.set(territory.territory);
     this.error.set(null);
-    this.territoryService.setOpen(territory.regime, open).subscribe({
+    this.territoryService.setOpen(territory.territory, open).subscribe({
       next: () => {
         this.busy.set(null);
         this.load();

@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
-import { TaxRegime } from '../tax/models';
+import { Territory } from '../tax/models';
 import { SalonService } from './salon.service';
 
 describe('SalonService', () => {
@@ -48,7 +48,7 @@ describe('SalonService', () => {
 
   it('createsASalon', () => {
     service.create({
-      organizationId: 9, name: 'Kaimana Papeete', address: null, phone: null, email: null, taxRegime: TaxRegime.TVA_PF,
+      organizationId: 9, name: 'Kaimana Papeete', address: null, phone: null, email: null, territory: Territory.TVA_PF,
     }).subscribe();
 
     const req = httpMock.expectOne('/api/v1/platform/salons');
@@ -58,7 +58,7 @@ describe('SalonService', () => {
 
   it('updatesASalon', () => {
     service.update(1, {
-      name: 'Kaimana Papeete', address: null, phone: null, email: null, taxRegime: TaxRegime.TVA_PF, active: false,
+      name: 'Kaimana Papeete', address: null, phone: null, email: null, territory: Territory.TVA_PF, active: false,
     }).subscribe();
 
     const req = httpMock.expectOne('/api/v1/platform/salons/1');
@@ -70,7 +70,7 @@ describe('SalonService', () => {
     return {
       id: 1, organizationId: 9, organizationName: 'Kaimana SARL', name: 'Kaimana Papeete',
       address: null, phone: null, email: null, active: true,
-      taxRegime: TaxRegime.TVA_PF, taxName: 'TVA', createdAt: '2026-01-01T00:00:00Z',
+      territory: Territory.TVA_PF, taxName: 'TVA', createdAt: '2026-01-01T00:00:00Z',
     };
   }
 });

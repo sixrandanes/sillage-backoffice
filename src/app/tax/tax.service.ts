@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { CloseRateRequest, ScheduleRateRequest, TaxCategoryInfo, TaxCategoryRequest, TaxRateInfo, TaxRegime, TaxRegimeInfo } from './models';
+import { CloseRateRequest, ScheduleRateRequest, TaxCategoryInfo, TaxCategoryRequest, TaxRateInfo, Territory, TerritoryInfo } from './models';
 import { API } from '../core/api';
 
 /**
@@ -22,16 +22,16 @@ export class TaxService {
    * l'administration du bareme — ce qui s'appliquait l'an dernier, ce qui s'appliquera au
    * 1er janvier — sans qu'aucun bloc ne soit stocke : les intervalles portent deja l'information.
    */
-  regimes(on?: string): Observable<TaxRegimeInfo[]> {
+  regimes(on?: string): Observable<TerritoryInfo[]> {
     const params = on ? new HttpParams().set('on', on) : undefined;
-    return this.http.get<TaxRegimeInfo[]>(`${API}/platform/tax/regimes`, { params });
+    return this.http.get<TerritoryInfo[]>(`${API}/platform/tax/regimes`, { params });
   }
 
-  history(regime: TaxRegime): Observable<TaxRateInfo[]> {
+  history(regime: Territory): Observable<TaxRateInfo[]> {
     return this.http.get<TaxRateInfo[]>(`${API}/platform/tax/regimes/${regime}/history`);
   }
 
-  scheduleRate(regime: TaxRegime, request: ScheduleRateRequest): Observable<TaxRateInfo> {
+  scheduleRate(regime: Territory, request: ScheduleRateRequest): Observable<TaxRateInfo> {
     return this.http.post<TaxRateInfo>(`${API}/platform/tax/regimes/${regime}/rates`, request);
   }
 
@@ -54,12 +54,12 @@ export class TaxService {
   // ── Les taux, propres a chaque regime ──────────────────────────────────────────────────
 
   /** Ouvre une tranche la ou ce regime n'en avait pas : « ajouter » vu du territoire. */
-  openRate(regime: TaxRegime, request: ScheduleRateRequest): Observable<TaxRateInfo> {
+  openRate(regime: Territory, request: ScheduleRateRequest): Observable<TaxRateInfo> {
     return this.http.post<TaxRateInfo>(`${API}/platform/tax/regimes/${regime}/rates/open`, request);
   }
 
   /** Fait cesser une tranche de s'appliquer : « supprimer », sans rien effacer. */
-  closeRate(regime: TaxRegime, category: string, request: CloseRateRequest): Observable<TaxRateInfo> {
+  closeRate(regime: Territory, category: string, request: CloseRateRequest): Observable<TaxRateInfo> {
     return this.http.post<TaxRateInfo>(
       `${API}/platform/tax/regimes/${regime}/rates/${category}/close`, request);
   }

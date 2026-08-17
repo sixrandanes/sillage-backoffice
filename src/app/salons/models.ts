@@ -1,4 +1,4 @@
-import { TaxRegime } from '../tax/models';
+import { Territory } from '../tax/models';
 
 export interface SalonAdmin {
   id: number;
@@ -9,7 +9,7 @@ export interface SalonAdmin {
   phone: string | null;
   email: string | null;
   active: boolean;
-  taxRegime: TaxRegime;
+  territory: Territory;
   taxName: string;
   createdAt: string;
 }
@@ -20,7 +20,7 @@ export interface SalonAdminCreateRequest {
   address: string | null;
   phone: string | null;
   email: string | null;
-  taxRegime: TaxRegime;
+  territory: Territory;
 }
 
 export interface SalonAdminUpdateRequest {
@@ -28,6 +28,6 @@ export interface SalonAdminUpdateRequest {
   address: string | null;
   phone: string | null;
   email: string | null;
-  taxRegime: TaxRegime;
+  territory: Territory;
   active: boolean;
 }

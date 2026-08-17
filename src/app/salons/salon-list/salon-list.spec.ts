@@ -4,7 +4,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
-import { TaxRegime } from '../../tax/models';
+import { Territory } from '../../tax/models';
 import { SalonList } from './salon-list';
 
 describe('SalonList', () => {
@@ -39,7 +39,7 @@ describe('SalonList', () => {
     httpMock.expectOne((r) => r.url === '/api/v1/platform/salons').flush({
       items: [{
         id: 1, organizationId: 9, organizationName: 'Kaimana SARL', name: 'Kaimana Noumea',
-        address: null, phone: null, email: null, active: true, taxRegime: TaxRegime.TGC, taxName: 'TGC', createdAt: '2026-01-01T00:00:00Z',
+        address: null, phone: null, email: null, active: true, territory: Territory.TGC, taxName: 'TGC', createdAt: '2026-01-01T00:00:00Z',
       }],
       page: 0, size: 25, totalItems: 1, totalPages: 1,
     });

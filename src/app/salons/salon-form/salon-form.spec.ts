@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
-import { TaxRegime, TaxRegimeInfo } from '../../tax/models';
+import { Territory, TerritoryInfo } from '../../tax/models';
 import { SalonForm } from './salon-form';
 
 function activatedRouteStub(id: string | null) {
@@ -13,9 +13,9 @@ function activatedRouteStub(id: string | null) {
   } as unknown as ActivatedRoute;
 }
 
-const REGIMES: TaxRegimeInfo[] = [
-  { regime: TaxRegime.TGC, territoryCode: 'NC', territoryLabel: 'Nouvelle-Calédonie', taxName: 'TGC', taxLabel: 'TGC', rates: [] },
-  { regime: TaxRegime.TVA_PF, territoryCode: 'PF', territoryLabel: 'Polynésie française', taxName: 'TVA', taxLabel: 'TVA', rates: [] },
+const REGIMES: TerritoryInfo[] = [
+  { territory: Territory.TGC, territoryCode: 'NC', territoryLabel: 'Nouvelle-Calédonie', taxName: 'TGC', taxLabel: 'TGC', rates: [] },
+  { territory: Territory.TVA_PF, territoryCode: 'PF', territoryLabel: 'Polynésie française', taxName: 'TVA', taxLabel: 'TVA', rates: [] },
 ];
 
 describe('SalonForm — creation', () => {
@@ -72,18 +72,18 @@ describe('SalonForm — creation', () => {
     flushInit();
 
     fixture.componentInstance.form.patchValue({
-      organizationId: 9, name: 'Kaimana Papeete', taxRegime: TaxRegime.TVA_PF,
+      organizationId: 9, name: 'Kaimana Papeete', territory: Territory.TVA_PF,
     });
     fixture.componentInstance.submit();
 
     const req = httpMock.expectOne('/api/v1/platform/salons');
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({
-      organizationId: 9, name: 'Kaimana Papeete', address: null, phone: null, email: null, taxRegime: TaxRegime.TVA_PF,
+      organizationId: 9, name: 'Kaimana Papeete', address: null, phone: null, email: null, territory: Territory.TVA_PF,
     });
     req.flush({
       id: 1, organizationId: 9, organizationName: 'Kaimana SARL', name: 'Kaimana Papeete',
-      address: null, phone: null, email: null, active: true, taxRegime: TaxRegime.TVA_PF, taxName: 'TVA', createdAt: '2026-01-01T00:00:00Z',
+      address: null, phone: null, email: null, active: true, territory: Territory.TVA_PF, taxName: 'TVA', createdAt: '2026-01-01T00:00:00Z',
     });
 
     expect(navigateSpy).toHaveBeenCalledWith('/salons');
@@ -96,7 +96,7 @@ describe('SalonForm — edition', () => {
   const existingSalon = {
     id: 7, organizationId: 9, organizationName: 'Kaimana SARL', name: 'Kaimana Noumea',
     address: 'Noumea', phone: '123', email: null, active: true,
-    taxRegime: TaxRegime.TGC, taxName: 'TGC', createdAt: '2026-01-01T00:00:00Z',
+    territory: Territory.TGC, taxName: 'TGC', createdAt: '2026-01-01T00:00:00Z',
   };
 
   beforeEach(async () => {
@@ -140,7 +140,7 @@ describe('SalonForm — edition', () => {
     const req = httpMock.expectOne('/api/v1/platform/salons/7');
     expect(req.request.method).toBe('PUT');
     expect(req.request.body).toEqual({
-      name: 'Kaimana Noumea', address: 'Noumea', phone: '123', email: null, taxRegime: TaxRegime.TGC, active: false,
+      name: 'Kaimana Noumea', address: 'Noumea', phone: '123', email: null, territory: Territory.TGC, active: false,
     });
     req.flush({ ...existingSalon, active: false });
 

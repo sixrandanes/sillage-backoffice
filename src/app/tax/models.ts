@@ -1,4 +1,4 @@
-export enum TaxRegime {
+export enum Territory {
   TGC = 'TGC',
   TVA_PF = 'TVA_PF',
 }
@@ -29,8 +29,8 @@ export interface TaxRateInfo {
   validTo: string | null;
 }
 
-export interface TaxRegimeInfo {
-  regime: TaxRegime;
+export interface TerritoryInfo {
+  territory: Territory;
   territoryCode: string;
   territoryLabel: string;
   taxName: string;

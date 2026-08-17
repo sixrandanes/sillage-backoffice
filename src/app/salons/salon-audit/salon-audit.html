@@ -8,6 +8,64 @@
   </mat-card-header>
 
   <mat-card-content>
+    <!-- Le contrôle qui manquait : le support pouvait lire ce journal sans pouvoir vérifier qu'il
+         était intact. Devant une inspection, c'est le seul qui démontre quelque chose — et celui
+         qu'on ne peut pas demander à la partie contrôlée de faire pour nous. -->
+    <div class="audit-integrity">
+      <div class="audit-integrity-actions">
+        <button mat-stroked-button type="button" [disabled]="verifying()" (click)="verify(false)">
+          Vérifier l'intégrité
+        </button>
+        <button mat-button type="button" [disabled]="verifying()" (click)="verify(true)">
+          Contrôle complet
+        </button>
+        @if (verifying()) {
+          <mat-spinner diameter="20" />
+        }
+      </div>
+      <p class="bo-muted audit-integrity-hint">
+        Le contrôle courant s'appuie sur les exercices déjà scellés. Le contrôle complet relit tout
+        l'historique écriture par écriture : plus long, et le seul à détecter deux montants anciens
+        échangés au sein d'un même exercice.
+      </p>
+
+      @if (integrityError()) {
+        <p class="bo-error">{{ integrityError() }}</p>
+      }
+
+      @if (integrity(); as report) {
+        <div class="audit-verdict" [class.audit-verdict-broken]="!report.intact">
+          <p class="audit-verdict-line">
+            @if (report.intact) {
+              Aucune altération détectée.
+            } @else {
+              Altération détectée : la valeur probante de ce journal est compromise.
+            }
+          </p>
+          <!-- La portée accompagne le verdict partout où il s'affiche : « aucune altération
+               détectée » ne veut pas dire la même chose selon ce qui a été relu. -->
+          <p class="bo-muted audit-verdict-scope">{{ report.scope }}</p>
+
+          <ul class="audit-chains">
+            @for (chain of report.chains; track chain.chain) {
+              <li [class.audit-chain-broken]="!chain.intact">
+                {{ chain.chain }} — {{ chain.entryCount }} écriture{{
+                  chain.entryCount > 1 ? 's' : ''
+                }} rejouée{{ chain.entryCount > 1 ? 's' : '' }}
+                @if (!chain.intact) {
+                  <ul class="audit-anomalies">
+                    @for (anomalie of chain.anomalies; track anomalie.position) {
+                      <li>n° {{ anomalie.position }} : {{ anomalie.problem }}</li>
+                    }
+                  </ul>
+                }
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    </div>
+
     <div class="audit-filters">
       <mat-form-field appearance="outline" class="audit-search">
         <mat-label>Rechercher</mat-label>

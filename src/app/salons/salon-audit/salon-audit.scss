@@ -44,3 +44,64 @@
   max-width: 70ch;
   font-size: 13px;
 }
+
+/* Le controle d'integrite : un geste qu'on pose sciemment, pas un indicateur d'ambiance. Separe du
+   journal par un filet, comme la decision l'est des faits sur l'ecran des territoires. */
+.audit-integrity {
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--bo-border);
+}
+
+.audit-integrity-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.audit-integrity-hint {
+  margin: 8px 0 0;
+  max-width: 80ch;
+  font-size: 13px;
+}
+
+.audit-verdict {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-left: 3px solid #1b5e34;
+  background-color: #f1f8f3;
+}
+
+/* Une alteration n'est pas un avertissement : elle compromet la valeur probante de l'ensemble. */
+.audit-verdict-broken {
+  border-left-color: #a02020;
+  background-color: #fdeaea;
+}
+
+.audit-verdict-line {
+  margin: 0;
+  font-weight: 500;
+}
+
+.audit-verdict-scope {
+  margin: 4px 0 0;
+  font-size: 13px;
+  max-width: 80ch;
+}
+
+.audit-chains {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  font-size: 13px;
+}
+
+.audit-chain-broken {
+  color: #a02020;
+  font-weight: 500;
+}
+
+.audit-anomalies {
+  margin: 4px 0;
+  padding-left: 16px;
+}

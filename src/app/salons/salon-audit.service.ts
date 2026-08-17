@@ -4,7 +4,12 @@ import { Observable } from 'rxjs';
 
 import { API } from '../core/api';
 import { PageResponse } from '../core/http/page';
-import { AuditActionOption, SalonAuditEntry, SalonAuditQuery } from './audit.models';
+import {
+  AuditActionOption,
+  IntegrityReport,
+  SalonAuditEntry,
+  SalonAuditQuery,
+} from './audit.models';
 
 /**
  * Le journal de caisse d'un salon, en lecture seule.
@@ -44,5 +49,18 @@ export class SalonAuditService {
 
   actions(salonId: number): Observable<AuditActionOption[]> {
     return this.http.get<AuditActionOption[]>(`${this.base(salonId)}/actions`);
+  }
+
+  /**
+   * Rejoue les chaînes d'empreintes du salon et rend un verdict.
+   *
+   * **Le contrôle ancré est le défaut**, comme côté client : il s'appuie sur les exercices déjà
+   * scellés et reste constant dans le temps. Le contrôle complet relit tout l'historique écriture
+   * par écriture — plus long, et le seul à détecter deux montants anciens **échangés** au sein d'un
+   * même exercice.
+   */
+  integrity(salonId: number, complet = false): Observable<IntegrityReport> {
+    const params = new HttpParams().set('complet', complet);
+    return this.http.get<IntegrityReport>(`${this.base(salonId)}/integrity`, { params });
   }
 }

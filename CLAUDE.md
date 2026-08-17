@@ -437,6 +437,29 @@ pas encore n'a pas de journal.
   `fixture.detectChanges()` manquant apres une mutation de signal fait echouer le test en annoncant
   une URL absente — message qui pointe vers la requete, jamais vers l'effet non declenche.
 
+### Le controle d'integrite, sur la meme carte
+
+**Lire un journal sans pouvoir verifier qu'il est intact ne sert a rien devant un litige.** Le salon
+pouvait lancer ce controle depuis sa propre application ; le support, non. Or c'est le seul controle
+qui demontre quelque chose — et celui qu'on ne peut pas demander a la partie controlee de faire pour
+nous.
+
+- **A la demande, jamais au chargement.** Le rejeu parcourt les chaines du salon : le lancer a chaque
+  ouverture de la fiche ferait payer un controle a qui vient lire une ligne. C'est aussi un geste
+  qu'on pose sciemment, pas un indicateur d'ambiance.
+- **La portee accompagne le verdict**, toujours, et elle est **redigee par le serveur** : « aucune
+  alteration detectee » ne veut pas dire la meme chose selon ce qui a ete relu. La recomposer ici la
+  ferait diverger du perimetre reellement controle.
+- **Le verdict precedent est efface avant d'en demander un autre.** Le laisser a l'ecran pendant
+  qu'un controle complet tourne ferait lire l'ancien verdict comme le nouveau, et les deux ne portent
+  pas sur le meme perimetre.
+- **Une alteration n'est pas un avertissement** : elle compromet la valeur probante de l'ensemble.
+  Une seule anomalie suffit, il n'y a pas de demi-mesure — d'ou le rouge franc et la phrase qui le
+  dit.
+- **Deux boutons, pas une case a cocher** : le controle courant et le controle complet ne sont pas le
+  meme geste, et l'ecran dit ce que le second apporte (deux montants anciens **echanges** au sein
+  d'un meme exercice, que l'ancre ne voit pas).
+
 ## Archives fiscales d'un salon (`salons/salon-archives/`)
 
 **Ce que cet ecran repare est un angle mort, pas un manque de confort.** Une archive ne vivait que

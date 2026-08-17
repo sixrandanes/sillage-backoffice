@@ -173,4 +173,91 @@ describe('SalonAudit', () => {
 
     expect(fixture.componentInstance.loadError()).toBeTruthy();
   });
+  // ------------------------------------------------------------------
+  // Intégrité
+  // ------------------------------------------------------------------
+
+  const INTEGRITY = '/api/v1/platform/salons/4/audit/integrity';
+
+  function report(overrides: Record<string, unknown> = {}) {
+    return {
+      salonId: 4,
+      intact: true,
+      full: false,
+      scope: 'Écritures postérieures à l\'exercice 2025, scellé et archivé.',
+      chains: [{ chain: 'Ventes', entryCount: 1840, intact: true, anomalies: [] }],
+      ...overrides,
+    };
+  }
+
+  /**
+   * **Le contrôle ne part pas tout seul.** Le rejeu parcourt les chaînes du salon : le lancer à
+   * chaque ouverture de la fiche ferait payer un contrôle à qui vient lire une ligne. C'est aussi
+   * un geste qu'on pose sciemment — devant un litige — pas un indicateur d'ambiance.
+   */
+  it('never replays the ledger unless someone asks for it', () => {
+    create();
+
+    http.expectNone(`${INTEGRITY}?complet=false`);
+    http.expectNone(`${INTEGRITY}?complet=true`);
+  });
+
+  /**
+   * **Le verdict ne se lit pas sans sa portée.** « Aucune altération détectée » ne veut pas dire la
+   * même chose selon ce qui a été relu ; laisser deviner reviendrait à annoncer une garantie que
+   * personne n'a demandée. La phrase est rédigée par le serveur, jamais recomposée ici.
+   */
+  it('always shows what the verdict covers, not just the verdict', () => {
+    const { fixture, component } = create();
+
+    component.verify(false);
+    http.expectOne(`${INTEGRITY}?complet=false`).flush(report());
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Aucune altération détectée');
+    expect(fixture.nativeElement.textContent).toContain('scellé et archivé');
+  });
+
+  /** Une altération n'est pas un avertissement : elle compromet la valeur probante de l'ensemble. */
+  it('names the anomalies and says the ledger can no longer prove anything', () => {
+    const { fixture, component } = create();
+
+    component.verify(false);
+    http.expectOne(`${INTEGRITY}?complet=false`).flush(
+      report({
+        intact: false,
+        chains: [
+          {
+            chain: 'Ventes',
+            entryCount: 1840,
+            intact: false,
+            anomalies: [{ position: 128, problem: 'Vente modifiée après coup' }],
+          },
+        ],
+      }),
+    );
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('valeur probante');
+    expect(fixture.nativeElement.textContent).toContain('n° 128');
+    expect(fixture.nativeElement.textContent).toContain('modifiée après coup');
+  });
+
+  /**
+   * **Le verdict précédent disparaît avant qu'un nouveau soit demandé.** Laisser « aucune
+   * altération détectée » à l'écran pendant qu'un contrôle complet tourne ferait lire l'ancien
+   * verdict comme le nouveau — et les deux ne portent pas sur le même périmètre.
+   */
+  it('clears the previous verdict before running a wider one', () => {
+    const { fixture, component } = create();
+
+    component.verify(false);
+    http.expectOne(`${INTEGRITY}?complet=false`).flush(report());
+    expect(component.integrity()).not.toBeNull();
+
+    component.verify(true);
+
+    expect(component.integrity()).toBeNull();
+    http.expectOne(`${INTEGRITY}?complet=true`).flush(report({ full: true }));
+  });
 });

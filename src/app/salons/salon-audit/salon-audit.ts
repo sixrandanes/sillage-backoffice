@@ -13,7 +13,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 
-import { AuditActionOption, SalonAuditEntry } from '../audit.models';
+import { AuditActionOption, IntegrityReport, SalonAuditEntry } from '../audit.models';
 import { formatInZone } from '../../core/zone';
 import { SalonAuditService } from '../salon-audit.service';
 
@@ -80,6 +80,17 @@ export class SalonAudit {
 
   readonly displayedColumns = ['sequence', 'occurredAt', 'action', 'details', 'actor'];
 
+  /**
+   * Le verdict d'intégrité, **à la demande**.
+   *
+   * Pas au chargement : le rejeu parcourt les chaînes du salon, et le faire à chaque ouverture de
+   * la fiche ferait payer un contrôle à qui vient juste lire une ligne. C'est aussi un geste qu'on
+   * pose sciemment — devant un litige ou avant un contrôle — pas un indicateur d'ambiance.
+   */
+  readonly integrity = signal<IntegrityReport | null>(null);
+  readonly verifying = signal(false);
+  readonly integrityError = signal<string | null>(null);
+
   constructor() {
     this.searchControl.valueChanges
       .pipe(debounceTime(SEARCH_DEBOUNCE_MS), distinctUntilChanged(), takeUntilDestroyed())
@@ -110,6 +121,29 @@ export class SalonAudit {
         size: this.pageSize(),
       };
       untracked(() => this.load(salonId, criteres));
+    });
+  }
+
+  /**
+   * Lance le rejeu.
+   *
+   * Le verdict précédent est effacé **avant** de relancer : laisser « aucune altération détectée »
+   * à l'écran pendant qu'un contrôle complet tourne ferait lire l'ancien verdict comme le nouveau,
+   * et les deux ne portent pas sur le même périmètre.
+   */
+  verify(complet: boolean): void {
+    this.verifying.set(true);
+    this.integrity.set(null);
+    this.integrityError.set(null);
+    this.salonAuditService.integrity(this.salonId(), complet).subscribe({
+      next: (report) => {
+        this.integrity.set(report);
+        this.verifying.set(false);
+      },
+      error: () => {
+        this.integrityError.set("Impossible de vérifier l'intégrité de ce salon.");
+        this.verifying.set(false);
+      },
     });
   }
 

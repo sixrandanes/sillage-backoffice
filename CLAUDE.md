@@ -53,7 +53,7 @@ creme `#FBF9F6`).
   les deux applications indistinguables des que les titres sont tronques, ce qui est le cas
   courant. C'est exactement l'argument de la pastille « Backoffice » du bandeau, applique a
   l'endroit ou il compte le plus. Verifie a 16 px sur une barre d'onglets claire **et** sombre :
-  l'encre garde ses trois traits creme lisibles sur les deux.
+  l'encre garde sa silhouette creme lisible sur les deux.
 - **Le bandeau porte la variante creme**, parce qu'il est ardoise et que l'encre y disparaitrait.
   Meme marque, adaptee a son fond — c'est a ca que servent les trois variantes. Verrouille par un
   test : se tromper de variante donne un carre invisible que personne ne remarque en relisant le
@@ -64,8 +64,11 @@ creme `#FBF9F6`).
   renseigne ferait annoncer la marque deux fois par un lecteur d'ecran.
 - **`favicon.ico` est rasterise depuis la geometrie du SVG**, en sept tailles (16 a 256), **chacune
   rendue a sa taille reelle** plutot que reduite depuis la plus grande : a 16 px, une reduction
-  depuis 256 fond les trois traits entre eux. Le script de generation vit hors du depot — il ne
-  sert qu'a produire ces fichiers, et les fichiers sont ce qui est versionne.
+  depuis 256 fond le trace. **La geometrie se simplifie a mesure qu'elle retrecit** : contour et
+  trois ondes a 48 px et plus, deux ondes epaissies a 32, et une **silhouette pleine** a 16 et 24 —
+  sans quoi le favicon n'est qu'un bloc clair. Le generateur vit desormais dans `frontend/tools/`,
+  versionne, et produit les fichiers des **deux** depots : la marque est la meme, et deux scripts
+  finiraient par ne plus dessiner la meme chose.
 - **Rien d'autre n'entre** : pas de lockup, pas d'animation, pas d'illustration. Trois `<img>` au
   total, sans composant dedie — la ou le frontoffice a un `BrandMark`. La regle « aucun cout
   d'entretien » ci-dessus n'est pas suspendue parce qu'on a ajoute une image.

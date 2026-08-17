@@ -1,0 +1,106 @@
+// Le rythme de page vient de `.bo-page` (voir `styles.scss`) : ce fichier ne porte que ce qui est
+// propre a cet ecran.
+
+.subscription-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.subscription-horizon {
+  width: 160px;
+}
+
+// Ce qui bloque aujourd'hui se compte a part : dans une liste unique, un client dont la caisse est
+// fermee ne se distingue pas d'un client qui expire dans six semaines.
+.subscription-alert {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--mat-sys-error);
+  font-weight: 600;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.subscription-table {
+  width: 100%;
+}
+
+.subscription-table .is-selected {
+  background: color-mix(in srgb, var(--mat-sys-primary) 8%, transparent);
+}
+
+// L'etat se lit a la forme autant qu'au texte : un tableau ou tout est du meme gris oblige a lire
+// chaque ligne pour trouver celles qui demandent une action.
+.subscription-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  border: 1px solid currentColor;
+
+  &.is-running {
+    color: #1a6b3c;
+  }
+
+  &.is-blocked {
+    color: var(--mat-sys-error);
+  }
+
+  &.is-ended {
+    color: var(--bo-muted);
+  }
+}
+
+.subscription-countdown {
+  display: block;
+  font-size: 12px;
+  color: var(--bo-muted);
+
+  &.is-late {
+    color: var(--mat-sys-error);
+    font-weight: 600;
+  }
+}
+
+.subscription-flag {
+  display: block;
+  font-size: 12px;
+  color: var(--mat-sys-error);
+}
+
+.subscription-detail {
+  margin-top: 24px;
+}
+
+.subscription-gesture {
+  padding: 16px 0;
+
+  & + & {
+    border-top: 1px solid var(--bo-border);
+  }
+
+  h2 {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--bo-muted);
+    margin: 0 0 12px;
+  }
+
+  // Le texte d'explication colle au geste qu'il explique, et se detache du suivant.
+  p {
+    margin: 8px 0 0;
+    max-width: 70ch;
+  }
+}

@@ -72,6 +72,44 @@ le pattern tenant tiennent en deux points :
   autorite** — 403 partout — et l'ecran le lui dit. Ce backoffice donne acces aux donnees de
   **tous** les clients : son ouverture ne peut pas etre un effet de bord d'une connexion.
 
+## Abonnements (`subscriptions/`) : la page d'accueil, parce que c'est la seule ou l'inaction se paie
+
+**C'est l'ecran d'accueil du backoffice**, avant les taxes. Ce n'est pas un choix d'importance mais
+de consequence : une annonce de la DSF attend qu'on la saisisse, alors qu'un essai termine
+**ferme la caisse d'un client** — et jusqu'a ce module, rien ne pouvait la rouvrir (voir
+`../backend/CLAUDE.md`, « Administration des abonnements »).
+
+- **L'ecran s'ouvre sur les echeances, pas sur la liste complete.** Sa raison d'etre est de dire
+  qui va se bloquer ; la liste de tous les clients est un second onglet. **Soixante jours par
+  defaut**, pas trente : c'est le delai qui laisse le temps de facturer un annuel et d'etre paye.
+- **Ce qui bloque aujourd'hui est compte a part** (`blockedCount`). Dans une liste unique, un client
+  dont la caisse est fermee ne se distingue pas d'un client qui expire dans six semaines — or l'un
+  attend un geste et l'autre un rappel. Meme raison pour la pastille de statut : un tableau tout
+  gris oblige a lire chaque ligne pour trouver celles qui demandent une action.
+- **Une date part en `AAAA-MM-JJ`, jamais un instant.** `toISOString()` convertit en UTC : sur un
+  poste a Noumea (UTC+11), une date choisie au calendrier repartirait **la veille**. C'est la meme
+  erreur d'un jour que celle documentee cote serveur entre Noumea et Papeete, et elle ne se voit
+  qu'aux dates limites. Verrouille par un test.
+- **Le decompte de jours est calcule sur le poste**, quand le serveur tranche a la sienne : c'est
+  une aide a la lecture, pas une regle. Ce qui fait foi est `accessUntil`, affiche a cote.
+- **Le refus du serveur s'affiche tel quel**, comme sur l'ecran des taxes : lui seul sait dire
+  combien de salons sont actifs, ou pourquoi une date est refusee. Un message generique perdrait
+  exactement ce qui aide a corriger.
+- **Chaque geste recharge la liste**, plutot que de remplacer la seule ligne concernee. La liste des
+  echeances est filtree : un abonnement qu'on vient de couvrir n'en fait plus partie, et le laisser
+  affiche ferait croire que le geste n'a rien change.
+- **Les gestes voues au refus sont desactives avant d'etre proposes** — prolonger l'essai d'un
+  abonnement deja payant, reconduire sans periodicite enregistree — et l'ecran **dit pourquoi**
+  plutot que de griser en silence. Meme principe que le selecteur de tranche fiscale.
+- **« Arreter » explique ce qu'il ne fait pas** : rien n'est supprime, les salons et l'historique
+  restent, l'acces court jusqu'au terme paye, et le geste se defait. Sans cette phrase, personne
+  n'oserait cliquer — et le support recevrait l'appel qu'on cherche a eviter.
+- **Les libelles des offres et des periodicites viennent du serveur** (`/options`), avec le plafond
+  de salons de chaque offre. Recopies ici, ils divergeraient au premier changement de nom, et
+  l'ecran afficherait alors autre chose que ce qu'il envoie — sans qu'aucun appel n'echoue. Meme
+  regle que les moyens de paiement cote tenant. Si `/options` echoue, seul le changement d'offre
+  devient indisponible : le reste de l'ecran continue de fonctionner.
+
 ## Fiscalite (`tax/`) : le referentiel s'edite ici, et nulle part ailleurs
 
 **Les tranches sont des donnees**, plus un `enum` : c'est cet ecran qui en cree. Un `enum` cote

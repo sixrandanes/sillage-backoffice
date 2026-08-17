@@ -27,7 +27,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./shell/shell').then((m) => m.Shell),
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'taxes' },
+      // L'accueil est l'etat des lieux des abonnements : c'est la seule page ou une inaction se
+      // paie — la caisse d'un client se ferme. Les taxes, elles, attendent une annonce officielle.
+      { path: '', pathMatch: 'full', redirectTo: 'subscriptions' },
+      {
+        path: 'subscriptions',
+        loadComponent: () =>
+          import('./subscriptions/subscription-page/subscription-page').then((m) => m.SubscriptionPage),
+      },
       {
         path: 'taxes',
         loadComponent: () => import('./tax/tax-page/tax-page').then((m) => m.TaxPage),

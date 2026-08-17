@@ -1,0 +1,261 @@
+<div class="bo-page">
+  <h1 class="bo-page-title">Abonnements</h1>
+  <p class="bo-page-intro">
+    Qui arrive à échéance, et qui est déjà bloqué. Un essai terminé ou une couverture expirée
+    ferme la caisse du client : c'est ici que ça se débloque.
+  </p>
+
+  <div class="subscription-controls">
+    <mat-button-toggle-group
+      [value]="scope()"
+      (change)="changeScope($event.value)"
+      aria-label="Portée"
+    >
+      <mat-button-toggle value="expiring">Échéances</mat-button-toggle>
+      <mat-button-toggle value="all">Tous les clients</mat-button-toggle>
+    </mat-button-toggle-group>
+
+    @if (scope() === 'expiring') {
+      <mat-form-field appearance="outline" class="subscription-horizon">
+        <mat-label>Horizon</mat-label>
+        <mat-select [value]="horizonDays()" (valueChange)="changeHorizon($event)">
+          <mat-option [value]="30">30 jours</mat-option>
+          <mat-option [value]="60">60 jours</mat-option>
+          <mat-option [value]="90">90 jours</mat-option>
+          <mat-option [value]="180">6 mois</mat-option>
+        </mat-select>
+      </mat-form-field>
+    }
+
+    @if (blockedCount() > 0) {
+      <span class="subscription-alert">
+        <mat-icon>error</mat-icon>
+        {{ blockedCount() }} client(s) bloqué(s)
+      </span>
+    }
+  </div>
+
+  @if (loading()) {
+    <mat-spinner diameter="32" />
+  } @else if (loadError()) {
+    <p class="bo-error">{{ loadError() }}</p>
+  } @else if (rows().length === 0) {
+    <p class="bo-empty">
+      @if (scope() === 'expiring') {
+        Aucune échéance dans les {{ horizonDays() }} prochains jours.
+      } @else {
+        Aucun client pour le moment.
+      }
+    </p>
+  } @else {
+    <table mat-table [dataSource]="rows()" class="subscription-table">
+      <ng-container matColumnDef="client">
+        <th mat-header-cell *matHeaderCellDef>Client</th>
+        <td mat-cell *matCellDef="let row">
+          {{ row.organizationName }}
+          @if (!row.organizationActive) {
+            <span class="subscription-flag">organisation désactivée</span>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="plan">
+        <th mat-header-cell *matHeaderCellDef>Offre</th>
+        <td mat-cell *matCellDef="let row">
+          {{ row.planLabel }}
+          @if (row.billingPeriod) {
+            <span class="bo-muted">· {{ row.billingPeriod === 'YEARLY' ? 'annuel' : 'mensuel' }}</span>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Statut</th>
+        <td mat-cell *matCellDef="let row">
+          <span class="subscription-chip" [class]="'is-' + severity(row)">{{ row.statusLabel }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="accessUntil">
+        <th mat-header-cell *matHeaderCellDef>Accès jusqu'au</th>
+        <td mat-cell *matCellDef="let row" class="bo-numeric">
+          {{ row.accessUntil | date: 'dd/MM/yyyy' }}
+          <span class="subscription-countdown" [class.is-late]="daysLeft(row) < 0">
+            @if (daysLeft(row) < 0) {
+              échu depuis {{ -daysLeft(row) }} j
+            } @else {
+              dans {{ daysLeft(row) }} j
+            }
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="salons">
+        <th mat-header-cell *matHeaderCellDef>Salons actifs</th>
+        <td mat-cell *matCellDef="let row" class="bo-numeric">{{ row.activeSalons }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let row">
+          <button mat-button type="button" (click)="select(row)">Gérer</button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumns"
+        [class.is-selected]="selected()?.organizationId === row.organizationId"
+      ></tr>
+    </table>
+  }
+
+  @if (selected(); as current) {
+    <mat-card class="subscription-detail">
+      <mat-card-header>
+        <mat-card-title>{{ current.organizationName }}</mat-card-title>
+        <mat-card-subtitle>
+          {{ current.statusLabel }} · accès jusqu'au {{ current.accessUntil | date: 'dd/MM/yyyy' }}
+          @if (current.cancelledAt) {
+            · résilié le {{ current.cancelledAt | date: 'dd/MM/yyyy' }}
+          }
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        @if (actionError()) {
+          <p class="bo-error">{{ actionError() }}</p>
+        }
+        @if (actionDone()) {
+          <p class="bo-success">{{ actionDone() }}</p>
+        }
+
+        <section class="subscription-gesture">
+          <h2>Prolonger l'essai</h2>
+          @if (canExtendTrial(current)) {
+            <div class="bo-form">
+              <mat-form-field appearance="outline">
+                <mat-label>Jours</mat-label>
+                <input matInput type="number" [formControl]="trialForm.controls.days" />
+              </mat-form-field>
+              <button
+                mat-flat-button
+                type="button"
+                [disabled]="busy() || trialForm.invalid"
+                (click)="extendTrial()"
+              >
+                Prolonger
+              </button>
+            </div>
+            <p class="bo-muted">
+              Comptés depuis la fin d'essai, ou depuis aujourd'hui si elle est déjà passée.
+            </p>
+          } @else {
+            <p class="bo-muted">
+              Cet abonnement est payant : c'est sa couverture qu'on repousse, pas son essai.
+            </p>
+          }
+        </section>
+
+        <section class="subscription-gesture">
+          <h2>Enregistrer un règlement</h2>
+          <div class="bo-form">
+            <mat-form-field appearance="outline">
+              <mat-label>Couvert jusqu'au</mat-label>
+              <input matInput [matDatepicker]="picker" [formControl]="coverForm.controls.through" />
+              <mat-datepicker-toggle matIconSuffix [for]="picker" />
+              <mat-datepicker #picker />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Périodicité</mat-label>
+              <mat-select [formControl]="coverForm.controls.billingPeriod">
+                @for (period of options()?.periods ?? []; track period.value) {
+                  <mat-option [value]="period.value">{{ period.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <button
+              mat-flat-button
+              type="button"
+              [disabled]="busy() || coverForm.invalid"
+              (click)="cover()"
+            >
+              Enregistrer
+            </button>
+          </div>
+          <p class="bo-muted">Le dernier jour est inclus.</p>
+
+          <div class="bo-actions">
+            <button
+              mat-stroked-button
+              type="button"
+              [disabled]="busy() || !canRenew(current)"
+              (click)="renew()"
+            >
+              Reconduire d'une période
+            </button>
+            @if (!canRenew(current)) {
+              <span class="bo-muted">Posez d'abord une périodicité.</span>
+            }
+          </div>
+        </section>
+
+        <section class="subscription-gesture">
+          <h2>Offre</h2>
+          <div class="bo-form">
+            <mat-form-field appearance="outline">
+              <mat-label>Offre</mat-label>
+              <mat-select [formControl]="planForm.controls.plan">
+                @for (plan of options()?.plans ?? []; track plan.value) {
+                  <mat-option [value]="plan.value">{{ plan.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <button
+              mat-stroked-button
+              type="button"
+              [disabled]="busy() || planForm.invalid || planForm.controls.plan.value === current.plan"
+              (click)="changePlan()"
+            >
+              Changer d'offre
+            </button>
+          </div>
+          <p class="bo-muted">
+            {{ current.activeSalons }} salon(s) actif(s) : une offre qui n'en couvre pas autant est
+            refusée.
+          </p>
+        </section>
+
+        <section class="subscription-gesture">
+          <h2>Arrêter</h2>
+          @if (current.cancelledAt) {
+            <div class="bo-actions">
+              <button mat-flat-button type="button" [disabled]="busy()" (click)="resume()">
+                Reprendre l'abonnement
+              </button>
+            </div>
+            <p class="bo-muted">
+              La reconduction est arrêtée. L'accès court jusqu'au
+              {{ current.accessUntil | date: 'dd/MM/yyyy' }}.
+            </p>
+          } @else {
+            <div class="bo-actions">
+              <button mat-stroked-button type="button" [disabled]="busy()" (click)="cancel()">
+                Arrêter la reconduction
+              </button>
+            </div>
+            <p class="bo-muted">
+              Rien n'est supprimé : les salons, les ventes et l'historique restent intacts, et
+              l'accès court jusqu'au terme déjà payé. Ce geste se défait.
+            </p>
+          }
+        </section>
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button mat-button type="button" (click)="close()">Fermer</button>
+      </mat-card-actions>
+    </mat-card>
+  }
+</div>

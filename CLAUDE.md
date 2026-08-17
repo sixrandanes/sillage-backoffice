@@ -215,6 +215,35 @@ reste de Kaimana). Le formulaire ne propose que les categories actuellement ouve
 (`panel.info.rates`) : programmer un taux pour une categorie fermee echouerait cote backend
 (409 CONFLICT), inutile de laisser l'utilisateur y arriver.
 
+## Support des comptes clients (`organizations/organization-users/`)
+
+Le panneau est **sur la fiche de l'organisation**, pas sur un ecran autonome : c'est la qu'on
+arrive quand un client appelle, et un ecran « comptes » separe obligerait a retrouver l'entreprise
+deux fois.
+
+- **Le diagnostic est la fonctionnalite, pas la liste.** L'appel commence par « ca ne marche
+  plus » : chaque ligne dit *pourquoi* la personne entre ou n'entre pas. Sans lui, on aurait
+  remplace « je ne peux pas voir » par « je vois, et je ne comprends pas ».
+- **Trois etats, trois lectures** : ce qui bloque (rouge), ce qui se reglera **tout seul** a la
+  prochaine connexion (ambre — un compte neuf se rattache par email verifie), et ce qui va bien.
+  Peindre le second en rouge ferait intervenir la ou il n'y a rien a faire.
+- **« Detacher l'identite » n'apparait que la ou il y en a une.** Sur un compte non rattache, ce
+  bouton ne ferait rien tout en ayant l'air d'agir — pire qu'un bouton absent, on croirait avoir
+  repare.
+- **Les deux gestes dont l'effet n'est pas devinable sont expliques sur la page** : detacher ne
+  pose aucune identite, il en retire une ; corriger l'adresse n'ouvre d'acces a personne tant que
+  la personne ne l'a pas verifiee chez le fournisseur. Sans ces lignes, on n'ose ni l'un ni
+  l'autre.
+- **L'adresse est normalisee a la saisie.** Une adresse se **colle** plus souvent qu'elle ne se
+  tape, et `Validators.email` refuse une valeur entouree d'espaces : le bouton restait desactive
+  sans que rien n'explique pourquoi — le pire des refus, celui qui ne se dit pas. Trouve par un
+  test, pas a l'ecran.
+- **Les libelles de roles sont recopies du frontoffice**, pas partages : les deux applications sont
+  deliberement sans code commun. Le prix est cette table ; le benefice est qu'aucun point de
+  couplage n'existe entre le monde client et le monde plateforme.
+- **Le refus du serveur s'affiche tel quel** : lui seul sait qu'on s'apprete a retirer le dernier
+  proprietaire actif, ou qu'une adresse est deja prise.
+
 ## Organisations et salons (`organizations/`, `salons/`) : acces cross-tenant, pas un referentiel global
 
 Contrairement a `tax/`, ces deux features touchent des donnees **possedees** par une organisation

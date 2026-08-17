@@ -1,0 +1,91 @@
+.users-card {
+  margin-top: 24px;
+}
+
+.users-table {
+  width: 100%;
+}
+
+.users-name {
+  display: block;
+  font-weight: 500;
+}
+
+.users-email {
+  display: block;
+  font-size: 12px;
+}
+
+/* La propriete d'entreprise se voit au premier coup d'oeil : c'est elle qu'on cherche quand plus
+   personne ne peut gerer l'equipe. */
+.users-owner {
+  margin-left: 8px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--mat-sys-primary) 14%, transparent);
+  color: var(--mat-sys-primary);
+}
+
+/* Trois etats, trois lectures : ce qui bloque, ce qui se reglera tout seul a la prochaine
+   connexion, et ce qui va bien. Les peindre pareil ferait « reparer » ce qui n'a rien. */
+.users-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid currentColor;
+
+  &.is-ok {
+    color: #1a6b3c;
+  }
+
+  &.is-blocked {
+    color: var(--mat-sys-error);
+  }
+
+  &.is-waiting {
+    color: #8a5a00;
+  }
+}
+
+.users-roles {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 13px;
+}
+
+.users-actions {
+  white-space: nowrap;
+}
+
+.users-email-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.users-howto {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--bo-border);
+
+  h3 {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--bo-muted);
+    margin: 0 0 12px;
+  }
+
+  p {
+    margin: 0 0 10px;
+    max-width: 70ch;
+  }
+}

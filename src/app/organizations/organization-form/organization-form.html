@@ -38,4 +38,8 @@
       </div>
     </form>
   }
+
+  @if (!loading()) {
+    <app-organization-users [organizationId]="organizationIdForUsers" />
+  }
 </div>

@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { OrganizationService } from '../organization.service';
+import { OrganizationUsers } from '../organization-users/organization-users';
 
 @Component({
   selector: 'app-organization-form',
@@ -18,6 +19,7 @@ import { OrganizationService } from '../organization.service';
     MatFormFieldModule,
     MatInputModule,
     MatProgressSpinnerModule,
+    OrganizationUsers,
   ],
   templateUrl: './organization-form.html',
   styleUrl: './organization-form.scss',
@@ -29,6 +31,9 @@ export class OrganizationForm {
   private readonly router = inject(Router);
 
   private readonly organizationId = Number(this.route.snapshot.paramMap.get('id'));
+
+  /** Le meme identifiant, expose au panneau des comptes. */
+  readonly organizationIdForUsers = this.organizationId;
 
   readonly loading = signal(true);
   readonly saving = signal(false);

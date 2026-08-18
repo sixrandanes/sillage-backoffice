@@ -1,20 +1,16 @@
-.salon-list {
-  padding: 24px;
-  max-width: 1000px;
-  margin: 0 auto;
-}
-
+// La largeur et le rembourrage viennent de `.bo-page` — voir `organization-list.scss`.
 .salon-list-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 20px;
 }
 
 .salon-list-filters {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 20px;
 }
 
 .salon-search {

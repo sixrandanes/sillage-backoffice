@@ -33,6 +33,24 @@ dernier en vaille la maintenance. `styles.scss` et le gabarit du shell portent t
   desormais ardoise, et la couleur ne sert qu'aux boutons et aux liens.
 - **Densite `-1`.** Un outil d'administration montre des tableaux, pas des cartes aerees. `-2`
   rendait les champs de saisie inconfortables a la frappe.
+- **Un seul cartouche pour tout le backoffice** : `.bo-panel` pour les ecrans sans `mat-card`,
+  `mat-card` ailleurs, **une seule definition** pour les deux. Cinq ecrans posaient leur contenu
+  **a nu sur le fond gris** — journal d'administration, organisations, salons, et les deux
+  formulaires : le fond legerement teinte, prevu pour que les surfaces s'en detachent, n'avait
+  alors rien de quoi se detacher. Deux surfaces voisines qui divergeraient d'un pixel de bordure ou
+  d'un degre de gris se remarquent avant qu'on sache pourquoi, d'ou la definition unique.
+  <br>**`.bo-panel--flush`** pour un tableau, qui **remplit** son cartouche : le rembourrage
+  laisserait une bande blanche autour d'une entete deja teintee.
+  <br>**Piege trouve en regardant, pas en relisant** : la derniere ligne d'un tableau porte sa
+  bordure et le cartouche porte la sienne — les deux se superposent en un **trait double**, visible
+  a l'oeil avant qu'on sache d'ou il vient. Aucune lecture de la feuille de style ne le signale.
+  Verifie sur un banc d'essai servant le **CSS reellement compile**, l'ecran lui-meme demandant une
+  session que l'on n'a pas en local.
+  <br>**Verrouille par un test** : deux specs exigent qu'une surface existe, et la retirer du
+  gabarit les fait echouer. Sans cela, un remaniement futur la perdrait sans que rien ne le dise.
+- **La largeur et le rembourrage viennent de `.bo-page`, jamais de l'ecran.** `organization-list` et
+  `salon-list` posaient les leurs (900 et 1000 px) : ils etaient plus etroits que leurs voisins, et
+  deux ecrans cote a cote ne s'alignaient pas — exactement le defaut qui avait fait creer `.bo-page`.
 - **Les cartes ont une bordure, pas d'ombre.** Sur un fond legerement teinte, une bordure fine
   suffit a poser la surface, et une pile d'ombres donne un aspect brouillon des qu'il y en a
   plusieurs.

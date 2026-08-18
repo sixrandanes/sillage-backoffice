@@ -67,4 +67,21 @@ describe('OrganizationList', () => {
     expect(request.request.params.get('page')).toBe('0');
     request.flush({ items: [], page: 0, size: 25, totalItems: 0, totalPages: 0 });
   });
+
+  /**
+   * **Le contenu ne flotte pas sur le fond gris.** Cet écran posait son tableau à nu : le fond
+   * teinté, prévu pour que les surfaces s'en détachent, n'avait alors rien de quoi se détacher.
+   * Le cartouche blanc (`.bo-panel`) est ce qui le pose — et ce test est ce qui l'empêche de
+   * disparaître au prochain remaniement du gabarit, où rien ne signalerait sa perte.
+   */
+  it('lays its content on a white surface rather than on the bare page', () => {
+    const fixture = TestBed.createComponent(OrganizationList);
+    fixture.detectChanges();
+    httpMock.expectOne((r) => r.url === '/api/v1/platform/organizations').flush({
+      items: [], page: 0, size: 25, totalItems: 0, totalPages: 0,
+    });
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelectorAll('.bo-panel').length).toBeGreaterThan(0);
+  });
 });

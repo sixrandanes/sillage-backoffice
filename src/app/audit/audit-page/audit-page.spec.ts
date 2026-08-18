@@ -112,4 +112,17 @@ describe('AuditPage', () => {
 
     expect(fixture.componentInstance.loadError()).toBeTruthy();
   });
+
+  /**
+   * **Le contenu ne flotte pas sur le fond gris.** Cet écran posait son tableau à nu : le fond
+   * teinté, prévu pour que les surfaces s'en détachent, n'avait alors rien de quoi se détacher.
+   * Le cartouche blanc (`.bo-panel`) est ce qui le pose — et ce test est ce qui l'empêche de
+   * disparaître au prochain remaniement du gabarit, où rien ne signalerait sa perte.
+   */
+  it('lays its content on a white surface rather than on the bare page', () => {
+    const { fixture } = create();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelectorAll('.bo-panel').length).toBeGreaterThan(0);
+  });
 });

@@ -1,17 +1,20 @@
-<div class="organization-list">
-  <h1>Organisations</h1>
+<div class="bo-page organization-list">
+  <h1 class="bo-page-title">Organisations</h1>
 
-  <mat-form-field appearance="outline" class="organization-search">
+  <div class="bo-panel organization-filters">
+    <mat-form-field appearance="outline" class="organization-search">
     <mat-label>Rechercher</mat-label>
     <input matInput [formControl]="searchControl" placeholder="Nom de l'organisation" />
-    <mat-icon matPrefix>search</mat-icon>
-  </mat-form-field>
+      <mat-icon matPrefix>search</mat-icon>
+    </mat-form-field>
+  </div>
 
   @if (loading()) {
     <mat-spinner diameter="32" />
   } @else if (errorMessage()) {
     <p class="organization-list-error">{{ errorMessage() }}</p>
   } @else {
+    <div class="bo-panel bo-panel--flush">
     <table mat-table [dataSource]="organizations()" class="organization-table">
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>Nom</th>
@@ -46,5 +49,6 @@
       [pageSizeOptions]="[25, 50, 100]"
       (page)="changePage($event)"
     />
+    </div>
   }
 </div>

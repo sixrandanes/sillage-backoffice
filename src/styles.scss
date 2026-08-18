@@ -82,7 +82,16 @@ body {
 
 // ── Surfaces ────────────────────────────────────────────────────────────────────────────────
 
+// **Un seul cartouche pour tout le backoffice.** `mat-card` la porte quand un ecran en a une ;
+// `.bo-panel` la porte quand il n'en a pas — tableaux et formulaires posaient jusqu'ici leur
+// contenu **a nu sur le fond gris**, sans aucune surface. Cinq ecrans etaient dans ce cas
+// (journal, organisations, salons, et leurs deux formulaires) : le fond teinte, prevu pour que les
+// cartes s'en detachent, n'avait alors rien de quoi se detacher.
+//
+// Une seule definition pour les deux, deliberement : deux surfaces voisines qui divergeraient d'un
+// pixel de bordure ou d'un degre de gris se remarquent avant qu'on sache pourquoi.
 .bo-card,
+.bo-panel,
 .mat-mdc-card {
   border: 1px solid var(--bo-border);
   border-radius: 8px;
@@ -90,6 +99,40 @@ body {
   // une pile d'ombres donne un aspect brouillon des qu'il y a plusieurs cartes.
   box-shadow: none !important;
   background: #fff;
+}
+
+// `mat-card` apporte son propre rembourrage par son `mat-card-content` ; `.bo-panel` n'a personne
+// pour le lui donner.
+.bo-panel {
+  padding: 20px;
+}
+
+// Un tableau **remplit** son cartouche : le rembourrage laisserait une bande blanche autour d'une
+// entete deja teintee, et l'ourlet se verrait a chaque bord.
+.bo-panel--flush {
+  padding: 0;
+  overflow: hidden;
+
+  // **Le double filet du bas.** La derniere ligne d'un tableau porte sa bordure, et le cartouche
+  // porte la sienne : les deux se superposent en un trait double, visible a l'oeil avant qu'on
+  // sache d'ou il vient. Trouve en **regardant** la page rendue, pas en relisant la feuille de
+  // style — c'est le genre de defaut qu'aucune lecture ne signale.
+  .mat-mdc-row:last-child .mat-mdc-cell,
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  // Un paginateur colle au bord bas du cartouche sans respirer.
+  .mat-mdc-paginator {
+    border-top: 1px solid var(--bo-border);
+  }
+}
+
+// Le rythme entre deux cartouches est le meme qu'entre deux cartes.
+.bo-panel + .bo-panel,
+.bo-panel + .mat-mdc-card,
+.mat-mdc-card + .bo-panel {
+  margin-top: 20px;
 }
 
 .mat-mdc-card + .mat-mdc-card {

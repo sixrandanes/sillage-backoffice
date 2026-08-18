@@ -1,13 +1,16 @@
-.organization-list {
-  padding: 24px;
-  max-width: 900px;
-  margin: 0 auto;
+// La largeur et le rembourrage viennent de `.bo-page` : les poser ici donnait un ecran plus
+// etroit que ses voisins, et deux ecrans cote a cote ne s'alignaient pas. Meme lecon que la
+// creation de `.bo-page`, appliquee a l'ecran qui l'avait manquee.
+.organization-filters {
+  margin-bottom: 20px;
 }
 
 .organization-search {
   width: 100%;
   max-width: 360px;
-  margin-bottom: 12px;
+  // Aucune marge basse : le cartouche porte desormais le rembourrage, et l'ajouter creerait un
+  // vide sous le champ.
+  margin-bottom: 0;
 }
 
 .organization-table {

@@ -5,7 +5,7 @@
     permet de l'écrire ni de le corriger.
   </p>
 
-  <div class="audit-controls">
+  <div class="bo-panel audit-controls">
     <mat-form-field appearance="outline" class="audit-filter">
       <mat-label>Ce qui est en jeu</mat-label>
       <mat-select [value]="family()" (valueChange)="changeFamily($event)">
@@ -33,6 +33,7 @@
   } @else if (entries().length === 0) {
     <p class="bo-empty">Aucun geste enregistré.</p>
   } @else {
+    <div class="bo-panel bo-panel--flush">
     <table mat-table [dataSource]="entries()" class="audit-table">
       <ng-container matColumnDef="occurredAt">
         <th mat-header-cell *matHeaderCellDef>Quand</th>
@@ -69,5 +70,6 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
     </table>
+    </div>
   }
 </div>

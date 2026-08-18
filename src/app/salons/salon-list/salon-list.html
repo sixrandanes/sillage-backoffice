@@ -1,10 +1,10 @@
-<div class="salon-list">
+<div class="bo-page salon-list">
   <div class="salon-list-header">
-    <h1>Salons</h1>
+    <h1 class="bo-page-title">Salons</h1>
     <button mat-flat-button color="primary" routerLink="/salons/new">Nouveau salon</button>
   </div>
 
-  <div class="salon-list-filters">
+  <div class="bo-panel salon-list-filters">
     <mat-form-field appearance="outline" class="salon-search">
       <mat-label>Rechercher</mat-label>
       <input matInput [formControl]="searchControl" placeholder="Nom du salon" />
@@ -27,6 +27,7 @@
   } @else if (errorMessage()) {
     <p class="salon-list-error">{{ errorMessage() }}</p>
   } @else {
+    <div class="bo-panel bo-panel--flush">
     <table mat-table [dataSource]="salons()" class="salon-table">
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>Nom</th>
@@ -65,5 +66,6 @@
       [pageSizeOptions]="[25, 50, 100]"
       (page)="changePage($event)"
     />
+    </div>
   }
 </div>

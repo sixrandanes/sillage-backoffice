@@ -31,7 +31,7 @@ describe('OrganizationList', () => {
       (r) => r.url === '/api/v1/platform/organizations' && r.params.get('page') === '0',
     );
     req.flush({
-      items: [{ id: 1, name: 'Kaimana Noumea', taxCountry: 'NC', currency: 'XPF', active: true, salonCount: 2, createdAt: '2026-01-01T00:00:00Z' }],
+      items: [{ id: 1, name: 'Kaimana Noumea', taxCountry: 'NC', currency: 'XPF', billingAddress: '12 rue de l\'Alma', taxId: '1234567.001', active: true, salonCount: 2, createdAt: '2026-01-01T00:00:00Z' }],
       page: 0, size: 25, totalItems: 1, totalPages: 1,
     });
 

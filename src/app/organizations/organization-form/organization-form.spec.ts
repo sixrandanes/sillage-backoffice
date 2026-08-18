@@ -16,7 +16,7 @@ describe('OrganizationForm', () => {
   let httpMock: HttpTestingController;
 
   const existingOrganization = {
-    id: 9, name: 'Kaimana Noumea', taxCountry: 'NC', currency: 'XPF', active: true, salonCount: 2, createdAt: '2026-01-01T00:00:00Z',
+    id: 9, name: 'Kaimana Noumea', taxCountry: 'NC', currency: 'XPF', billingAddress: '12 rue de l\'Alma', taxId: '1234567.001', active: true, salonCount: 2, createdAt: '2026-01-01T00:00:00Z',
   };
 
   beforeEach(async () => {
@@ -56,7 +56,7 @@ describe('OrganizationForm', () => {
 
     const req = httpMock.expectOne('/api/v1/platform/organizations/9');
     expect(req.request.method).toBe('PUT');
-    expect(req.request.body).toEqual({ name: 'Kaimana Nouveau', taxCountry: 'NC', active: false });
+    expect(req.request.body).toEqual({ name: 'Kaimana Nouveau', taxCountry: 'NC', billingAddress: '12 rue de l\'Alma', taxId: '1234567.001', active: false });
     req.flush({ ...existingOrganization, name: 'Kaimana Nouveau', active: false });
 
     expect(navigateSpy).toHaveBeenCalledWith('/organizations');

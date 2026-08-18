@@ -15,6 +15,27 @@
         <input matInput formControlName="taxCountry" maxlength="2" />
       </mat-form-field>
 
+      <mat-form-field appearance="outline">
+        <mat-label>Adresse de facturation</mat-label>
+        <textarea matInput formControlName="billingAddress" rows="3"></textarea>
+        <mat-hint>Telle qu'elle apparaît sur les factures d'abonnement. Plusieurs lignes possibles.</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>RIDET</mat-label>
+        <input matInput formControlName="taxId" placeholder="1234567.001" />
+      </mat-form-field>
+
+      <!-- Dit avant qu'on le découvre au moment d'émettre : sans ces mentions la pièce n'est pas
+           conforme, le serveur refuse, et son numéro serait consommé. -->
+      @if (billingIdentityMissing().length > 0) {
+        <p class="organization-form-warning">
+          Il manque {{ billingIdentityMissing().join(' et ') }} : aucune facture d'abonnement ne
+          pourra être émise pour ce client. Le propriétaire peut les renseigner lui-même depuis son
+          espace.
+        </p>
+      }
+
       <mat-checkbox formControlName="active">Actif</mat-checkbox>
       <p class="organization-form-note">
         Désactiver une organisation bloque immédiatement la connexion de tous ses utilisateurs,

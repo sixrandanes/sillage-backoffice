@@ -17,3 +17,14 @@
 .organization-form-actions {
   margin-top: 12px;
 }
+
+/* Un fait a corriger chez le client, pas une erreur de l'ecran : ambre, comme les exercices non
+   sceles sur la fiche d'un salon. */
+.organization-form-warning {
+  margin: 0;
+  padding: 10px 14px;
+  border-left: 3px solid #c77700;
+  background-color: #fdf6e8;
+  font-size: 13px;
+  max-width: 80ch;
+}

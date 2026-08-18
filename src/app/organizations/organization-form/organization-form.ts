@@ -43,8 +43,20 @@ export class OrganizationForm {
   readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],
     taxCountry: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(2)]],
+    // **Pas de `required`**, alors que la facturation les exige : les imposer bloquerait le support
+    // qui vient juste corriger un nom. C'est l'émission qui refuse, et l'écran qui prévient.
+    billingAddress: [''],
+    taxId: [''],
     active: [true],
   });
+
+  /**
+   * **Ce qui empêchera de facturer ce client**, dit avant qu'on le découvre au moment d'émettre.
+   *
+   * Le propriétaire peut les renseigner lui-même depuis son espace : le support n'a pas à courir
+   * après, mais il doit pouvoir le voir quand un client appelle parce que sa facture n'arrive pas.
+   */
+  readonly billingIdentityMissing = signal<string[]>([]);
 
   constructor() {
     this.organizationService.get(this.organizationId).subscribe({
@@ -52,8 +64,14 @@ export class OrganizationForm {
         this.form.patchValue({
           name: organization.name,
           taxCountry: organization.taxCountry,
+          billingAddress: organization.billingAddress ?? '',
+          taxId: organization.taxId ?? '',
           active: organization.active,
         });
+        this.billingIdentityMissing.set([
+          ...(organization.billingAddress ? [] : ['adresse de facturation']),
+          ...(organization.taxId ? [] : ['RIDET']),
+        ]);
         this.salonCount.set(organization.salonCount);
         this.loading.set(false);
       },
@@ -76,6 +94,8 @@ export class OrganizationForm {
     this.organizationService.update(this.organizationId, {
       name: raw.name,
       taxCountry: raw.taxCountry.toUpperCase(),
+      billingAddress: raw.billingAddress,
+      taxId: raw.taxId,
       active: raw.active,
     }).subscribe({
       next: () => this.router.navigateByUrl('/organizations'),

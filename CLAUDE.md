@@ -775,6 +775,11 @@ Contrairement a `tax/`, ces deux features touchent des donnees **possedees** par
 cliente — le backoffice y a acces sans filtre de tenant, ce qu'aucun ecran du frontend tenant ne
 permet. Choix a connaitre :
 
+- **L'adresse de facturation et le RIDET sont sur la fiche de l'organisation**, et l'ecran
+  **previent quand ils manquent** : sans eux aucune facture d'abonnement ne peut etre emise — la
+  piece ne serait pas conforme, et son numero serait consomme. Le support n'a pas a courir apres :
+  **le proprietaire les renseigne lui-meme** depuis son espace. Mais il doit pouvoir le constater
+  quand un client appelle parce que sa facture n'arrive pas.
 - **Pas d'ecran de creation d'organisation.** `organization.service.ts` n'expose que
   `list`/`get`/`update` : une organisation sans utilisateur rattache serait inutilisable, et la
   gestion des comptes n'est pas (encore) dans ce backoffice. Les salons, eux, se creent

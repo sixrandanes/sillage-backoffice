@@ -35,15 +35,15 @@ describe('OrganizationService', () => {
     service.get(9).subscribe();
     const req = httpMock.expectOne('/api/v1/platform/organizations/9');
     expect(req.request.method).toBe('GET');
-    req.flush({ id: 9, name: 'Kaimana', taxCountry: 'NC', currency: 'XPF', active: true, salonCount: 0, createdAt: '2026-01-01T00:00:00Z' });
+    req.flush({ id: 9, name: 'Kaimana', taxCountry: 'NC', currency: 'XPF', billingAddress: '12 rue de l\'Alma', taxId: '1234567.001', active: true, salonCount: 0, createdAt: '2026-01-01T00:00:00Z' });
   });
 
   it('updatesAnOrganization', () => {
-    service.update(9, { name: 'Kaimana Nouveau', taxCountry: 'NC', active: false }).subscribe();
+    service.update(9, { name: 'Kaimana Nouveau', taxCountry: 'NC', billingAddress: '12 rue de l\'Alma', taxId: '1234567.001', active: false }).subscribe();
 
     const req = httpMock.expectOne('/api/v1/platform/organizations/9');
     expect(req.request.method).toBe('PUT');
-    expect(req.request.body).toEqual({ name: 'Kaimana Nouveau', taxCountry: 'NC', active: false });
-    req.flush({ id: 9, name: 'Kaimana Nouveau', taxCountry: 'NC', currency: 'XPF', active: false, salonCount: 0, createdAt: '2026-01-01T00:00:00Z' });
+    expect(req.request.body).toEqual({ name: 'Kaimana Nouveau', taxCountry: 'NC', billingAddress: '12 rue de l\'Alma', taxId: '1234567.001', active: false });
+    req.flush({ id: 9, name: 'Kaimana Nouveau', taxCountry: 'NC', currency: 'XPF', billingAddress: '12 rue de l\'Alma', taxId: '1234567.001', active: false, salonCount: 0, createdAt: '2026-01-01T00:00:00Z' });
   });
 });

@@ -63,6 +63,14 @@ export const routes: Routes = [
         loadComponent: () => import('./tax/tax-page/tax-page').then((m) => m.TaxPage),
       },
       {
+        // Referentiel commercial, comme les offres : ce que coche une gerante qui s'installe.
+        path: 'starter-catalogues',
+        loadComponent: () =>
+          import('./starter-catalogues/starter-catalogue-page/starter-catalogue-page').then(
+            (m) => m.StarterCataloguePage,
+          ),
+      },
+      {
         path: 'offers',
         loadComponent: () => import('./offers/offer-page/offer-page').then((m) => m.OfferPage),
       },

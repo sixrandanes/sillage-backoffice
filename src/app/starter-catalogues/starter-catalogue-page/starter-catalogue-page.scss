@@ -1,0 +1,108 @@
+.starter-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.starter-title {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.starter-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.starter-rename {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.starter-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 12px;
+  font-size: 13.5px;
+}
+
+.starter-table td {
+  padding: 6px 10px 6px 0;
+  border-bottom: 1px solid var(--bo-border);
+}
+
+.starter-table tr:last-child td {
+  border-bottom: none;
+}
+
+.starter-name {
+  font-weight: 500;
+}
+
+.starter-row-actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* La ligne dont on demande la suppression s'estompe : la question porte sur elle, pas sur le
+   tableau entier. */
+.is-fading {
+  opacity: 0.55;
+}
+
+.starter-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 5px;
+  background: var(--bo-canvas);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.starter-confirm-actions {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.starter-service-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px 0;
+}
+
+.starter-service-name {
+  flex: 1 1 220px;
+}
+
+.starter-service-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.starter-full {
+  margin: 0;
+  font-size: 12.5px;
+}
+
+.starter-limit {
+  margin-top: 24px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  max-width: 70ch;
+}

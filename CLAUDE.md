@@ -501,6 +501,29 @@ l'achetent, ce qui s'applique a tous, et nous — jamais la nature technique de 
   rubrique dans le titre de la page serait de la redite, et la regle « aucun cout d'entretien » de ce
   depot s'applique aussi aux bonnes idees du voisin.
 
+## Catalogues de demarrage (`starter-catalogues/`) : ce que coche une gerante qui s'installe
+
+Les gammes par metier que le frontoffice propose au premier parametrage et dans « Ajouter une
+gamme ». **En donnees depuis V64** — elles vivaient dans une classe Java, et ajuster un prix
+demandait un deploiement. Sous « Référentiel », apres les taxes : un referentiel qui s'applique a
+tous les nouveaux inscrits, comme le bareme s'applique a toutes les ventes.
+
+- **L'edition est libre, et l'ecran dit pourquoi** : une suggestion n'est referencee nulle part,
+  les prestations creees a partir d'elle sont des **copies** chez le client. Modifier un prix ici
+  ne touche jamais un salon existant — a l'inverse des offres et des taux. C'est aussi ce que dit
+  la confirmation de suppression d'un metier : « les prestations deja creees ne bougent pas ».
+- **Le plafond (8 par metier) est dit avant le refus** : quand un metier est plein, le bouton
+  « Suggerer une prestation » disparait au profit de la phrase qui explique — pas de bouton dont on
+  connait le refus d'avance (meme principe que le selecteur de tranche fiscale).
+- **Le refus du serveur s'affiche tel quel** : lui seul sait qu'un nom existe deja (insensible a la
+  casse), qu'un metier est plein, ou qu'une tranche est inconnue.
+- **Les tranches de taxe viennent de `/platform/tax/categories`** — jamais recopiees. Sans elles,
+  seul l'ajout de prestation est indisponible : le reste de l'ecran continue de fonctionner.
+- **Suppression en deux temps sur la ligne**, comme les messages aux salons : retirer un metier
+  change ce que verront tous les nouveaux inscrits, et le backoffice n'ouvre aucune fenetre modale.
+- **Chaque geste recharge la liste entiere** : l'ordre est editorial (`position`, cote serveur), et
+  un ecran qui recollerait les reponses finirait par afficher un ordre que personne n'a decide.
+
 ## Fermer un territoire ne ferme pas son bareme
 
 **La question se pose, et la reponse est non.** Fermer un territoire est une decision

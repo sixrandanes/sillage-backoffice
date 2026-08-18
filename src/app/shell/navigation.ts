@@ -63,6 +63,9 @@ export const NAVIGATION: readonly NavSection[] = [
     entries: [
       { label: 'Territoires', route: '/territories' },
       { label: 'Taxes', route: '/taxes' },
+      // Ce qu'une gerante qui s'installe peut cocher : un referentiel qui s'applique a tous les
+      // nouveaux inscrits, comme le bareme s'applique a toutes les ventes.
+      { label: 'Catalogues de démarrage', route: '/starter-catalogues' },
     ],
   },
   {

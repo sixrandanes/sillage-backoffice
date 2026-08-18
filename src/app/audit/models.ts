@@ -1,4 +1,11 @@
-export type AuditFamily = 'PLATFORM_ACCESS' | 'CLIENT_ACCESS' | 'BILLING' | 'STRUCTURE' | 'TAX';
+export type AuditFamily =
+  | 'PLATFORM_ACCESS'
+  | 'CLIENT_ACCESS'
+  | 'BILLING'
+  | 'STRUCTURE'
+  | 'TAX'
+  | 'COMMUNICATION'
+  | 'CATALOGUE';
 
 /**
  * Une ligne du journal d'administration.

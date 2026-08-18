@@ -1,0 +1,171 @@
+<div class="bo-page">
+  <h1 class="bo-page-title">
+    Catalogues de démarrage
+    @if (!loading()) {
+      <span class="bo-count">{{ totalServices() }} prestations dans {{ activities().length }} métiers</span>
+    }
+  </h1>
+  <p class="bo-page-intro">
+    Ce qu'une gérante peut cocher pour préremplir son catalogue — au premier paramétrage, puis
+    depuis « Ajouter une gamme ». Ce sont des <strong>suggestions</strong>&nbsp;: les prestations
+    créées à partir d'elles sont des copies chez le client, modifier un prix ici ne touche jamais un
+    salon existant.
+  </p>
+
+  @if (error()) {
+    <p class="bo-error">{{ error() }}</p>
+  }
+  @if (done()) {
+    <p class="bo-success">{{ done() }}</p>
+  }
+
+  @if (loading()) {
+    <mat-spinner diameter="28" />
+  } @else {
+    @for (activity of activities(); track activity.id) {
+      <mat-card class="bo-panel">
+        <mat-card-content>
+          <div class="starter-head">
+            @if (renaming() === activity.id) {
+              <form class="starter-rename" [formGroup]="renameForm" (ngSubmit)="rename(activity)">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-label>Nom du métier</mat-label>
+                  <input matInput formControlName="label" />
+                </mat-form-field>
+                <button mat-flat-button type="submit" [disabled]="busy()">Renommer</button>
+                <button mat-button type="button" (click)="cancelForms()">Annuler</button>
+              </form>
+            } @else {
+              <h2 class="starter-title">
+                {{ activity.label }}
+                <span class="bo-count">{{ activity.services.length }} / 8</span>
+              </h2>
+              <span class="starter-actions">
+                <button mat-button type="button" [disabled]="busy()" (click)="startRename(activity)">
+                  Renommer
+                </button>
+                <button mat-button type="button" [disabled]="busy()"
+                        (click)="askDeletion('activity-' + activity.id)">
+                  Supprimer
+                </button>
+              </span>
+            }
+          </div>
+
+          @if (pendingDeletion() === 'activity-' + activity.id) {
+            <div class="starter-confirm">
+              <span>
+                Retirer « {{ activity.label }} » et ses {{ activity.services.length }}
+                suggestion(s)&nbsp;? Les prestations déjà créées chez les clients ne bougent pas.
+              </span>
+              <span class="starter-confirm-actions">
+                <button mat-button type="button" [disabled]="busy()" (click)="cancelDeletion()">Annuler</button>
+                <button mat-flat-button type="button" [disabled]="busy()"
+                        (click)="confirmDeleteActivity(activity)">Retirer</button>
+              </span>
+            </div>
+          }
+
+          <table class="starter-table">
+            @for (service of activity.services; track service.id) {
+              @if (editingService() === service.id) {
+                <tr>
+                  <td colspan="5">
+                    <ng-container
+                      [ngTemplateOutlet]="serviceEditor"
+                      [ngTemplateOutletContext]="{ activity: activity }"
+                    />
+                  </td>
+                </tr>
+              } @else {
+                <tr [class.is-fading]="pendingDeletion() === 'service-' + service.id">
+                  <td class="starter-name">{{ service.name }}</td>
+                  <td class="bo-numeric">{{ service.durationMinutes }} min</td>
+                  <td class="bo-numeric">{{ service.price }} XPF</td>
+                  <td class="bo-muted">{{ service.taxCategory }}</td>
+                  <td class="starter-row-actions">
+                    @if (pendingDeletion() === 'service-' + service.id) {
+                      <button mat-button type="button" [disabled]="busy()" (click)="cancelDeletion()">Annuler</button>
+                      <button mat-flat-button type="button" [disabled]="busy()"
+                              (click)="confirmDeleteService(activity, service)">Retirer</button>
+                    } @else {
+                      <button mat-button type="button" [disabled]="busy()"
+                              (click)="startEdit(activity, service)">Modifier</button>
+                      <button mat-button type="button" [disabled]="busy()"
+                              (click)="askDeletion('service-' + service.id)">Supprimer</button>
+                    }
+                  </td>
+                </tr>
+              }
+            }
+          </table>
+
+          @if (addingTo() === activity.id) {
+            <ng-container
+              [ngTemplateOutlet]="serviceEditor"
+              [ngTemplateOutletContext]="{ activity: activity }"
+            />
+          } @else if (isFull(activity)) {
+            <!-- Le plafond, dit avant le refus : la gérante doit pouvoir tout cocher sans
+                 réfléchir, une liste qui grossit sans borne redonnerait le travail épargné. -->
+            <p class="bo-muted starter-full">
+              Ce métier propose déjà huit prestations, le maximum — retirez-en une pour en ajouter.
+            </p>
+          } @else {
+            <button mat-stroked-button type="button" [disabled]="busy()" (click)="startAdd(activity)">
+              Suggérer une prestation
+            </button>
+          }
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <mat-card class="bo-panel">
+      <mat-card-content>
+        <h2 class="starter-title">Nouveau métier</h2>
+        <form class="starter-rename" [formGroup]="activityForm" (ngSubmit)="createActivity()">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Nom du métier</mat-label>
+            <input matInput formControlName="label" placeholder="Tatouage, piercing…" />
+          </mat-form-field>
+          <button mat-flat-button type="submit" [disabled]="busy()">Ajouter</button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <p class="bo-muted starter-limit">
+      Les prix sont des ordres de grandeur que la gérante ajuste avant de créer&nbsp;: ils
+      s'affichent chez elle tels quels, sans conversion. La tranche de taxe doit exister dans le
+      vocabulaire — il se gère dans l'écran Taxes.
+    </p>
+  }
+</div>
+
+<ng-template #serviceEditor let-activity="activity">
+  <form class="starter-service-form" [formGroup]="serviceForm" (ngSubmit)="submitService(activity)">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="starter-service-name">
+      <mat-label>Prestation</mat-label>
+      <input matInput formControlName="name" />
+    </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Durée (min)</mat-label>
+      <input matInput type="number" min="5" step="5" formControlName="durationMinutes" />
+    </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Prix (XPF)</mat-label>
+      <input matInput type="number" min="0" step="100" formControlName="price" />
+    </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Tranche de taxe</mat-label>
+      <mat-select formControlName="taxCategory">
+        @for (category of taxCategories(); track category.code) {
+          <mat-option [value]="category.code">{{ category.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <span class="starter-service-actions">
+      <button mat-flat-button type="submit" [disabled]="busy()">Enregistrer</button>
+      <button mat-button type="button" (click)="cancelForms()">Annuler</button>
+    </span>
+  </form>
+</ng-template>

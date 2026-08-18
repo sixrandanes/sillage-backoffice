@@ -71,6 +71,15 @@ export const routes: Routes = [
         loadComponent: () => import('./audit/audit-page/audit-page').then((m) => m.AuditPage),
       },
       {
+        // Le seul écran dont **tous** les clients voient le résultat : il ne parle ni d'un client
+        // ni d'un tarif, d'où sa place dans « Plateforme ».
+        path: 'announcements',
+        loadComponent: () =>
+          import('./announcements/announcement-page/announcement-page').then(
+            (m) => m.AnnouncementPage,
+          ),
+      },
+      {
         path: 'admins',
         loadComponent: () => import('./admins/admin-page/admin-page').then((m) => m.AdminPage),
       },

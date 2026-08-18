@@ -1,0 +1,160 @@
+<div class="bo-page">
+  <h1 class="bo-page-title">Messages aux salons</h1>
+  <p class="bo-page-intro">
+    Ce que la plateforme affiche dans l'application de <strong>tous</strong> ses clients, pendant une
+    période donnée. Une maintenance programmée, une nouveauté, un changement de tarif : c'est le seul
+    chemin pour le dire sans déployer une version.
+  </p>
+
+  @if (error()) {
+    <p class="bo-error">{{ error() }}</p>
+  }
+  @if (done()) {
+    <p class="bo-success">{{ done() }}</p>
+  }
+
+  <mat-card class="bo-panel">
+    <mat-card-content>
+      <h2 class="announcement-section-title">Rédiger un message</h2>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" class="announcement-form">
+        <mat-form-field appearance="outline" class="announcement-message">
+          <mat-label>Message</mat-label>
+          <textarea
+            matInput
+            formControlName="message"
+            rows="3"
+            [maxlength]="maxMessageLength"
+            placeholder="Maintenance programmée samedi de 20 h à 22 h. La caisse restera utilisable."
+          ></textarea>
+          <!-- Un bandeau, pas une page : deux phrases se lisent, dix ne se lisent pas. -->
+          <mat-hint>{{ remaining() }} caractères restants — une ou deux phrases suffisent.</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Ton</mat-label>
+          <mat-select formControlName="level">
+            @for (level of levels; track level.value) {
+              <mat-option [value]="level.value">{{ level.label }}</mat-option>
+            }
+          </mat-select>
+          <!-- Le ton ne gouverne ni droit ni durée : il change la couleur du bandeau, rien d'autre.
+               Ce qui rend un message insistant, c'est une fenêtre courte, pas une étiquette. -->
+          <mat-hint>Change la couleur du bandeau, rien d'autre.</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Début de l'affichage</mat-label>
+          <input matInput type="datetime-local" formControlName="startsAt" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Fin de l'affichage</mat-label>
+          <input matInput type="datetime-local" formControlName="endsAt" />
+          <!-- Obligatoire, et c'est le dispositif : c'est cette borne qui garantit que le message
+               disparaîtra tout seul. Un encadré permanent, on apprend à ne plus le lire. -->
+          <mat-hint>Obligatoire : c'est elle qui fait disparaître le message.</mat-hint>
+        </mat-form-field>
+
+        <!-- Vingt et une heures séparent Nouméa de Papeete. Le message s'affiche au même **instant**
+             partout, donc à une heure locale différente : correct, mais surprenant si on le tait. -->
+        <p class="bo-muted announcement-zone">
+          Heures saisies dans le fuseau de ce poste (<strong>{{ zoneLabel }}</strong>). Le message
+          apparaîtra au même instant partout&nbsp;: un salon de Papeete le verra donc à son heure
+          locale, décalée de vingt et une heures.
+        </p>
+
+        <div class="announcement-actions">
+          <button mat-flat-button type="submit" [disabled]="busy()">Diffuser</button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  @if (loading()) {
+    <mat-spinner diameter="28" />
+  } @else {
+    <mat-card class="bo-panel">
+      <mat-card-content>
+        <h2 class="announcement-section-title">
+          Messages
+          <!-- Le nombre affiché en cours répond à la seule question qu'on se pose en arrivant :
+               « qu'est-ce que mes clients voient en ce moment ? » -->
+          <span class="bo-count">{{ active().length }} en cours sur {{ announcements().length }}</span>
+        </h2>
+
+        @if (!announcements().length) {
+          <p class="bo-muted">
+            Aucun message n'a jamais été diffusé. Ce que vous écrirez ici s'affichera en haut de
+            l'application, chez tous les clients.
+          </p>
+        } @else {
+          <ul class="announcement-list">
+            @for (announcement of announcements(); track announcement.id) {
+              <li class="announcement-item" [class.announcement-item--ended]="announcement.status === 'ENDED'">
+                <div class="announcement-head">
+                  <span class="announcement-badge" [attr.data-level]="announcement.level">
+                    {{ announcement.levelLabel }}
+                  </span>
+                  <span class="announcement-status" [attr.data-status]="announcement.status">
+                    {{ announcement.statusLabel }}
+                  </span>
+                </div>
+
+                <p class="announcement-text">{{ announcement.message }}</p>
+
+                <p class="bo-muted announcement-meta">
+                  <span class="bo-numeric">{{ localWindow(announcement) }}</span>
+                  @if (announcement.createdBy) {
+                    <span class="announcement-author">— {{ announcement.createdBy }}</span>
+                  }
+                </p>
+
+                <!-- **Confirmation en deux temps.** Retirer un message en cours le fait disparaître
+                     de l'écran de tous les clients, et rien ne le rattrape : il n'existe pas de
+                     modification, donc pas d'annulation. -->
+                @if (pendingDeletion() === announcement.id) {
+                  <div class="announcement-confirm">
+                    <span>
+                      @if (announcement.status === 'ACTIVE') {
+                        Ce message est <strong>affiché en ce moment</strong> chez tous les clients. Le
+                        retirer&nbsp;?
+                      } @else {
+                        Retirer ce message définitivement&nbsp;? Son texte restera lisible dans le
+                        journal.
+                      }
+                    </span>
+                    <span class="announcement-confirm-actions">
+                      <button mat-button type="button" [disabled]="busy()" (click)="cancelDeletion()">
+                        Annuler
+                      </button>
+                      <button
+                        mat-flat-button
+                        type="button"
+                        [disabled]="busy()"
+                        (click)="confirmDeletion(announcement)"
+                      >
+                        Retirer
+                      </button>
+                    </span>
+                  </div>
+                } @else {
+                  <button mat-button type="button" [disabled]="busy()" (click)="askDeletion(announcement)">
+                    Supprimer
+                  </button>
+                }
+              </li>
+            }
+          </ul>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Ce que cet écran ne fait pas, dit avant qu'on le cherche. -->
+    <p class="bo-muted announcement-limit">
+      Un message s'adresse à <strong>tous</strong> les clients&nbsp;: il n'y a pas de ciblage par
+      territoire, par offre ni par entreprise. Il ne se modifie pas non plus — un message déjà lu ne
+      se réécrit pas, on le retire et on en rédige un autre.
+    </p>
+  }
+</div>

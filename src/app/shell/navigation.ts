@@ -66,10 +66,12 @@ export const NAVIGATION: readonly NavSection[] = [
     ],
   },
   {
-    // Nous. Deux ecrans qui ne parlent ni d'un client ni d'un tarif : qui a acces, et qui a fait
-    // quoi.
+    // Nous. Des ecrans qui ne parlent ni d'un client ni d'un tarif : ce qu'on dit a tout le
+    // monde, qui a acces, et qui a fait quoi. Les messages viennent en tete parce que c'est le
+    // seul geste d'ici dont **tous** les clients voient le resultat.
     label: 'Plateforme',
     entries: [
+      { label: 'Messages', route: '/announcements' },
       { label: 'Administrateurs', route: '/admins' },
       { label: 'Journal', route: '/audit' },
     ],

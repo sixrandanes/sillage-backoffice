@@ -1,0 +1,149 @@
+/* Le formulaire en deux colonnes : le message occupe toute la largeur, les trois réglages qui
+   l'encadrent tiennent côte à côte. Une colonne unique aurait fait descendre le bouton sous la
+   ligne de flottaison alors que le geste tient en quatre champs. */
+.announcement-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 4px 16px;
+  align-items: start;
+}
+
+.announcement-message {
+  grid-column: 1 / -1;
+}
+
+.announcement-zone {
+  grid-column: 1 / -1;
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  max-width: 70ch;
+}
+
+.announcement-actions {
+  grid-column: 1 / -1;
+  margin-top: 12px;
+}
+
+.announcement-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.announcement-item {
+  border: 1px solid var(--bo-border);
+  border-radius: 6px;
+  padding: 12px 14px;
+}
+
+/* Un message terminé n'appelle aucune action : il reste lisible sans occuper le premier plan. */
+.announcement-item--ended {
+  opacity: 0.62;
+}
+
+.announcement-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+/* Le ton, lu comme une étiquette. Les couleurs sont posées en dur plutôt que via les jetons du
+   thème : ce sont des couleurs de **sens** (information / attention / incident), pas des couleurs
+   de marque, et elles doivent rester les mêmes que celles du bandeau côté salon. */
+.announcement-badge {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 4px;
+  padding: 2px 7px;
+}
+
+.announcement-badge[data-level='INFO'] {
+  background: #e4edf7;
+  color: #24506f;
+}
+
+.announcement-badge[data-level='WARNING'] {
+  background: #fbeed6;
+  color: #7a5312;
+}
+
+.announcement-badge[data-level='CRITICAL'] {
+  background: #f9dcda;
+  color: #8a2018;
+}
+
+.announcement-status {
+  font-size: 11.5px;
+  color: var(--bo-muted);
+}
+
+/* « En cours » est la seule ligne qu'on cherche en arrivant : elle doit se distinguer des deux
+   autres sans qu'on ait à lire. */
+.announcement-status[data-status='ACTIVE'] {
+  color: #1f6b3d;
+  font-weight: 600;
+}
+
+.announcement-text {
+  margin: 0 0 6px;
+  font-size: 14px;
+  line-height: 1.5;
+  /* Le message est saisi à la main : sans cela, un mot très long élargirait la carte. */
+  overflow-wrap: anywhere;
+}
+
+.announcement-meta {
+  margin: 0 0 4px;
+  font-size: 12.5px;
+}
+
+.announcement-author {
+  margin-left: 6px;
+}
+
+/* La confirmation prend la place du bouton plutôt que d'ouvrir une fenêtre : le backoffice n'en
+   ouvre aucune ailleurs, et la question se lit à l'endroit exact où le clic a eu lieu. */
+.announcement-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 5px;
+  background: var(--bo-canvas);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.announcement-confirm-actions {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.announcement-limit {
+  margin-top: 24px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  max-width: 70ch;
+}
+
+/* Le titre d'un cartouche : plus discret que le titre de page, mais assez marqué pour séparer les
+   deux moitiés de l'écran — rédiger, puis relire. Aligné sur `dep-section-title`, qui répondait au
+   même besoin. */
+.announcement-section-title {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 0 16px;
+  font-size: 15px;
+  font-weight: 600;
+}

@@ -307,6 +307,50 @@ crue faite des deux.
   retirer. Deux formulaires cote a cote laisseraient croire qu'on peut en empiler plusieurs — ce que
   le serveur refuse de toute facon, en remplacant.
 
+## Messages aux salons (`announcements/`) : le seul ecran que tous les clients voient
+
+**Ce que ca comble** : il n'existait aucun moyen de dire quoi que ce soit a l'ensemble des clients.
+Une maintenance programmee, une nouveaute, un changement de tarif partaient par email — c'est-a-dire
+nulle part, l'exploitante lisant ses messages le soir et pas devant sa caisse. Le seul autre chemin
+etait de **deployer une version**.
+
+Range sous **« Plateforme »**, et en tete de sa rubrique : celle-ci contient ce qui ne parle « ni
+d'un client ni d'un tarif », et un message adresse a tout le monde ne parle d'aucun client en
+particulier. C'est aussi le seul geste du backoffice dont **tous** les clients voient le resultat.
+
+- **La periode n'est pas un reglage, c'est le dispositif**, et l'ecran le dit sur le champ de fin :
+  c'est elle qui fait disparaitre le message. Un bandeau qu'on eteint a la main reste affiche le jour
+  ou personne n'y pense — et un encadre permanent, on apprend a ne plus le lire.
+- **La fenetre est pre-remplie** (de maintenant a dans une semaine) : deux champs vides obligeraient
+  a saisir deux dates completes pour le geste le plus courant, « affiche ca tout de suite ».
+- **Le fuseau est celui du poste, et l'ecran l'annonce.** On saisit « samedi 20 h » en pensant a
+  l'heure d'ici ; le message s'affichera au **meme instant** partout, donc a une heure locale
+  differente a Papeete. C'est le comportement correct — un instant est un instant — mais **vingt et
+  une heures** separent les deux territoires, et le taire serait une surprise garantie.
+- **Le piege des dates, dans l'autre sens que d'habitude.** `datetime-local` rend une heure **locale
+  sans fuseau** : l'envoyer telle quelle ferait lire au serveur une heure UTC, soit onze heures
+  d'ecart depuis Noumea et un message affiche le lendemain. Et `toISOString()` **ne convient pas non
+  plus pour pre-remplir** le champ, pour la raison symetrique — il donnerait de l'UTC, et le
+  formulaire s'ouvrirait sur la veille au soir. Deux tests gardent les deux sens.
+- **Aucun bouton « Modifier », et ce n'est pas un oubli** : un message deja affiche a ete **lu**, en
+  changer le texte laisserait deux versions dans la nature. On retire, on redige a nouveau.
+- **La suppression demande une confirmation, en deux temps sur la ligne.** Retirer un message en
+  cours le fait disparaitre de l'ecran de **tous** les clients, et rien ne le rattrape puisqu'il
+  n'existe pas de modification. La question se lit a l'endroit exact ou le clic a eu lieu — le
+  backoffice n'ouvre aucune fenetre modale ailleurs, en introduire une pour un seul geste serait un
+  dispositif de plus a maintenir. Verrouille par un test : **le premier clic n'envoie rien**.
+- **Le ton ne gouverne ni droit ni duree**, et l'ecran le dit sous le champ : il change la couleur du
+  bandeau, rien d'autre. Sans cette phrase, « Incident » deviendrait la case qu'on coche pour etre
+  sur d'etre lu, et tout partirait en incident.
+- **Piege Angular, deuxieme occurrence apres `offer-page`** : le compteur de caracteres lisait
+  `form.value.message` dans un `computed()`. Un `computed` ne suit que des **signaux** : il serait
+  reste fige sur 500 quoi qu'on tape. Corrige avec `toSignal(valueChanges)`, et **trouve par un
+  test, pas a l'oeil**.
+- **Le compte dit ce qu'il compte** : « 2 en cours sur 7 », parce que la seule question qu'on se pose
+  en arrivant est « qu'est-ce que mes clients voient en ce moment ? ».
+- **L'ecran dit ce qu'il ne fait pas** — pas de ciblage par territoire, par offre ni par entreprise —
+  avant qu'on le cherche.
+
 ## Administrateurs (`admins/`) : ce qui remplace le SQL en production
 
 Rattacher un administrateur plateforme etait le dernier geste courant du produit sans aucune API :

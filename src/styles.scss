@@ -34,12 +34,18 @@ html {
     )
   );
 
-  // Fond legerement plus froid que le blanc pur : les cartes s'en detachent sans avoir besoin
-  // d'ombres marquees.
-  --bo-canvas: #f4f5f7;
+  // **Le fond doit se voir, sinon le cartouche n'existe pas.** Il valait `#f4f5f7` — trois pour
+  // cent d'ecart avec le blanc des cartes, avec une bordure elle-meme tres claire : les surfaces
+  // etaient bien la, et ne se lisaient pas. « Pas d'ombre, une bordure fine suffit » reste vrai,
+  // mais seulement si le fond derriere donne a la bordure de quoi trancher.
+  //
+  // Assez creuse pour que chaque cartouche se detache d'un coup d'oeil, assez calme pour un outil
+  // ou l'on passe sa journee dans des tableaux. Verifie a l'ecran, pas au nuancier.
+  --bo-canvas: #e8ebef;
   --bo-chrome: #1f2933;
   --bo-chrome-text: #e4e7eb;
-  --bo-border: #dfe3e8;
+  // La bordure suit : sur un fond plus fonce, l'ancienne se noyait du mauvais cote.
+  --bo-border: #d3d9e0;
   --bo-muted: #616e7c;
 }
 

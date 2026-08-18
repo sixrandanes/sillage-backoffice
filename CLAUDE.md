@@ -28,6 +28,15 @@ Corollaire assume : **aucun cout d'entretien**. Pas de police a heberger (pile s
 d'image, pas d'animation, pas de theme sombre — personne n'y passe assez de temps pour que ce
 dernier en vaille la maintenance. `styles.scss` et le gabarit du shell portent tout.
 
+- **Le fond doit se voir, sinon le cartouche n'existe pas.** `--bo-canvas` valait `#f4f5f7` :
+  **trois pour cent d'ecart** avec le blanc des cartes, bordure tres claire par-dessus. Les
+  surfaces etaient bel et bien la — elles ne se lisaient simplement pas, au point qu'un ecran
+  entierement fait de `mat-card` (territoires, taxes) paraissait n'en avoir aucune. Le fond est
+  desormais `#e8ebef` et la bordure `#d3d9e0`.
+  <br>« Pas d'ombre, une bordure fine suffit » reste vrai — **mais seulement si le fond derriere
+  donne a la bordure de quoi trancher**. La regle etait juste, sa valeur ne la servait pas.
+  <br>**Aucune relecture de la feuille de style ne l'aurait dit** : chaque declaration etait
+  correcte prise isolement. Il a fallu rendre la page et la regarder.
 - **Chrome neutre, accent reserve aux actions.** Le bandeau etait un `mat-toolbar color="primary"`
   peint en azure sur toute la largeur : cela donnait un air d'application grand public. Il est
   desormais ardoise, et la couleur ne sert qu'aux boutons et aux liens.

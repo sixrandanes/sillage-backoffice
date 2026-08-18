@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -31,6 +31,23 @@ export class AdminPage {
   private readonly adminService = inject(AdminService);
 
   readonly admins = signal<PlatformAdmin[]>([]);
+
+  /**
+   * **Le compte des comptes qui ouvrent reellement une porte**, pas celui des fiches.
+   *
+   * Une fiche desactivee, ou active mais jamais rattachee au fournisseur, n'ouvre **aucun** acces —
+   * c'est tout l'enjeu de cet ecran. Les additionner repondrait « 5 personnes ont acces aux donnees
+   * de tous les clients » alors qu'elles sont trois, et c'est la seule question qu'on pose ici.
+   */
+  readonly countLabel = computed(() => {
+    // **`canConnect` vient du serveur**, on ne recompose pas la regle ici : lui seul dit si une
+    // fiche ouvre reellement une porte. La recalculer (« actif ET rattache ») ferait deux endroits
+    // ou se tromper le jour ou la condition change, et l'ecran mentirait sans qu'un test echoue.
+    const ouvrants = this.admins().filter((admin) => admin.canConnect).length;
+    const fiches = this.admins().length;
+    const base = `${ouvrants} accès ouvert${ouvrants > 1 ? 's' : ''}`;
+    return fiches === ouvrants ? base : `${base} sur ${fiches} fiches`;
+  });
   readonly loading = signal(true);
   readonly loadError = signal<string | null>(null);
 

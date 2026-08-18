@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal, untracked } from '@angular/core';
+import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -50,6 +50,20 @@ export class SalonList {
   readonly page = signal(0);
   readonly pageSize = signal(25);
   readonly searchTerm = signal('');
+
+  /**
+   * Ce que le compte annonce — voir `organization-list.ts`, même raisonnement.
+   *
+   * Deux filtres ici, et **l'un des deux suffit** à faire d'un total un résultat : filtrer par
+   * organisation restreint autant qu'une recherche par nom.
+   */
+  readonly countLabel = computed(() => {
+    const total = this.totalItems();
+    if (this.searchTerm() || this.organizationId() !== null) {
+      return `${total} résultat${total > 1 ? 's' : ''}`;
+    }
+    return `${total} salon${total > 1 ? 's' : ''}`;
+  });
   readonly organizationId = signal<number | null>(null);
   readonly loading = signal(true);
   readonly errorMessage = signal<string | null>(null);

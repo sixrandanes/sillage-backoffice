@@ -40,6 +40,16 @@ export class OfferPage {
   private readonly offerService = inject(OfferService);
 
   readonly offers = signal<Offer[]>([]);
+
+  /**
+   * La grille se lit **a une date**, passee ou future : ce compte est celui des offres valables
+   * ce jour-la, pas de toutes celles qui ont existe. L'ecran dit deja la date en rouge quand ce
+   * n'est pas aujourd'hui — le compte suit la meme lecture.
+   */
+  readonly countLabel = computed(() => {
+    const total = this.offers().length;
+    return `${total} offre${total > 1 ? 's' : ''}`;
+  });
   readonly options = signal<SubscriptionOptions | null>(null);
   readonly loading = signal(true);
   readonly loadError = signal<string | null>(null);

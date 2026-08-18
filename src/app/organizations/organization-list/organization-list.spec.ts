@@ -84,4 +84,22 @@ describe('OrganizationList', () => {
 
     expect(fixture.nativeElement.querySelectorAll('.bo-panel').length).toBeGreaterThan(0);
   });
+
+  /**
+   * **Un nombre nu se lit comme un total.** Or c'en est un seulement quand aucun filtre n'est
+   * actif : « 3 » à côté d'« Organisations » ferait croire à trois clients alors qu'une recherche
+   * est en cours. Le libellé doit donc dire ce qu'il compte.
+   */
+  it('says it counts results, not clients, as soon as a search is on', () => {
+    const fixture = TestBed.createComponent(OrganizationList);
+    fixture.detectChanges();
+    httpMock.expectOne((r) => r.url === '/api/v1/platform/organizations').flush({
+      items: [], page: 0, size: 25, totalItems: 42, totalPages: 2,
+    });
+
+    expect(fixture.componentInstance.countLabel()).toBe('42 organisations');
+
+    fixture.componentInstance.searchTerm.set('coco');
+    expect(fixture.componentInstance.countLabel()).toBe('42 résultats');
+  });
 });

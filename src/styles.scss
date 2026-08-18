@@ -78,6 +78,27 @@ body {
   margin: 0;
 }
 
+// **Le compte, a cote du titre.** « Combien y en a-t-il ? » est la premiere question qu'on se pose
+// devant une liste, et il fallait jusqu'ici la deduire du paginateur, en bas, apres avoir fait
+// defiler. Pastille et non simple texte : le titre doit rester le titre, et un nombre colle a la
+// suite se lirait comme une partie du nom de l'ecran.
+//
+// **Il dit toujours ce qu'il compte.** Un nombre nu se lit comme un total, or c'est un resultat
+// des qu'un filtre est actif — « 3 » a cote d'« Organisations » ferait croire a trois clients.
+.bo-count {
+  display: inline-block;
+  margin-left: 12px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid var(--bo-border);
+  font-size: 12.5px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--bo-muted);
+  vertical-align: middle;
+}
+
 // Le chapo se detache du titre, et le contenu s'en detache franchement : un espacement uniforme
 // donnerait un pave compact au lieu d'un titre, son explication et son contenu.
 .bo-page-intro {

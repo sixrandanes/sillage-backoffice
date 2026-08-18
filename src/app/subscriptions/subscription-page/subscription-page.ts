@@ -60,6 +60,21 @@ export class SubscriptionPage {
   private readonly offerService = inject(OfferService);
 
   readonly rows = signal<SubscriptionAdminView[]>([]);
+
+  /**
+   * Ce que le compte annonce, **et il change de sens avec l'onglet**.
+   *
+   * Sur « Echeances », ce n'est pas le nombre de clients mais le nombre de ceux qui vont se
+   * bloquer : l'annoncer comme un total ferait lire une plateforme de trois clients. Sur « Tous »,
+   * c'est bien le total.
+   */
+  readonly countLabel = computed(() => {
+    const total = this.rows().length;
+    if (this.scope() === 'all') {
+      return `${total} client${total > 1 ? 's' : ''}`;
+    }
+    return `${total} échéance${total > 1 ? 's' : ''} à ${this.horizonDays()} jours`;
+  });
   readonly options = signal<SubscriptionOptions | null>(null);
   readonly loading = signal(true);
   readonly loadError = signal<string | null>(null);

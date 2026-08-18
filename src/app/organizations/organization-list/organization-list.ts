@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal, untracked } from '@angular/core';
+import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -40,6 +40,21 @@ export class OrganizationList {
   readonly page = signal(0);
   readonly pageSize = signal(25);
   readonly searchTerm = signal('');
+
+  /**
+   * Ce que le compte annonce.
+   *
+   * **Un nombre nu se lit comme un total**, or c'en est un seulement quand aucun filtre n'est
+   * actif : « 3 » à côté d'« Organisations » ferait croire à trois clients alors qu'une recherche
+   * est en cours. Le libellé dit donc ce qu'il compte, et change avec le filtre.
+   */
+  readonly countLabel = computed(() => {
+    const total = this.totalItems();
+    if (this.searchTerm()) {
+      return `${total} résultat${total > 1 ? 's' : ''}`;
+    }
+    return `${total} organisation${total > 1 ? 's' : ''}`;
+  });
   readonly loading = signal(true);
   readonly errorMessage = signal<string | null>(null);
   readonly displayedColumns = ['name', 'taxCountry', 'salonCount', 'status'];

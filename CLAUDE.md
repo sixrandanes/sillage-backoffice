@@ -66,6 +66,22 @@ dernier en vaille la maintenance. `styles.scss` et le gabarit du shell portent t
 - **`.bo-page`, `.bo-page-title`, `.bo-page-intro` portent le rythme.** Chaque ecran posait sa
   propre largeur et son propre padding : deux ecrans voisins ne s'alignaient pas. Meme lecon que
   `.sillage-page-header` cote frontoffice, autre vocabulaire.
+- **Le compte est a cote du titre** (`.bo-count`), sur chaque liste. « Combien y en a-t-il ? » est
+  la premiere question qu'on se pose devant une liste, et il fallait la deduire du **paginateur, en
+  bas**, apres avoir fait defiler.
+  <br>**Il dit toujours ce qu'il compte, et le libelle change avec le contexte.** Un nombre nu se
+  lit comme un total, or c'en est un seulement quand aucun filtre n'est actif : « 3 » a cote
+  d'« Organisations » ferait croire a trois clients pendant une recherche. D'ou « 42 organisations »
+  sans filtre, « 3 resultats » avec.
+  <br>**Sur les administrateurs, il compte les acces, pas les fiches** : une fiche desactivee, ou
+  active mais jamais rattachee au fournisseur, n'ouvre aucune porte — c'est tout l'enjeu de cet
+  ecran. « 3 acces ouverts sur 5 fiches ». Et il lit `canConnect`, **rendu par le serveur**, plutot
+  que de recomposer la regle : la recalculer ferait deux endroits ou se tromper le jour ou elle
+  change, et l'ecran mentirait sans qu'aucun test echoue.
+  <br>**Sur les abonnements, il change de sens avec l'onglet** : sur « Echeances » ce n'est pas le
+  nombre de clients mais celui de ceux qui vont se bloquer.
+  <br>**Le journal d'administration n'en porte pas**, deliberement : il n'affiche que les N
+  dernieres lignes, donc tout compte y serait celui de la fenetre et se lirait comme un total.
 - **Les chiffres sont tabulaires** (`.bo-numeric`) : une colonne de taux se compare a la
   verticale, ce qu'une chasse variable rend impossible.
 

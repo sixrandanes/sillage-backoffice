@@ -403,6 +403,9 @@
             </p>
           }
         </section>
+        <!-- Les factures vivent ici, sur la fiche : c'est la meme conversation que l'offre et la
+             remise. Un ecran « factures » autonome obligerait a retrouver le client deux fois. -->
+        <app-invoices-panel [organizationId]="current.organizationId" (changed)="reload()" />
       </mat-card-content>
 
       <mat-card-actions>

@@ -210,6 +210,36 @@ de consequence : une annonce de la DSF attend qu'on la saisisse, alors qu'un ess
   regle que les moyens de paiement cote tenant. Si `/options` echoue, seul le changement d'offre
   devient indisponible : le reste de l'ecran continue de fonctionner.
 
+## Factures (`invoices/`), sur la fiche d'abonnement
+
+**Ce que Sillage facture a ses abonnes** — a ne jamais confondre avec les ventes d'un salon. Le
+panneau vit sur la **fiche d'abonnement**, la ou l'on gere deja l'offre et la remise : c'est la meme
+conversation, et un ecran « factures » autonome obligerait a retrouver le client deux fois.
+
+- **Aucun bouton « modifier », aucun bouton « supprimer », et ce n'est pas un oubli.** Une facture
+  erronee se corrige par un **avoir**. Un bouton de modification sur une piece numerotee oterait a la
+  serie toute valeur probante. **Verrouille par un test**, et eprouve a l'envers : un bouton
+  « Modifier » ajoute au gabarit le fait echouer.
+- **Le reste du vient du serveur, jamais recalcule ici.** Il se derive des reglements ; le refaire
+  cote client le ferait diverger au premier reglement partiel — et c'est le chiffre qu'on annonce au
+  telephone. Le formulaire de reglement le pre-remplit, tout en le laissant modifiable pour un
+  paiement partiel.
+- **Les gestes voues au refus ne sont pas proposes** : on ne regle pas un avoir (il n'attend aucun
+  argent), on ne corrige pas un avoir par un autre avoir, on ne regle pas une facture deja soldee.
+  Meme principe que le selecteur de tranche fiscale.
+- **Le refus du serveur s'affiche tel quel** : lui seul sait qu'un reglement depasse le restant du,
+  qu'une facture est deja corrigee, ou que **la fiscalite d'un client polynesien n'est pas
+  tranchee** — ce dernier message explique pourquoi l'emission est refusee, et il faut qu'il arrive
+  entier.
+- **Le montant d'une remise s'affiche, son motif jamais** : le motif est un argument commercial
+  interne, et une facture part chez le client. La regle est portee cote serveur (aucune colonne ne
+  peut le recevoir) ; l'ecran ne fait que ne pas l'inventer.
+- **Un reglement est un fait enregistre, pas une case cochee**, et l'ecran le dit : c'est ce qui
+  permettra a un paiement en ligne de s'enregistrer **par le meme chemin**, sans rien demonter.
+- **La periode se saisit, elle ne se devine pas.** Recalculer un terme cote client le ferait diverger
+  du serveur au premier reglement qui prolonge la couverture — meme regle que la bascule d'offre, qui
+  n'envoie aucune date.
+
 ## Remise commerciale, sur la fiche d'abonnement
 
 Ce que **Sillage consent a un salon**. **A ne pas confondre avec les remises de caisse** du

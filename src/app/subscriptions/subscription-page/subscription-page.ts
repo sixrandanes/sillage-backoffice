@@ -23,6 +23,7 @@ import {
 } from '../models';
 import { Offer } from '../../offers/models';
 import { OfferService } from '../../offers/offer.service';
+import { InvoicesPanel } from '../../invoices/invoices-panel/invoices-panel';
 import { SubscriptionService } from '../subscription.service';
 
 /** Deux mois : le délai qui laisse le temps de facturer un annuel **et** d'être payé. */
@@ -35,6 +36,7 @@ type Scope = 'expiring' | 'all';
 @Component({
   selector: 'app-subscription-page',
   imports: [
+    InvoicesPanel,
     DatePipe,
     DecimalPipe,
     ReactiveFormsModule,
@@ -372,6 +374,17 @@ export class SubscriptionPage {
         this.actionError.set(err.error?.message ?? "Ce geste n'a pas pu être effectué.");
       },
     });
+  }
+
+  /**
+   * Recharge la liste apres un geste du panneau des factures.
+   *
+   * Emettre une facture ne change pas encore l'abonnement lui-meme, mais **enregistrer un
+   * reglement finira par le faire** : la couverture se posera a partir des reglements plutot qu'a
+   * la main. Recharger ici evite d'avoir a s'en souvenir ce jour-la.
+   */
+  reload(): void {
+    this.load();
   }
 
   private load(): void {

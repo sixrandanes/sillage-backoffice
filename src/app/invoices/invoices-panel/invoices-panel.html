@@ -1,0 +1,173 @@
+<section class="inv-panel">
+  <h3 class="inv-title">Factures</h3>
+
+  @if (loading()) {
+    <mat-spinner diameter="24" />
+  } @else if (loadError()) {
+    <p class="bo-error">{{ loadError() }}</p>
+  } @else {
+    @if (actionError()) {
+      <!-- Le refus du serveur tel quel : lui seul sait qu'un règlement dépasse le restant dû, ou
+           que la fiscalité d'un client n'est pas tranchée. -->
+      <p class="bo-error">{{ actionError() }}</p>
+    }
+    @if (message()) {
+      <p class="inv-message">{{ message() }}</p>
+    }
+
+    @if (invoices().length === 0) {
+      <p class="bo-empty">Aucune facture n'a encore été émise pour ce client.</p>
+    } @else {
+      <table mat-table [dataSource]="invoices()" class="inv-table">
+        <ng-container matColumnDef="number">
+          <th mat-header-cell *matHeaderCellDef>Pièce</th>
+          <td mat-cell *matCellDef="let invoice" class="bo-numeric">
+            {{ invoice.number }}
+            @if (invoice.correctedInvoiceNumber) {
+              <span class="inv-sub">corrige {{ invoice.correctedInvoiceNumber }}</span>
+            } @else {
+              <span class="inv-sub">{{ invoice.offerLabel ?? '' }}</span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="period">
+          <th mat-header-cell *matHeaderCellDef>Période</th>
+          <td mat-cell *matCellDef="let invoice" class="bo-numeric inv-nowrap">
+            {{ invoice.periodStart | date: 'dd/MM/yy' }} → {{ invoice.periodEnd | date: 'dd/MM/yy' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="amounts">
+          <th mat-header-cell *matHeaderCellDef>Montant</th>
+          <td mat-cell *matCellDef="let invoice" class="bo-numeric">
+            {{ invoice.totalAmount }} {{ invoice.currency }}
+            @if (invoice.discountRate) {
+              <!-- Le taux explique le montant. Le motif, lui, est interne et n'est pas sur la pièce. -->
+              <span class="inv-sub">remise appliquée : {{ invoice.discountAmount }}</span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>État</th>
+          <td mat-cell *matCellDef="let invoice">
+            <span class="inv-pill" [class]="statusClass(invoice)">{{ statusLabel(invoice) }}</span>
+            @if (invoice.status === 'PARTIALLY_PAID') {
+              <span class="inv-sub">reste {{ invoice.remainingAmount }} {{ invoice.currency }}</span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let invoice" class="inv-actions">
+            <!-- Aucun « modifier », aucun « supprimer » : une facture erronée se corrige par un
+                 avoir. Un bouton de modification sur une pièce numérotée ôterait à la série toute
+                 valeur probante. -->
+            @if (canBePaid(invoice)) {
+              <button mat-button type="button" [disabled]="busy()" (click)="openPayment(invoice)">
+                Régler
+              </button>
+            }
+            @if (canBeCredited(invoice)) {
+              <button
+                mat-button
+                type="button"
+                [disabled]="busy()"
+                (click)="creditNote(invoice, motif.value)"
+              >
+                Avoir
+              </button>
+            }
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    }
+
+    @if (paymentFor(); as facture) {
+      <div class="inv-form">
+        <p class="inv-form-title">Règlement de {{ facture.number }}</p>
+        <form [formGroup]="paymentForm" (ngSubmit)="recordPayment()" class="inv-fields">
+          <mat-form-field appearance="outline">
+            <mat-label>Montant</mat-label>
+            <input matInput formControlName="amount" inputmode="numeric" />
+            <span matTextSuffix>{{ facture.currency }}</span>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Moyen</mat-label>
+            <mat-select formControlName="method">
+              @for (moyen of methods; track moyen.value) {
+                <mat-option [value]="moyen.value">{{ moyen.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Reçu le</mat-label>
+            <input matInput [matDatepicker]="recu" formControlName="paidAt" />
+            <mat-datepicker-toggle matIconSuffix [for]="recu" />
+            <mat-datepicker #recu />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Référence</mat-label>
+            <input matInput formControlName="reference" placeholder="N° de virement, transaction" />
+          </mat-form-field>
+
+          <div class="bo-actions">
+            <button mat-flat-button color="primary" type="submit" [disabled]="busy() || paymentForm.invalid">
+              Enregistrer
+            </button>
+            <button mat-button type="button" [disabled]="busy()" (click)="closePayment()">
+              Annuler
+            </button>
+          </div>
+        </form>
+        <p class="bo-muted inv-note">
+          Un règlement est un fait enregistré, pas une case cochée : l'état de la facture s'en
+          déduit. C'est ce qui permettra à un paiement en ligne de s'enregistrer par le même chemin.
+        </p>
+      </div>
+    }
+
+    <div class="inv-form">
+      <p class="inv-form-title">Émettre une facture</p>
+      <form [formGroup]="issueForm" (ngSubmit)="issue()" class="inv-fields">
+        <mat-form-field appearance="outline">
+          <mat-label>Période du</mat-label>
+          <input matInput [matDatepicker]="debut" formControlName="periodStart" />
+          <mat-datepicker-toggle matIconSuffix [for]="debut" />
+          <mat-datepicker #debut />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>au</mat-label>
+          <input matInput [matDatepicker]="fin" formControlName="periodEnd" />
+          <mat-datepicker-toggle matIconSuffix [for]="fin" />
+          <mat-datepicker #fin />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="inv-reason">
+          <mat-label>Motif d'un avoir</mat-label>
+          <input matInput #motif placeholder="Utilisé si vous émettez un avoir" />
+        </mat-form-field>
+
+        <div class="bo-actions">
+          <button mat-flat-button color="primary" type="submit" [disabled]="busy() || issueForm.invalid">
+            Émettre
+          </button>
+        </div>
+      </form>
+      <p class="bo-muted inv-note">
+        Le numéro est définitif dès l'émission : une facture ne se modifie ni ne se supprime, elle se
+        corrige par un avoir. Le tarif, la remise et le nom du client sont figés sur la pièce — une
+        revalorisation ultérieure ne la réécrira pas.
+      </p>
+    </div>
+  }
+</section>
